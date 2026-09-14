@@ -6,3 +6,4 @@ dist/
 .DS_Store
 Thumbs.db
 apps/balance/out/
+.claude/settings.local.json
