@@ -1,0 +1,14 @@
+{
+  "name": "@jones2/balance",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/run.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@jones2/sim": "*",
+    "@jones2/town": "*"
+  }
+}
