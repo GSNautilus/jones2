@@ -79,6 +79,13 @@ export interface TownEdge {
    * follow the same curve. Travel time is still `minutes`, not curve length.
    */
   curve?: { x: number; y: number }[];
+  /**
+   * Optional street id. Edges sharing a street id form one continuous road:
+   * the renderer joins them end to end and draws a single stroke with
+   * unbroken dashes through their shared junctions. Edges without one are
+   * drawn on their own.
+   */
+  street?: string;
 }
 
 export interface Town {
