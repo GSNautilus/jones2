@@ -5,23 +5,11 @@
 import { C } from '../palette';
 import type { Sprite, SpriteMap } from '../types';
 import { createSprite, dither, fillEllipse, hline, put, rect, spriteFromRows, vline, type Target } from '../surface';
+import { outlineSilhouette } from '../parts/common';
 
 /** Small dark ellipse on the ground under a plant. */
 function shadow(t: Target, cx: number, cy: number, rx: number): void {
   dither(t, cx - rx, cy, rx * 2, 2, C.shadow, -1, 0);
-}
-
-/** Outline every non-transparent pixel that touches transparency. */
-function outlineSilhouette(t: Sprite, ink = C.ink): void {
-  const copy = new Uint8Array(t.pixels);
-  const at = (x: number, y: number): number =>
-    x < 0 || y < 0 || x >= t.width || y >= t.height ? 0 : copy[y * t.width + x];
-  for (let y = 0; y < t.height; y++) {
-    for (let x = 0; x < t.width; x++) {
-      if (copy[y * t.width + x] !== 0) continue;
-      if (at(x - 1, y) || at(x + 1, y) || at(x, y - 1) || at(x, y + 1)) t.pixels[y * t.width + x] = ink;
-    }
-  }
 }
 
 function trunk(t: Sprite, cx: number, baseY: number, w: number, h: number): void {

@@ -1,6 +1,11 @@
-/** Left panel: port of the debug client's Stats, plus switch-player/abandon. */
+/**
+ * The player file: everything about the current player that does not fit in the
+ * bottom-left status strip. Rendered inside the HUD's status drawer
+ * (`src/hud/StatusStrip.tsx`), which owns the switch-player and abandon
+ * controls.
+ */
 import type { ReactNode } from 'react';
-import { ACHIEVEMENTS, HOUSING, ITEMS, JOBS, effectiveClothingTier, goalProgress, totalCredits } from '@jones2/sim';
+import { ACHIEVEMENTS, HOUSING, ITEMS, JOBS, effectiveClothingTier, goalProgress, netWorth, totalCredits } from '@jones2/sim';
 import type { GameStore } from './store';
 import { hm, money } from './format';
 
@@ -40,6 +45,7 @@ export function StatsPanel({ store }: { store: GameStore }) {
       <h2 style={{ color: store.playerColors[currentPid] }}>{p.name}</h2>
       <StatRow k="Week" v={state.week} />
       <StatRow k="Time left" v={hm(p.minutesLeft)} />
+      <StatRow k="Net worth" v={money(netWorth(p))} />
       <StatRow k="Cash" v={money(p.cash)} />
       <StatRow k="Savings" v={money(p.savings)} />
       <StatRow k="Loan" v={money(p.loan)} />
@@ -97,20 +103,6 @@ export function StatsPanel({ store }: { store: GameStore }) {
         })}
       </ul>
 
-      <h3>Switch player</h3>
-      {state.playerOrder.map((id) => (
-        <button
-          key={id}
-          className="block"
-          disabled={state.players[id]!.weekDone}
-          onClick={() => store.setCurrentPid(id)}
-          style={{ borderLeftColor: store.playerColors[id], borderLeftWidth: 4 }}
-        >
-          {state.players[id]!.name}
-          {state.players[id]!.weekDone && <small> done</small>}
-        </button>
-      ))}
-      <button onClick={store.reset}>Abandon game</button>
     </>
   );
 }

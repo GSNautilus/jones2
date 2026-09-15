@@ -34,7 +34,13 @@ export interface BuildingRecipe {
 }
 
 export interface Decor {
-  kind: 'tree' | 'bush' | 'lamp' | 'bench' | 'water' | 'grass' | 'plaza';
+  /**
+   * Area kinds (water, grass, plaza, path) fill a w×h rectangle with tiles.
+   * Anything else is a sprite from the pixelart NATURE or PROPS catalogues
+   * (tree_round, tree_pine, tree_oak, bush, flowers, rock, lamp, bench, car,
+   * bus, signpost, hydrant, mailbox, ...). 'tree' is an alias for tree_round.
+   */
+  kind: string;
   x: number;
   y: number;
   /** Size for area decor (water, grass, plaza). */
@@ -51,8 +57,14 @@ export interface TownNode {
   y: number;
   /** If this node is a place the player can act at, the sim location id. */
   location?: LocationId;
-  /** Present on location nodes; junctions have none. */
+  /** Legacy 3D recipe; unused by the pixel renderer. */
   building?: BuildingRecipe;
+  /**
+   * Pixel-art recipe: a generator kind from the @jones2/pixelart catalogue
+   * plus its parameters. Nodes without one get a recipe inferred from their
+   * sim location id.
+   */
+  pixel?: { kind: string; params?: Record<string, string | number | boolean> };
 }
 
 export interface TownEdge {

@@ -94,7 +94,7 @@ describe('buildGround', () => {
   });
 
   it('places one pick rect per building node, in painter order', () => {
-    const buildings = TOWN.nodes.filter((n) => n.building).length;
+    const buildings = TOWN.nodes.filter((n) => n.location || n.pixel).length;
     expect(ground.picks.length).toBe(buildings);
     for (let i = 1; i < ground.picks.length; i++) {
       const prev = TOWN.nodes.find((n) => n.id === ground.picks[i - 1]!.id)!;
@@ -115,13 +115,13 @@ describe('pickNode', () => {
   const ground = buildGround(TOWN, art, pal);
 
   it('hits a building when the cursor is on its footprint', () => {
-    const node = TOWN.nodes.find((n) => n.building)!;
+    const node = TOWN.nodes.find((n) => n.location || n.pixel)!;
     const hit = pickNode(TOWN, ground.picks, node.x * PX_PER_UNIT, node.y * PX_PER_UNIT);
     expect(hit).toBe(node.id);
   });
 
   it('hits a junction within the radius and misses outside it', () => {
-    const j = TOWN.nodes.find((n) => !n.building)!;
+    const j = TOWN.nodes.find((n) => !n.location && !n.pixel)!;
     const nx = j.x * PX_PER_UNIT;
     const ny = j.y * PX_PER_UNIT;
     expect(pickNode(TOWN, ground.picks, nx, ny)).toBe(j.id);

@@ -63,6 +63,15 @@ const ENTRIES: Entry[] = [
   { name: 'pink', rgb: [216, 144, 150] },
   { name: 'teal', rgb: [74, 150, 146] },
 
+  // added in phase B for the shop catalogue
+  { name: 'gold', rgb: [222, 182, 96] },
+  { name: 'goldDark', rgb: [176, 134, 56] },
+  { name: 'olive', rgb: [140, 140, 88] },
+  { name: 'oliveDark', rgb: [98, 100, 62] },
+  { name: 'slate', rgb: [104, 114, 138] },
+  { name: 'slateDark', rgb: [66, 74, 96] },
+  { name: 'maroon', rgb: [124, 48, 58] },
+
   // people
   { name: 'skin', rgb: [226, 178, 138] },
   { name: 'skinShade', rgb: [186, 138, 104] },

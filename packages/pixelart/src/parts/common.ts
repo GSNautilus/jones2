@@ -8,8 +8,9 @@
  * darker one.
  */
 import { C } from '../palette';
+import type { Sprite } from '../types';
 import type { Target } from '../surface';
-import { dither, hline, put, rect, vline } from '../surface';
+import { blit, cloneSprite, dither, hline, put, rect, vline } from '../surface';
 
 /** Rows of ground shadow drawn beneath every building. */
 export const SHADOW_ROWS = 2;
@@ -103,4 +104,61 @@ export function trapezoid(
     const w = Math.round(topW + (bottomW - topW) * u);
     rect(t, cx - (w >> 1), y + j, w, 1, index);
   }
+}
+
+/**
+ * Ink every transparent pixel that touches a painted one, so an irregular
+ * silhouette (palms, rockery, a car lot) still reads as one solid shape.
+ * Call it *before* the ground shadow, which is deliberately dithered.
+ */
+export function outlineSilhouette(t: Target, ink = C.ink): void {
+  const copy = new Uint8Array(t.pixels);
+  const at = (x: number, y: number): number =>
+    x < 0 || y < 0 || x >= t.width || y >= t.height ? 0 : copy[y * t.width + x];
+  for (let y = 0; y < t.height; y++) {
+    for (let x = 0; x < t.width; x++) {
+      if (copy[y * t.width + x] !== 0) continue;
+      if (at(x - 1, y) || at(x + 1, y) || at(x, y - 1) || at(x, y + 1)) t.pixels[y * t.width + x] = ink;
+    }
+  }
+}
+
+/**
+ * Ink only the left- and rightmost painted pixel of every row that is not
+ * already dark — the cheap way to satisfy the silhouette rule on a sprite whose
+ * edges are otherwise flat colour (awnings, lots, planting beds).
+ */
+export function inkRowEdges(t: Target, ink = C.ink, fromY = 0, toY = t.height): void {
+  for (let y = Math.max(0, fromY); y < Math.min(t.height, toY); y++) {
+    let l = -1;
+    let r = -1;
+    for (let x = 0; x < t.width; x++) {
+      if (t.pixels[y * t.width + x] !== 0) {
+        if (l < 0) l = x;
+        r = x;
+      }
+    }
+    if (l < 0) continue;
+    t.pixels[y * t.width + l] = ink;
+    t.pixels[y * t.width + r] = ink;
+  }
+}
+
+/**
+ * Blit a sprite with a 1px ink halo around it. Use it when a prop stands in
+ * front of a facade whose colours it would otherwise dissolve into — a bus at
+ * a kerb, cars on a forecourt.
+ */
+export function haloBlit(dst: Target, sprite: Sprite, x: number, y: number, ink = C.ink): void {
+  const halo = cloneSprite(sprite);
+  for (let i = 0; i < halo.pixels.length; i++) if (halo.pixels[i] !== 0) halo.pixels[i] = ink;
+  for (const [dx, dy] of [
+    [-1, 0],
+    [1, 0],
+    [0, -1],
+    [0, 1],
+  ] as Array<[number, number]>) {
+    blit(dst, halo, x + dx, y + dy);
+  }
+  blit(dst, sprite, x, y);
 }

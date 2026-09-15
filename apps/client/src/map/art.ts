@@ -8,7 +8,7 @@
  * plate, so the town never has holes while the catalogue grows.
  */
 import type { TownNode } from '@jones2/town';
-import { CHARACTERS, NATURE, PALETTE, TILES, buildFromRef, tintCharacter, walkFrame } from '@jones2/pixelart';
+import { CHARACTERS, LOCATION_RECIPES, NATURE, PALETTE, PROPS, TILES, buildFromRef, tintCharacter, walkFrame } from '@jones2/pixelart';
 import type { Palette, PixelBuildingRef, Sprite } from './pixelart';
 
 export type TileKind = 'grass' | 'water' | 'path' | 'plaza';
@@ -28,26 +28,14 @@ export interface ArtSet {
  * scale (buildings are 64–96 px), so units are scaled up until the town is
  * re-authored at 1 unit = 1 px. Must stay an integer.
  */
-export const PX_PER_UNIT = 4;
+export const PX_PER_UNIT = 1;
 
 /** Tile size in native pixels. Matches the art package's 16px tile grid. */
 export const TILE = 16;
 
-/** Recipes for locations the catalogue knows; everything else falls back to a signed house. */
-const KNOWN: Record<string, PixelBuildingRef> = {
-  monolith: { kind: 'monolith' },
-  bank: { kind: 'bank' },
-  zmart: { kind: 'zmart' },
-  university: { kind: 'university' },
-  factory: { kind: 'factory' },
-  house_elm: { kind: 'house', params: { wall: 'cream', roof: 'brick' } },
-  house_hill: { kind: 'house', params: { storeys: 2, garage: true, wall: 'white', roof: 'blueDark' } },
-  house_lake: { kind: 'house', params: { roofShape: 'hip', wall: 'blue', roof: 'greenDark' } },
-};
-
 export function inferRef(node: TownNode): PixelBuildingRef {
   const loc = node.location ?? '';
-  return KNOWN[loc] ?? { kind: 'house', params: { sign: (node.name ?? loc).toUpperCase().slice(0, 12) } };
+  return LOCATION_RECIPES[loc] ?? { kind: 'house', params: { sign: (node.name ?? loc).toUpperCase().slice(0, 12) } };
 }
 
 function realArt(): ArtSet {
@@ -71,7 +59,7 @@ function realArt(): ArtSet {
       return TILES[name] ?? TILES.grass_0!;
     },
     nature(kind) {
-      return NATURE[kind] ?? NATURE[`tree_${kind}`] ?? NATURE.tree_round!;
+      return NATURE[kind] ?? PROPS[kind] ?? NATURE[`tree_${kind}`] ?? NATURE.tree_round!;
     },
     character(dir, frame, tintIndex) {
       const key = `${dir}|${((frame % 3) + 3) % 3}|${tintIndex}`;

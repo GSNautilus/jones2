@@ -13,6 +13,8 @@ import { BUILDINGS } from '../src/buildings/catalogue';
 import { TILES } from '../src/tiles/catalogue';
 import { NATURE } from '../src/nature/catalogue';
 import { CHARACTERS } from '../src/characters/catalogue';
+import { PROPS } from '../src/props/catalogue';
+import { UI } from '../src/ui/catalogue';
 import { blitRGBA, encodePNG, spriteToRGBA } from './png';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -24,7 +26,7 @@ const names = Number.isFinite(Number(args[args.length - 1])) ? args.slice(0, -1)
 
 function lookup(name: string): Sprite {
   if (BUILDINGS[name]) return BUILDINGS[name]();
-  return (TILES[name] ?? NATURE[name] ?? CHARACTERS[name]) as Sprite;
+  return (TILES[name] ?? NATURE[name] ?? PROPS[name] ?? UI[name] ?? CHARACTERS[name]) as Sprite;
 }
 
 const sprites = names.map((n) => [n, lookup(n)] as const).filter(([, s]) => s);

@@ -184,7 +184,8 @@ export function buildGround(town: Town, art: ArtSet, pal: RenderPalette): Ground
   }
   const byId = new Map<NodeId, TownNode>();
   for (const n of town.nodes) {
-    if (!n.building) continue;
+    // Any node that is a place (sim location or explicit recipe) gets a building; junctions don't.
+    if (!n.location && !n.pixel && !n.building) continue;
     const sprite = art.building(pixelRef(n), n);
     byId.set(n.id, n);
     placements.push({

@@ -1,6 +1,7 @@
-/** Port of the debug client's Setup form, styled as a `.center` card. */
+/** New game form, in the same bevelled frame style as the HUD. */
 import { useState } from 'react';
 import { DEFAULT_GOALS, type GoalTargets } from '@jones2/sim';
+import { Frame, FrameButton } from '../hud/Frame';
 import type { GameStore } from './store';
 
 export function SetupScreen({ store }: { store: GameStore }) {
@@ -28,30 +29,45 @@ export function SetupScreen({ store }: { store: GameStore }) {
   };
 
   return (
-    <div className="center">
-      <h1>Jones 2</h1>
-      <label>Players (comma separated)</label>
-      <input value={names} onChange={(e) => setNames(e.target.value)} />
-      <label>Mode</label>
-      <select value={mode} onChange={(e) => setMode(e.target.value as 'classic' | 'fixed')}>
-        <option value="classic">Classic race</option>
-        <option value="fixed">Fixed length</option>
-      </select>
-      {mode === 'fixed' && (
-        <>
-          <label>Weeks</label>
-          <input type="number" value={weeks} onChange={(e) => setWeeks(Number(e.target.value))} />
-        </>
-      )}
-      <label>Seed</label>
-      <input type="number" value={seed} onChange={(e) => setSeed(Number(e.target.value))} />
-      {(['money', 'happiness', 'education', 'career'] as const).map((k) => (
-        <div key={k}>
-          <label>Goal: {k}</label>
-          <input type="number" value={goals[k]} onChange={(e) => setGoals({ ...goals, [k]: Number(e.target.value) })} />
+    <div className="hud-modal setup-stage">
+      <Frame title="Jones 2 — new game" className="hud-modal-card setup-card">
+        <label>Players (comma separated)</label>
+        <input className="hud-action-input" value={names} onChange={(e) => setNames(e.target.value)} />
+
+        <label>Mode</label>
+        <select className="hud-action-input" value={mode} onChange={(e) => setMode(e.target.value as 'classic' | 'fixed')}>
+          <option value="classic">Classic race</option>
+          <option value="fixed">Fixed length</option>
+        </select>
+
+        {mode === 'fixed' && (
+          <>
+            <label>Weeks</label>
+            <input className="hud-action-input" type="number" value={weeks} onChange={(e) => setWeeks(Number(e.target.value))} />
+          </>
+        )}
+
+        <label>Seed</label>
+        <input className="hud-action-input" type="number" value={seed} onChange={(e) => setSeed(Number(e.target.value))} />
+
+        <div className="setup-goals">
+          {(['money', 'happiness', 'education', 'career'] as const).map((k) => (
+            <div key={k}>
+              <label>Goal: {k}</label>
+              <input
+                className="hud-action-input"
+                type="number"
+                value={goals[k]}
+                onChange={(e) => setGoals({ ...goals, [k]: Number(e.target.value) })}
+              />
+            </div>
+          ))}
         </div>
-      ))}
-      <button onClick={start}>Start game</button>
+
+        <FrameButton onClick={start} className="setup-start">
+          Start game
+        </FrameButton>
+      </Frame>
     </div>
   );
 }

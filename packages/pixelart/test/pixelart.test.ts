@@ -4,7 +4,10 @@ import { C, PALETTE } from '../src/palette';
 import { GLYPH_H, GLYPH_W, drawText, hasGlyph, measureText } from '../src/font';
 import { bezierCubic, createSurface, curve, get, strokePolyline } from '../src/surface';
 import type { Sprite } from '../src/types';
-import { BUILDINGS } from '../src/buildings/catalogue';
+import { BUILDINGS, buildFromRef } from '../src/buildings/catalogue';
+import { LOCATION_RECIPES } from '../src/buildings/recipes';
+import { PROPS } from '../src/props/catalogue';
+import { BUTTON_INSETS, ICON_KEYS, PANEL_INSETS, UI } from '../src/ui/catalogue';
 import { TILES } from '../src/tiles/catalogue';
 import { NATURE } from '../src/nature/catalogue';
 import { CHARACTERS, tintCharacter } from '../src/characters/catalogue';
@@ -123,6 +126,45 @@ describe('palette', () => {
 
 // -------------------------------------------------------------- buildings
 
+/**
+ * Every sim location in `packages/sim/src/content/locations.ts`. Duplicated
+ * rather than imported so the art package keeps no dependency on the sim; if
+ * the sim grows a location, this list and LOCATION_RECIPES both need it.
+ */
+const SIM_LOCATION_IDS = [
+  'bus_depot',
+  'employment',
+  'bank',
+  'newsstand',
+  'university',
+  'clinic',
+  'monolith',
+  'cafe',
+  'qt_clothing',
+  'socket_city',
+  'blacks_market',
+  'zmart',
+  'pawn',
+  'auto',
+  'park',
+  'gym',
+  'cinema',
+  'gilded_fork',
+  'chez_cholesterol',
+  'factory',
+  'shady_acres',
+  'lowcost',
+  'security_apts',
+  'house_elm',
+  'house_hill',
+  'house_lake',
+  'lookout',
+];
+
+/** Smallest and largest side any building sprite may have. */
+const MIN_SPAN = 40;
+const MAX_SPAN = 110;
+
 describe('buildings', () => {
   const entries = Object.entries(BUILDINGS);
 
@@ -132,13 +174,19 @@ describe('buildings', () => {
     }
   });
 
+  it('has a generator for every kind the recipes name', () => {
+    for (const [id, ref] of Object.entries(LOCATION_RECIPES)) {
+      expect(BUILDINGS[ref.kind], `${id} wants missing kind ${ref.kind}`).toBeTypeOf('function');
+    }
+  });
+
   it.each(entries)('%s produces a well formed sprite', (_name, gen) => {
     const s = gen();
     expect(s.pixels.length).toBe(s.width * s.height);
-    expect(s.width).toBeGreaterThanOrEqual(64);
-    expect(s.width).toBeLessThanOrEqual(96);
-    expect(s.height).toBeGreaterThanOrEqual(48);
-    expect(s.height).toBeLessThanOrEqual(80);
+    expect(s.width).toBeGreaterThanOrEqual(MIN_SPAN);
+    expect(s.width).toBeLessThanOrEqual(MAX_SPAN);
+    expect(s.height).toBeGreaterThanOrEqual(MIN_SPAN);
+    expect(s.height).toBeLessThanOrEqual(MAX_SPAN);
     expect(countPixels(s)).toBeGreaterThan(s.width * s.height * 0.3);
     expect(s.anchorX).toBeGreaterThanOrEqual(0);
     expect(s.anchorX).toBeLessThan(s.width);
@@ -165,6 +213,14 @@ describe('buildings', () => {
     expect(Array.from(gen({ sign: 'TEST' }).pixels)).toEqual(Array.from(gen({ sign: 'TEST' }).pixels));
   });
 
+  it('keeps every building to a plausible shape', () => {
+    for (const [name, gen] of entries) {
+      const s = gen();
+      expect(s.width / s.height, `${name} is an implausible shape`).toBeGreaterThan(0.35);
+      expect(s.width / s.height, `${name} is an implausible shape`).toBeLessThan(2.6);
+    }
+  });
+
   it('honours house parameters', () => {
     const one = BUILDINGS.house({ storeys: 1 });
     const two = BUILDINGS.house({ storeys: 2 });
@@ -176,6 +232,173 @@ describe('buildings', () => {
     expect(Array.from(BUILDINGS.house({ roofShape: 'hip' }).pixels)).not.toEqual(
       Array.from(BUILDINGS.house({ roofShape: 'gable' }).pixels),
     );
+  });
+});
+
+
+// -------------------------------------------------------------- recipes
+
+describe('location recipes', () => {
+  const entries = Object.entries(LOCATION_RECIPES);
+
+  it('covers every sim location exactly once', () => {
+    for (const id of SIM_LOCATION_IDS) {
+      expect(LOCATION_RECIPES[id], `no recipe for sim location ${id}`).toBeTruthy();
+    }
+    expect(Object.keys(LOCATION_RECIPES).sort()).toEqual([...SIM_LOCATION_IDS].sort());
+  });
+
+  it.each(entries)('%s resolves to a registered kind', (_id, ref) => {
+    expect(BUILDINGS[ref.kind]).toBeTypeOf('function');
+  });
+
+  it.each(entries)('%s builds a sprite inside the size envelope', (_id, ref) => {
+    const s = buildFromRef(ref.kind, ref.params);
+    expect(s.pixels.length).toBe(s.width * s.height);
+    expect(s.width).toBeGreaterThanOrEqual(MIN_SPAN);
+    expect(s.width).toBeLessThanOrEqual(MAX_SPAN);
+    expect(s.height).toBeGreaterThanOrEqual(MIN_SPAN);
+    expect(s.height).toBeLessThanOrEqual(MAX_SPAN);
+    expect(countPixels(s)).toBeGreaterThan(s.width * s.height * 0.3);
+  });
+
+  it.each(entries)('%s is outlined and casts a shadow', (_id, ref) => {
+    const s = buildFromRef(ref.kind, ref.params);
+    expect(silhouetteInkRatio(s)).toBeGreaterThan(0.75);
+    let shadowPixels = 0;
+    for (let y = s.height - 3; y < s.height; y++) {
+      for (let x = 0; x < s.width; x++) if (s.pixels[y * s.width + x] === C.shadow) shadowPixels++;
+    }
+    expect(shadowPixels).toBeGreaterThan(10);
+  });
+
+  it.each(entries)('%s is deterministic', (_id, ref) => {
+    expect(Array.from(buildFromRef(ref.kind, ref.params).pixels)).toEqual(
+      Array.from(buildFromRef(ref.kind, ref.params).pixels),
+    );
+  });
+
+  it('dresses the three owned houses differently', () => {
+    const pixels = ['house_elm', 'house_hill', 'house_lake'].map((id) => {
+      const ref = LOCATION_RECIPES[id];
+      return Array.from(buildFromRef(ref.kind, ref.params).pixels).join(',');
+    });
+    expect(new Set(pixels).size).toBe(3);
+  });
+});
+
+// -------------------------------------------------------------- props and ui
+
+describe('props', () => {
+  const required = [
+    'lamp',
+    'bench',
+    'car_red',
+    'car_blue',
+    'car_green',
+    'bus',
+    'signpost',
+    'hydrant',
+    'mailbox',
+    'fence_h',
+    'fence_v',
+    'picnic_table',
+    'dock',
+    'bridge',
+  ];
+
+  it('has every prop the layout needs', () => {
+    for (const key of required) expect(PROPS[key], `missing prop ${key}`).toBeTruthy();
+  });
+
+  it.each(required)('%s is a non-empty sprite anchored inside itself', (key) => {
+    const s = PROPS[key];
+    expect(s.pixels.length).toBe(s.width * s.height);
+    expect(countPixels(s), `${key} is blank`).toBeGreaterThan(s.width * s.height * 0.15);
+    expect(s.anchorX).toBeGreaterThanOrEqual(0);
+    expect(s.anchorX).toBeLessThan(s.width);
+    expect(s.anchorY).toBeGreaterThanOrEqual(0);
+    expect(s.anchorY).toBeLessThan(s.height);
+  });
+
+  it('gives the three cars one shape in three colours', () => {
+    const [r, b, g] = ['car_red', 'car_blue', 'car_green'].map((k) => PROPS[k]);
+    expect(r.width).toBe(b.width);
+    expect(b.width).toBe(g.width);
+    expect(usesIndex(r, C.red)).toBe(true);
+    expect(usesIndex(b, C.blue)).toBe(true);
+    expect(usesIndex(g, C.green)).toBe(true);
+    expect(Array.from(r.pixels)).not.toEqual(Array.from(b.pixels));
+  });
+
+  it('keeps the bus, bridge and fence to their stated sizes', () => {
+    expect(PROPS.bus.width).toBeGreaterThanOrEqual(30);
+    expect(PROPS.bus.height).toBeLessThanOrEqual(20);
+    expect(PROPS.bridge.width).toBe(32);
+    expect(PROPS.bridge.height).toBe(20);
+    expect(PROPS.fence_h.width).toBe(16);
+  });
+});
+
+describe('ui', () => {
+  it('has the panel, the three button states, the clock and twelve icons', () => {
+    for (const key of ['panel', 'button_normal', 'button_hover', 'button_pressed', 'clock_face']) {
+      expect(UI[key], `missing ui sprite ${key}`).toBeTruthy();
+    }
+    expect(ICON_KEYS).toHaveLength(12);
+    for (const key of ICON_KEYS) expect(UI[key], `missing icon ${key}`).toBeTruthy();
+  });
+
+  it.each(Object.entries(UI))('%s is non-empty', (name, sprite) => {
+    expect(sprite.pixels.length, name).toBe(sprite.width * sprite.height);
+    expect(countPixels(sprite), `${name} is blank`).toBeGreaterThan(8);
+  });
+
+  it('keeps every icon 12x12', () => {
+    for (const key of ICON_KEYS) {
+      expect(UI[key].width, key).toBe(12);
+      expect(UI[key].height, key).toBe(12);
+    }
+  });
+
+  it('nine-slices fit inside their sprites and leave a centre', () => {
+    expect(UI.panel.width).toBeGreaterThan(PANEL_INSETS.left + PANEL_INSETS.right);
+    expect(UI.panel.height).toBeGreaterThan(PANEL_INSETS.top + PANEL_INSETS.bottom);
+    for (const key of ['button_normal', 'button_hover', 'button_pressed']) {
+      expect(UI[key].width).toBeGreaterThan(BUTTON_INSETS.left + BUTTON_INSETS.right);
+      expect(UI[key].height).toBeGreaterThan(BUTTON_INSETS.top + BUTTON_INSETS.bottom);
+    }
+  });
+
+  it('makes every frame edge strip uniform along its length', () => {
+    // A 9-slice is only safe to stretch if each edge strip repeats. The frames
+    // are built from concentric rings, so every column of the top strip matches.
+    for (const [key, inset] of [
+      ['panel', PANEL_INSETS],
+      ['button_normal', BUTTON_INSETS],
+    ] as Array<[string, typeof PANEL_INSETS]>) {
+      const s = UI[key];
+      const midX = s.width >> 1;
+      for (let y = 0; y < inset.top; y++) {
+        expect(s.pixels[y * s.width + inset.left], `${key} top strip varies at row ${y}`).toBe(
+          s.pixels[y * s.width + midX],
+        );
+      }
+    }
+  });
+
+  it('draws the clock face at 96x96 and keeps the hands separate', () => {
+    expect(UI.clock_face.width).toBe(96);
+    expect(UI.clock_face.height).toBe(96);
+    expect(UI.clock_hand_hour.height).toBe(40);
+    expect(UI.clock_hand_minute.height).toBe(44);
+    for (const key of ['clock_hand_hour', 'clock_hand_minute']) {
+      const s = UI[key];
+      expect(s.anchorY, `${key} must pivot at its base`).toBe(s.height - 1);
+      expect(s.anchorX).toBe(s.width >> 1);
+      // the tip is painted, so rotating about the anchor sweeps the whole hand
+      expect(s.pixels[s.anchorX], `${key} has no tip`).not.toBe(0);
+    }
   });
 });
 
@@ -239,6 +462,18 @@ describe('characters', () => {
     for (const d of dirs) {
       const frames = [0, 1, 2].map((f) => Array.from(CHARACTERS[`walk_${d}_${f}`].pixels).join(','));
       expect(new Set(frames).size, `${d} frames are not distinct`).toBe(3);
+    }
+  });
+
+  it('moves the front and back walk frames, not just the feet', () => {
+    for (const d of ['s', 'n'] as const) {
+      const idle = CHARACTERS[`idle_${d}`];
+      for (const f of [1, 2]) {
+        const frame = CHARACTERS[`walk_${d}_${f}`];
+        let changed = 0;
+        for (let i = 0; i < idle.pixels.length; i++) if (idle.pixels[i] !== frame.pixels[i]) changed++;
+        expect(changed, `walk_${d}_${f} barely differs from idle_${d}`).toBeGreaterThan(6);
+      }
     }
   });
 

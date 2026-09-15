@@ -1,13 +1,17 @@
 /**
- * Right panel: port of the debug client's Actions, minus the travel list
- * (travel now happens on the map — see PlayScreen). Groups "here" actions by
- * kind, keeps the bid/amount inputs for offers and bank ops, and shows the
- * End Week button plus this week's log.
+ * The action buttons for wherever the player is standing, grouped by kind.
+ * Travel is not here — it happens on the map (see PlayScreen). The heading,
+ * the End Week button and the week log now live in the HUD's LocationPanel and
+ * WeekLog, so this component renders groups of buttons and nothing else.
+ *
+ * Every button publishes its minute cost to the time preview on hover, which is
+ * what draws the hatched arc on the clock.
  */
 import { useMemo, useState } from 'react';
-import { HOUSING, LOCATIONS, availableActions, getGraph, netWorth, type Action, type ActionOption } from '@jones2/sim';
+import { HOUSING, availableActions, type Action, type ActionOption } from '@jones2/sim';
 import type { GameStore } from './store';
-import { Deltas, hm, money } from './format';
+import { usePreviewHandlers } from '../hud/preview';
+import { hm } from './format';
 
 type Kind = 'Work' | 'Jobs' | 'Study' | 'Shop' | 'Eat' | 'Activities' | 'Home' | 'Bank' | 'News' | 'Housing' | 'Other';
 
@@ -52,38 +56,37 @@ function kindOf(action: Action): Kind {
   }
 }
 
-function ActionButton({ o, onClick }: { o: ActionOption; onClick: () => void }) {
+export function ActionButton({ o, onClick }: { o: ActionOption; onClick: () => void }) {
+  const preview = usePreviewHandlers(o.enabled ? o.minutes : null);
   return (
-    <button className="block" disabled={!o.enabled} title={o.reason} onClick={onClick}>
-      {o.label}
-      <small>{o.minutes ? hm(o.minutes) : ''}</small>
-      {!o.enabled && o.reason && (
-        <div className="muted" style={{ fontSize: 11, clear: 'both' }}>
-          {o.reason}
-        </div>
-      )}
-    </button>
+    <>
+      <button type="button" className="hud-action" disabled={!o.enabled} title={o.reason} onClick={onClick} {...preview}>
+        <span className="hud-action-label">{o.label}</span>
+        {o.minutes > 0 && <span className="hud-action-mins">{hm(o.minutes)}</span>}
+      </button>
+      {!o.enabled && o.reason && <div className="hud-action-reason">{o.reason}</div>}
+    </>
   );
 }
 
-export function ActionsPanel({ store }: { store: GameStore }) {
-  const { state, currentPid, error } = store;
+export interface ActionsPanelProps {
+  store: GameStore;
+  /** Options to render; defaults to everything available here except travel and endWeek. */
+  options?: ActionOption[];
+}
+
+export function ActionsPanel({ store, options }: ActionsPanelProps) {
+  const { state, currentPid } = store;
   const [bid, setBid] = useState<Record<string, number>>({});
   const [amount, setAmount] = useState(100);
 
-  const opts = useMemo(
+  const computed = useMemo(
     () => (state && currentPid ? availableActions(state, currentPid) : []),
     [state, currentPid],
   );
 
   if (!state || !currentPid) return null;
-  const p = state.players[currentPid]!;
-  const graph = getGraph(state.config.townId);
-  const node = graph.node(p.node);
-  const loc = node.location ? LOCATIONS[node.location] : null;
-
-  const here = opts.filter((o) => o.action.type !== 'travel' && o.action.type !== 'endWeek');
-  const end = opts.find((o) => o.action.type === 'endWeek');
+  const here = (options ?? computed).filter((o) => o.action.type !== 'travel' && o.action.type !== 'endWeek');
 
   const groups = new Map<Kind, ActionOption[]>();
   for (const o of here) {
@@ -94,10 +97,6 @@ export function ActionsPanel({ store }: { store: GameStore }) {
 
   return (
     <>
-      {error && <div className="warn">{error}</div>}
-      <h2>{node.name ?? p.node}</h2>
-      {loc && <div className="muted">{loc.tagline}</div>}
-
       {KIND_ORDER.map((k) => {
         const items = groups.get(k);
         if (!items || items.length === 0) return null;
@@ -111,7 +110,12 @@ export function ActionsPanel({ store }: { store: GameStore }) {
                 const b = bid[h] ?? offerAction.bid;
                 return (
                   <div key={i}>
-                    <input type="number" value={b} onChange={(e) => setBid({ ...bid, [h]: Number(e.target.value) })} />
+                    <input
+                      className="hud-action-input"
+                      type="number"
+                      value={b}
+                      onChange={(e) => setBid({ ...bid, [h]: Number(e.target.value) })}
+                    />
                     <ActionButton
                       o={{ ...o, label: `Offer $${b} on ${HOUSING[h]!.name}` }}
                       onClick={() => store.act({ ...offerAction, bid: b })}
@@ -124,11 +128,15 @@ export function ActionsPanel({ store }: { store: GameStore }) {
                 const op = bankAction.op;
                 return (
                   <div key={i}>
-                    {op === 'deposit' && <input type="number" value={amount} onChange={(e) => setAmount(Number(e.target.value))} />}
-                    <ActionButton
-                      o={{ ...o, label: `${op} $${amount}` }}
-                      onClick={() => store.act({ ...bankAction, amount })}
-                    />
+                    {op === 'deposit' && (
+                      <input
+                        className="hud-action-input"
+                        type="number"
+                        value={amount}
+                        onChange={(e) => setAmount(Number(e.target.value))}
+                      />
+                    )}
+                    <ActionButton o={{ ...o, label: `${op} $${amount}` }} onClick={() => store.act({ ...bankAction, amount })} />
                   </div>
                 );
               }
@@ -137,28 +145,6 @@ export function ActionsPanel({ store }: { store: GameStore }) {
           </div>
         );
       })}
-
-      <h3>Week</h3>
-      {end && <ActionButton o={end} onClick={() => store.act(end.action)} />}
-
-      <h2>This week</h2>
-      <div className="muted">
-        Economy: wages {'×'}
-        {state.economy.wageIndex.toFixed(2)}, prices {'×'}
-        {state.economy.priceIndex.toFixed(2)}, rent {'×'}
-        {state.economy.rentIndex.toFixed(2)}
-        {Object.keys(state.sales).length > 0 && `, sale at ${Object.keys(state.sales).map((l) => LOCATIONS[l]!.name).join(', ')}`}
-      </div>
-      <ul className="log">
-        {p.log.map((e, i) => (
-          <li key={i}>
-            <span className="muted">{hm(e.minute)}</span> {e.text}
-            <Deltas deltas={e.deltas} />
-          </li>
-        ))}
-      </ul>
-      <h3>Net worth</h3>
-      {money(netWorth(p))}
     </>
   );
 }

@@ -171,8 +171,8 @@ export function validate(town: Town): string[] {
     if (!(n.location in LOCATIONS)) {
       problems.push(`Node ${n.id} uses unknown location id "${n.location}".`);
     }
-    if (!n.building) {
-      problems.push(`Location node ${n.id} (${n.location}) has no building.`);
+    if (!n.building && !n.pixel) {
+      problems.push(`Location node ${n.id} (${n.location}) has no building recipe.`);
     }
     const owners = locationOwners.get(n.location) ?? [];
     owners.push(n.id);

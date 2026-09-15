@@ -188,6 +188,7 @@ Core design is considered complete as of round 3; items below are detail work to
 
 ## 9. Decision log
 - 2026-09-14 — Initial discussion. Decided: modes (classic + fixed length), human-only first, online-first architecture, non-ring map, visible Health, career tracks with cross-business experience, forecastable events with multiple news sources, property ladder with named late-game properties, keep tone. Deferred: traits, AI rivals, solo mode. Rejected: player-to-player lending.
+- 2026-09-14 — Milestone 2b (pixel art direction) built: DECIDED 2D pixel art generated as code replaces three.js; fixed top-down camera, integer zoom, curvy roads from edge control points; town canvas 768×448 at 1 unit = 1 px; big analog clock HUD with hover time-preview. Phase A ~455k tokens, Phase B ~1.3M tokens (art 416k, layout 703k over two passes, HUD 188k).
 - 2026-09-14 — Milestone 2 built: three.js town renderer, week replay, town editor, hot-seat harness in apps/client (4 parallel agents, ~540k tokens, then integrated). Renderer contract gained unmount() and editor drag callbacks. Riverton coordinates doubled.
 - 2026-09-14 — Milestone 1 built: sim core, Riverton town, content tables, tests, balance runner, debug client. See STATUS.md.
 - 2026-09-14 — Round 4 (build). Decided: web client, TypeScript, deterministic shared simulation core, Node server with SQLite, three.js isometric map built from a JSON town graph, Kenney 3D kits as parts library, in-browser town editor, 2D VGA-style interiors, build order.

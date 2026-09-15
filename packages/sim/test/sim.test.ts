@@ -145,7 +145,9 @@ describe('week resolution', () => {
     let s = createGame(config());
     s = must(s, 'a', { type: 'travel', to: 'park' });
     s = must(s, 'a', { type: 'travel', to: 'lookout' });
-    s = must(s, 'b', { type: 'travel', to: 'lookout' }); // shorter path via lowcost? still one trip
+    s = must(s, 'b', { type: 'travel', to: 'lookout' });
+    // Whoever spent fewer minutes getting there claimed it earlier in their week.
+    const earlier = s.players.a!.minutesLeft >= s.players.b!.minutesLeft ? 'a' : 'b'; // ties go to player order
     s = endAll(s);
     const winner = s.achievementsTaken['explorer'];
     expect(['a', 'b']).toContain(winner);
@@ -153,8 +155,7 @@ describe('week resolution', () => {
     const l = s.players[winner === 'a' ? 'b' : 'a']!;
     expect(w.items).toContain('bicycle');
     expect(l.items).not.toContain('bicycle');
-    // b went direct, so b's minute is smaller.
-    expect(winner).toBe('b');
+    expect(winner).toBe(earlier);
   });
 
   it('sells a property to the highest bidder', () => {

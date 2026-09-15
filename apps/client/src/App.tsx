@@ -32,10 +32,29 @@ function ModeLinks({ mode }: { mode: Mode }) {
     ['editor', '/?editor'],
     ['map', '/?map'],
   ];
+  // In play mode the top-right corner belongs to the camera buttons, so the
+  // mode switch sits in the bottom-right instead.
+  const spot = mode === 'play'
+    ? { left: 'auto' as const, right: 10, top: 'auto' as const, bottom: 10 }
+    : { left: 'auto' as const, right: 12, top: 12 };
   return (
-    <div className="overlay" style={{ left: 'auto', right: 12, top: 12 }}>
+    <div className="overlay mode-links" style={spot}>
       {links.map(([m, href]) => (
-        <a key={m} href={href} style={{ fontSize: 12, padding: '3px 8px', background: m === mode ? '#2f6fed' : '#fff', color: m === mode ? '#fff' : '#333', borderRadius: 6, textDecoration: 'none', border: '1px solid #d9dde3' }}>
+        <a
+          key={m}
+          href={href}
+          style={{
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: '.08em',
+            textTransform: 'uppercase',
+            padding: '3px 7px',
+            background: m === mode ? '#c9a04a' : '#f3e9c8',
+            color: '#1f1b24',
+            textDecoration: 'none',
+            border: '2px solid #1f1b24',
+          }}
+        >
           {m}
         </a>
       ))}
@@ -43,13 +62,12 @@ function ModeLinks({ mode }: { mode: Mode }) {
   );
 }
 
+/** The camera is fixed top-down, so there is no rotate control. */
 function CameraButtons({ scene }: { scene: ReturnType<typeof useTownScene> }) {
   return (
     <div className="overlay">
-      <button onClick={() => scene.rotate(-1)} title="Rotate left (Q)">⟲</button>
-      <button onClick={() => scene.rotate(1)} title="Rotate right (E)">⟳</button>
       <button onClick={() => scene.zoom(0.8)} title="Zoom in">+</button>
-      <button onClick={() => scene.zoom(1.25)} title="Zoom out">−</button>
+      <button onClick={() => scene.zoom(1.25)} title="Zoom out">{'−'}</button>
       <button onClick={() => scene.fitAll()} title="Fit town">Fit</button>
     </div>
   );

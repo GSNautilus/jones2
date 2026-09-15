@@ -4,3 +4,4 @@ export * from './roofs';
 export * from './windows';
 export * from './doors';
 export * from './signs';
+export * from './details';

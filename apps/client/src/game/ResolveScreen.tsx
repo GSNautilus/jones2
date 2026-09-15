@@ -9,6 +9,7 @@ import { getGraph, type GameState, type PlayerEvent, type PlayerId, type WeekRep
 import type { NodeId, Town, TownGraph } from '@jones2/town';
 import type { TownScene } from '../map/api';
 import type { GameStore } from './store';
+import { Frame, FrameButton } from '../hud/Frame';
 import { Deltas } from './format';
 
 /** Matches the ReplayView contract in src/replay/types.ts. */
@@ -33,7 +34,6 @@ export interface ResolveScreenProps {
 function ReportNotes({ report, state }: { report: WeekReport; state: GameState }) {
   return (
     <div className="report">
-      <b>Week {report.week} resolved</b>
       <ul>
         {report.notes.map((n, i) => (
           <li key={i}>
@@ -61,30 +61,33 @@ export function ResolveScreen({ store, scene, ReplayView, onExit }: ResolveScree
   if (state.phase === 'finished' && step !== 'replay') {
     const winner = state.winner ? state.players[state.winner] : null;
     return (
-      <div className="center">
-        <h1>{winner ? `${winner.name} wins!` : 'Game over'}</h1>
-        {lastReport && <ReportNotes report={lastReport} state={state} />}
-        <button onClick={store.reset}>New game</button>
+      <div className="hud-modal">
+        <Frame title={winner ? `${winner.name} wins!` : 'Game over'} className="hud-modal-card">
+          {lastReport && <ReportNotes report={lastReport} state={state} />}
+          <FrameButton onClick={store.reset}>New game</FrameButton>
+        </Frame>
       </div>
     );
   }
 
   if (step === 'confirm') {
     return (
-      <div className="center">
-        <h1>
-          Week {state.week} {'—'} everyone is done
-        </h1>
-        <button
-          onClick={() => {
-            setReplayStarts(weekStarts);
-            store.resolve();
-            setStep('replay');
-          }}
-        >
-          Resolve the week
-        </button>
-        <button onClick={store.reset}>Abandon game</button>
+      <div className="hud-modal">
+        <Frame title={`Week ${state.week} — everyone is done`} className="hud-modal-card">
+          <p className="hud-tagline">Resolve the week to see how it played out.</p>
+          <div className="hud-row hud-row-wrap">
+            <FrameButton
+              onClick={() => {
+                setReplayStarts(weekStarts);
+                store.resolve();
+                setStep('replay');
+              }}
+            >
+              Resolve the week
+            </FrameButton>
+            <FrameButton onClick={store.reset}>Abandon game</FrameButton>
+          </div>
+        </Frame>
       </div>
     );
   }
@@ -107,19 +110,20 @@ export function ResolveScreen({ store, scene, ReplayView, onExit }: ResolveScree
           players={players}
           onDone={() => setStep('done')}
         />
-        <button className="skip" onClick={() => setStep('done')}>
+        <FrameButton className="skip" onClick={() => setStep('done')}>
           Skip replay
-        </button>
+        </FrameButton>
       </div>
     );
   }
 
   // step === 'done', game still playing: show the report, then continue.
   return (
-    <div className="center">
-      <h1>Week resolved</h1>
-      {lastReport && <ReportNotes report={lastReport} state={state} />}
-      <button onClick={onExit}>Continue</button>
+    <div className="hud-modal">
+      <Frame title={`Week ${lastReport ? lastReport.week : state.week} resolved`} className="hud-modal-card">
+        {lastReport && <ReportNotes report={lastReport} state={state} />}
+        <FrameButton onClick={onExit}>Continue</FrameButton>
+      </Frame>
     </div>
   );
 }

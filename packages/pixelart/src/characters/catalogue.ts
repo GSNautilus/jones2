@@ -10,7 +10,7 @@
  */
 import { C, SHIRT_KEY } from '../palette';
 import type { Sprite, SpriteMap } from '../types';
-import { cloneSprite, createSprite, drawRows, tint } from '../surface';
+import { cloneSprite, createSprite, drawRows, put, tint } from '../surface';
 
 export const FIGURE_W = 12;
 export const FIGURE_H = 20;
@@ -145,11 +145,61 @@ const LEGS_SIDE: string[][] = [
   ],
 ];
 
+/**
+ * Front and back views used to move by a single lifted pixel, which did not
+ * read at 1x. Each walk frame now bobs the whole body, swings both hands past
+ * the hips and shifts the shoulder line, so the figure visibly strides.
+ */
+/** Vertical bob of the body for walk frames 0..2. Legs never move. */
+const BODY_BOB = [0, 1, 0];
+/** Hand travel for [left, right] on walk frames 0..2. */
+const ARM_SWING: Array<[number, number]> = [
+  [0, 0],
+  [1, -1],
+  [-1, 1],
+];
+/** Sideways shift of the shoulder line on walk frames 0..2. */
+const SHOULDER_SHIFT = [0, -1, 1];
+
+/** Move a hand pixel up or down its arm and re-ink what it left behind. */
+function swingArm(s: Sprite, x: number, handRow: number, dy: number): void {
+  if (dy === 0) return;
+  put(s, x, handRow, C.ink);
+  put(s, x, handRow + dy, C.skin);
+  put(s, x, handRow + dy + (dy > 0 ? 1 : -1), C.ink);
+}
+
+/** Slide a pair of marker pixels sideways along a row. */
+function shiftPair(s: Sprite, row: number, xs: readonly number[], dx: number, mark: number, fill: number): void {
+  if (dx === 0) return;
+  for (const x of xs) put(s, x, row, fill);
+  for (const x of xs) put(s, x + dx, row, mark);
+}
+
 function figure(dir: 's' | 'n' | 'e', frameIndex: number): Sprite {
   const s = createSprite(FIGURE_W, FIGURE_H, 6, FIGURE_H - 1, 8, 4);
   const body = BODY[dir].slice();
   if (dir === 'e') body[13] = ARM_E[frameIndex];
-  drawRows(s, 0, 0, body, LEGEND);
+
+  const bob = dir === 'e' ? 0 : BODY_BOB[frameIndex];
+  drawRows(s, 0, bob, body, LEGEND);
+
+  if (dir !== 'e') {
+    const [ldy, rdy] = ARM_SWING[frameIndex];
+    swingArm(s, 1, 13 + bob, ldy);
+    swingArm(s, 10, 13 + bob, rdy);
+    const dx = SHOULDER_SHIFT[frameIndex];
+    if (dir === 's') {
+      // the collar V swings with the shoulders
+      shiftPair(s, 8 + bob, [5, 6], dx, C.white, SHIRT_KEY);
+      shiftPair(s, 9 + bob, [5, 6], dx, C.white, SHIRT_KEY);
+    } else {
+      // from behind, the side seams do the same job
+      shiftPair(s, 12 + bob, [3, 8], dx, C.inkSoft, SHIRT_KEY);
+      shiftPair(s, 11 + bob, [3, 8], dx, C.inkSoft, SHIRT_KEY);
+    }
+  }
+
   drawRows(s, 0, 15, (dir === 'e' ? LEGS_SIDE : LEGS_FRONT)[frameIndex], LEGEND);
   return s;
 }
