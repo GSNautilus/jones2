@@ -1,117 +1,51 @@
 /**
- * Curvy roads.
+ * Roads that look like roads.
  *
- * An edge is a polyline through `a`, its optional `curve` control points, and
- * `b`. With control points the polyline is a uniform Catmull-Rom spline that
- * passes exactly through every control point; without them it is a straight
- * subdivision. Figures walk the same polyline, so a figure on a bendy road
- * follows the bend (see `pointAlongEdge`).
+ * Geometry lives in `streets.ts`: edges sharing a `street` id are joined into
+ * ONE polyline (a `StreetChain`) with continuous arc length, so nothing ever
+ * restarts at an intermediate junction. This file turns those chains into
+ * pixels, in passes over ALL chains so overlaps compose:
  *
- * All the geometry here is in TOWN UNITS and pure - `sampleEdge` and
- * `pointAlongEdge` are unit-tested. Only `drawRoads` knows about pixels.
+ *   1. asphalt         - every chain, widest kind first
+ *   2. junction aprons - a disc plus corner fillets wherever chains meet
+ *   3. curbs           - the OUTLINE of the asphalt mask, 1px
+ *   4. centre dashes   - along chain arc length, suppressed near junctions
+ *   5. bus overlay     - offset off the centreline, plus stop markers
+ *
+ * Curbs being the mask outline rather than two offset strokes is what makes a
+ * T-junction read as one: a curb can only ever appear where asphalt meets
+ * not-asphalt, so no curb or dash can cross a junction, and the corner fillets
+ * turn the square notch where two strips cross into a rounded curb return.
  */
-import type { NodeId, RoadKind, Town, TownEdge } from '@jones2/town';
+import type { NodeId, RoadKind, Town, TownNode } from '@jones2/town';
 import { PX_PER_UNIT } from './art';
 import type { Pt } from './camera';
-import { type RenderPalette, type Surface, disc, put } from './surface';
+import {
+  type ChainSpan,
+  type StreetChain,
+  arcLengths,
+  chainSpan,
+  chainsFor,
+  edgeControlPoints,
+  findEdge,
+  sampleEdge,
+} from './streets';
+import { type RenderPalette, type Surface, createSurface, disc, fillRect, put, strokeRect } from './surface';
 
-/* -------------------------------------------------------------- geometry */
+export {
+  arcLengths,
+  buildStreetChains,
+  chainSpan,
+  chainsFor,
+  edgeControlPoints,
+  findEdge,
+  sampleEdge,
+  samplePath,
+  type ChainSpan,
+  type StreetChain,
+} from './streets';
 
-function nodePos(town: Town, id: NodeId): Pt {
-  const n = town.nodes.find((x) => x.id === id);
-  if (!n) throw new Error(`Unknown node ${id}`);
-  return { x: n.x, y: n.y };
-}
-
-/** a, then the curve control points, then b - all in town units. */
-export function edgeControlPoints(town: Town, edge: TownEdge): Pt[] {
-  const pts: Pt[] = [nodePos(town, edge.a)];
-  for (const c of edge.curve ?? []) pts.push({ x: c.x, y: c.y });
-  pts.push(nodePos(town, edge.b));
-  return pts;
-}
-
-function catmullRom(p0: Pt, p1: Pt, p2: Pt, p3: Pt, t: number): Pt {
-  const t2 = t * t;
-  const t3 = t2 * t;
-  return {
-    x:
-      0.5 *
-      (2 * p1.x + (-p0.x + p2.x) * t + (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t2 + (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t3),
-    y:
-      0.5 *
-      (2 * p1.y + (-p0.y + p2.y) * t + (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t2 + (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t3),
-  };
-}
-
-/** Spacing between samples, in town units, that gives roughly 2 native px. */
-const SAMPLE_SPACING = 2 / PX_PER_UNIT;
-
-/**
- * Polyline for an edge, from `a` to `b`, in town units.
- *
- * Every control point is on the returned path exactly, and consecutive points
- * are roughly `SAMPLE_SPACING` apart, so cumulative arc length is strictly
- * increasing. `samples` overrides the total point count (useful in tests).
- */
-export function sampleEdge(town: Town, edge: TownEdge, samples?: number): Pt[] {
-  const ctrl = edgeControlPoints(town, edge);
-  const segCount = ctrl.length - 1;
-  if (segCount <= 0) return ctrl;
-
-  let total = 0;
-  for (let i = 0; i < segCount; i++) {
-    total += Math.hypot(ctrl[i + 1]!.x - ctrl[i]!.x, ctrl[i + 1]!.y - ctrl[i]!.y);
-  }
-  const wanted = samples && samples >= 2 ? samples : Math.round(total / SAMPLE_SPACING) + 1;
-  const perSeg = Math.max(1, Math.min(256, Math.round((wanted - 1) / segCount)));
-
-  // Straight edge: a plain subdivision. Uniform Catmull-Rom over two points is
-  // still straight but unevenly spaced, and there is no reason to pay for that.
-  if (segCount === 1) {
-    const a = ctrl[0]!;
-    const b = ctrl[1]!;
-    const out: Pt[] = [];
-    for (let i = 0; i <= perSeg; i++) {
-      const t = i / perSeg;
-      out.push({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
-    }
-    return dedupe(out);
-  }
-
-  const out: Pt[] = [ctrl[0]!];
-  for (let i = 0; i < segCount; i++) {
-    const p0 = ctrl[i - 1] ?? ctrl[i]!;
-    const p1 = ctrl[i]!;
-    const p2 = ctrl[i + 1]!;
-    const p3 = ctrl[i + 2] ?? ctrl[i + 1]!;
-    for (let k = 1; k <= perSeg; k++) out.push(catmullRom(p0, p1, p2, p3, k / perSeg));
-  }
-  return dedupe(out);
-}
-
-function dedupe(pts: Pt[]): Pt[] {
-  const out: Pt[] = [];
-  for (const p of pts) {
-    const last = out[out.length - 1];
-    if (last && Math.abs(last.x - p.x) < 1e-9 && Math.abs(last.y - p.y) < 1e-9) continue;
-    out.push(p);
-  }
-  return out.length >= 2 ? out : pts.slice(0, 2);
-}
-
-/** Cumulative arc length at every point of a polyline. Always starts at 0. */
-export function arcLengths(pts: Pt[]): number[] {
-  const out = [0];
-  for (let i = 1; i < pts.length; i++) {
-    out.push(out[i - 1]! + Math.hypot(pts[i]!.x - pts[i - 1]!.x, pts[i]!.y - pts[i - 1]!.y));
-  }
-  return out;
-}
-
-export function findEdge(town: Town, a: NodeId, b: NodeId): TownEdge | undefined {
-  return town.edges.find((e) => (e.a === a && e.b === b) || (e.a === b && e.b === a));
-}
+/* ------------------------------------------------- walking a road (poses) */
 
 export interface EdgePose extends Pt {
   /** Unit tangent, pointing from `from` toward `to`. */
@@ -119,52 +53,85 @@ export interface EdgePose extends Pt {
   dy: number;
 }
 
-/**
- * Position and heading a fraction `t` (by ARC LENGTH, not parameter) along the
- * edge from `from` to `to`. Direction is respected: t=0 is at `from`, t=1 at
- * `to`, whichever way round the edge is stored. Falls back to a straight lerp
- * when the two nodes are not joined by an edge.
- */
-export function poseAlongEdge(town: Town, from: NodeId, to: NodeId, t: number): EdgePose {
-  const edge = findEdge(town, from, to);
-  const clamped = Math.max(0, Math.min(1, t));
-  if (!edge) {
-    const a = nodePos(town, from);
-    const b = nodePos(town, to);
-    const len = Math.hypot(b.x - a.x, b.y - a.y) || 1;
-    return {
-      x: a.x + (b.x - a.x) * clamped,
-      y: a.y + (b.y - a.y) * clamped,
-      dx: (b.x - a.x) / len,
-      dy: (b.y - a.y) / len,
-    };
-  }
-  let pts = sampleEdge(town, edge);
-  if (edge.a !== from) pts = pts.slice().reverse();
-  const acc = arcLengths(pts);
-  const total = acc[acc.length - 1]!;
-  if (total <= 0) return { x: pts[0]!.x, y: pts[0]!.y, dx: 1, dy: 0 };
-  const target = clamped * total;
+function straightPose(town: Town, from: NodeId, to: NodeId, t: number): EdgePose {
+  const a = town.nodes.find((n) => n.id === from);
+  const b = town.nodes.find((n) => n.id === to);
+  if (!a || !b) return { x: 0, y: 0, dx: 1, dy: 0 };
+  const len = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+  return {
+    x: a.x + (b.x - a.x) * t,
+    y: a.y + (b.y - a.y) * t,
+    dx: (b.x - a.x) / len,
+    dy: (b.y - a.y) / len,
+  };
+}
 
-  let i = 1;
-  while (i < acc.length - 1 && acc[i]! < target) i++;
+/** Sample a chain between two of its sample indices, at arc-length fraction `t`. */
+function alongSpan(chain: StreetChain, span: ChainSpan, forward: boolean, t: number): EdgePose {
+  const { pts, acc } = chain;
+  const i0 = span.start;
+  const i1 = span.end;
+  const s0 = acc[i0]!;
+  const total = acc[i1]! - s0;
+  const sign = forward ? 1 : -1;
+  if (total <= 0) {
+    const p = pts[i0]!;
+    return { x: p.x, y: p.y, dx: sign, dy: 0 };
+  }
+  const target = forward ? s0 + t * total : acc[i1]! - t * total;
+  let i = i0 + 1;
+  while (i < i1 && acc[i]! < target) i++;
   const a = pts[i - 1]!;
   const b = pts[i]!;
-  const span = acc[i]! - acc[i - 1]!;
-  const local = span > 0 ? (target - acc[i - 1]!) / span : 0;
+  const span2 = acc[i]! - acc[i - 1]!;
+  const local = span2 > 0 ? (target - acc[i - 1]!) / span2 : 0;
   const len = Math.hypot(b.x - a.x, b.y - a.y) || 1;
   return {
     x: a.x + (b.x - a.x) * local,
     y: a.y + (b.y - a.y) * local,
-    dx: (b.x - a.x) / len,
-    dy: (b.y - a.y) / len,
+    dx: (sign * (b.x - a.x)) / len,
+    dy: (sign * (b.y - a.y)) / len,
   };
+}
+
+/**
+ * Position and heading a fraction `t` (by ARC LENGTH, not parameter) along the
+ * edge from `from` to `to`. Direction is respected: t=0 is at `from`, t=1 at
+ * `to`, whichever way round the edge is stored. The sample comes off the CHAIN
+ * the edge belongs to, restricted to that edge's span, so a figure crossing a
+ * junction inside one street follows the same smooth line the road is drawn on.
+ * Falls back to a straight lerp when the two nodes are not joined by an edge.
+ */
+export function poseAlongEdge(town: Town, from: NodeId, to: NodeId, t: number): EdgePose {
+  const clamped = Math.max(0, Math.min(1, t));
+  const edge = findEdge(town, from, to);
+  if (!edge) return straightPose(town, from, to, clamped);
+  const hit = chainSpan(town, edge);
+  if (!hit) return straightPose(town, from, to, clamped);
+  return alongSpan(hit.chain, hit.span, hit.span.from === from, clamped);
 }
 
 /** Point a fraction `t` (by arc length) along the edge from `from` to `to`. */
 export function pointAlongEdge(town: Town, from: NodeId, to: NodeId, t: number): Pt {
   const p = poseAlongEdge(town, from, to, t);
   return { x: p.x, y: p.y };
+}
+
+/**
+ * The drawn polyline for one edge, in town units, running from `from` to `to`.
+ * This is the chain's own samples restricted to the edge, so a route overlay
+ * sits exactly on the road. Falls back to the edge on its own.
+ */
+export function edgePolyline(town: Town, from: NodeId, to: NodeId): Pt[] {
+  const edge = findEdge(town, from, to);
+  if (!edge) return [];
+  const hit = chainSpan(town, edge);
+  if (!hit) {
+    const pts = sampleEdge(town, edge);
+    return edge.a === from ? pts : pts.slice().reverse();
+  }
+  const slice = hit.chain.pts.slice(hit.span.start, hit.span.end + 1);
+  return hit.span.from === from ? slice : slice.reverse();
 }
 
 /** Compass direction of a tangent, for choosing a character sprite. */
@@ -176,14 +143,16 @@ export function facingOf(dx: number, dy: number): 'n' | 's' | 'e' | 'w' {
 /* --------------------------------------------------------------- painting */
 
 export interface RoadStyle {
-  /** Total width in native pixels, borders included. */
+  /** Total width in native pixels, curbs included. */
   width: number;
   /** Dashed centre line down the middle. */
   centreLine: boolean;
+  /** Two centre lines instead of one. */
+  doubleLine?: boolean;
 }
 
 export const ROAD_STYLE: Record<RoadKind, RoadStyle> = {
-  highway: { width: 18, centreLine: true },
+  highway: { width: 18, centreLine: true, doubleLine: true },
   street: { width: 12, centreLine: true },
   path: { width: 6, centreLine: false },
   busline: { width: 0, centreLine: false },
@@ -192,8 +161,51 @@ export const ROAD_STYLE: Record<RoadKind, RoadStyle> = {
 /** Widest to narrowest: wider roads are laid down first. */
 const PAINT_ORDER: RoadKind[] = ['highway', 'street', 'path'];
 
-/** Resample a native-pixel polyline to ~1px spacing so disc stamps overlap. */
-function densify(pts: Pt[], spacing = 1): Pt[] {
+/** Mask values. The mask is only ever read for its outline and its kind. */
+const MASK: Record<RoadKind, number> = { path: 1, street: 2, highway: 3, busline: 0 };
+
+/** Dash cycle of the centre line, in native pixels. */
+const DASH = 6;
+const GAP = 4;
+/** Dashes stop this far short of a junction apron. */
+const DASH_CLEARANCE = 4;
+/** How far off the centreline the bus overlay rides. */
+const BUS_OFFSET = 4;
+
+export interface RoadColours {
+  fill: number;
+  dark: number;
+  edge: number;
+  centre: number;
+  path: number;
+  pathEdge: number;
+  bus: number;
+  busInk: number;
+  busSign: number;
+  busSignInk: number;
+}
+
+export function roadColours(pal: RenderPalette): RoadColours {
+  return {
+    fill: pal.index('road', [84, 84, 94]),
+    dark: pal.index('roadDark', [66, 66, 76]),
+    edge: pal.index('roadEdge', [122, 122, 132]),
+    centre: pal.index('roadLine', [222, 190, 84]),
+    path: pal.index('sand', [206, 176, 122]),
+    pathEdge: pal.index('sandDark', [168, 138, 92]),
+    bus: pal.index('glass', [142, 180, 200]),
+    busInk: pal.index('ink', [34, 28, 42]),
+    busSign: pal.index('blue', [70, 112, 176]),
+    busSignInk: pal.index('white', [238, 236, 226]),
+  };
+}
+
+function fillFor(kind: RoadKind, c: RoadColours): number {
+  return kind === 'path' ? c.path : kind === 'highway' ? c.dark : c.fill;
+}
+
+/** Resample a native-pixel polyline to a fixed spacing so disc stamps overlap. */
+export function densify(pts: Pt[], spacing = 1): Pt[] {
   const out: Pt[] = [];
   for (let i = 1; i < pts.length; i++) {
     const a = pts[i - 1]!;
@@ -210,28 +222,6 @@ function densify(pts: Pt[], spacing = 1): Pt[] {
   return out;
 }
 
-export interface RoadColours {
-  fill: number;
-  dark: number;
-  edge: number;
-  centre: number;
-  path: number;
-  pathEdge: number;
-  bus: number;
-}
-
-export function roadColours(pal: RenderPalette): RoadColours {
-  return {
-    fill: pal.index('road', [74, 78, 86]),
-    dark: pal.index('roadDark', [56, 60, 67]),
-    edge: pal.index('roadEdge', [109, 114, 123]),
-    centre: pal.index('roadLine', [198, 202, 210]),
-    path: pal.index('path', [184, 160, 106]),
-    pathEdge: pal.index('pathDark', [154, 131, 84]),
-    bus: pal.index('busline', [232, 194, 42]),
-  };
-}
-
 function stamp(s: Surface, pts: Pt[], radius: number, idx: number): void {
   if (radius < 0.5) {
     for (const p of pts) put(s, p.x, p.y, idx);
@@ -240,13 +230,225 @@ function stamp(s: Surface, pts: Pt[], radius: number, idx: number): void {
   for (const p of pts) disc(s, p.x, p.y, radius, idx);
 }
 
+/* ------------------------------------------------------------- junctions */
+
+interface Arm {
+  chain: StreetChain;
+  /** Unit direction leaving the node along this arm, in native pixels. */
+  dx: number;
+  dy: number;
+  /** Half width of the arm's road, native pixels. */
+  half: number;
+}
+
+export interface Junction {
+  id: NodeId;
+  /** Native world pixels. */
+  x: number;
+  y: number;
+  arms: Arm[];
+  /** Widest incident half width: the apron disc is flush with it. */
+  half: number;
+  /** How far the centre dashes must keep clear of the node. */
+  radius: number;
+  kind: RoadKind;
+}
+
+/**
+ * Nodes where roads actually meet: three or more arms, or two arms belonging to
+ * different chains (one street ending on another). A node in the middle of a
+ * single chain is not a junction - the road just carries on through it.
+ */
+export function findJunctions(town: Town, chains: StreetChain[]): Junction[] {
+  const arms = new Map<NodeId, Arm[]>();
+  const seen = new Map<NodeId, Set<StreetChain>>();
+  for (const chain of chains) {
+    if (chain.kind === 'busline') continue;
+    const half = ROAD_STYLE[chain.kind].width / 2;
+    chain.nodes.forEach((id, i) => {
+      const list = arms.get(id) ?? [];
+      const chainsHere = seen.get(id) ?? new Set<StreetChain>();
+      chainsHere.add(chain);
+      const idx = i === 0 ? chain.spans[0]!.start : chain.spans[i - 1]!.end;
+      if (i > 0) {
+        const d = direction(chain.pts, idx, -1);
+        if (d) list.push({ chain, dx: d.x, dy: d.y, half });
+      }
+      if (i < chain.nodes.length - 1) {
+        const d = direction(chain.pts, idx, 1);
+        if (d) list.push({ chain, dx: d.x, dy: d.y, half });
+      }
+      arms.set(id, list);
+      seen.set(id, chainsHere);
+    });
+  }
+
+  const out: Junction[] = [];
+  for (const node of town.nodes) {
+    const list = arms.get(node.id);
+    if (!list || list.length < 2) continue;
+    if (list.length === 2 && (seen.get(node.id)?.size ?? 1) < 2) continue;
+    let widest: RoadKind = 'path';
+    let half = 0;
+    for (const a of list) {
+      if (a.half > half) {
+        half = a.half;
+        widest = a.chain.kind;
+      }
+    }
+    out.push({
+      id: node.id,
+      x: node.x * PX_PER_UNIT,
+      y: node.y * PX_PER_UNIT,
+      arms: list,
+      half,
+      radius: half + 2,
+      kind: widest,
+    });
+  }
+  return out;
+}
+
+/** Unit direction leaving `pts[idx]`, looking a few samples in `step`'s sense. */
+function direction(pts: Pt[], idx: number, step: 1 | -1): Pt | null {
+  const here = pts[idx];
+  if (!here) return null;
+  for (let k = 3; k <= 8; k++) {
+    const p = pts[idx + step * k];
+    if (!p) continue;
+    const len = Math.hypot(p.x - here.x, p.y - here.y);
+    if (len > 0.5) return { x: (p.x - here.x) / len, y: (p.y - here.y) / len };
+  }
+  const p = pts[idx + step];
+  if (!p) return null;
+  const len = Math.hypot(p.x - here.x, p.y - here.y) || 1;
+  return { x: (p.x - here.x) / len, y: (p.y - here.y) / len };
+}
+
+/**
+ * The apron at a junction: a disc that welds the arms together, plus a corner
+ * fillet in each angular gap between neighbouring arms. The fillets are what
+ * round the square notch two crossing strips leave behind, so the curb pass
+ * traces a curb return rather than a right angle. Gaps near 180 degrees (a road
+ * running straight through) get nothing, which is why a T-junction keeps a
+ * straight kerb along the top of the through road.
+ */
+export function paintJunction(
+  j: Junction,
+  apron: (x: number, y: number, r: number) => void,
+  pixel: (x: number, y: number) => void,
+): void {
+  apron(j.x, j.y, j.half);
+  if (j.arms.length < 2) return;
+  const angles = j.arms
+    .map((a) => ({ a: Math.atan2(a.dy, a.dx), dx: a.dx, dy: a.dy, half: a.half }))
+    .sort((p, q) => p.a - q.a);
+  for (let i = 0; i < angles.length; i++) {
+    const cur = angles[i]!;
+    const next = angles[(i + 1) % angles.length]!;
+    let gap = next.a - cur.a;
+    if (gap <= 0) gap += Math.PI * 2;
+    // Below ~50 degrees the corner is a long spike no fillet can improve;
+    // above ~155 the road simply runs through and must stay straight, which is
+    // what keeps the top kerb of a T-junction dead straight.
+    if (gap < 0.9 || gap > 2.7) continue;
+
+    // The two kerb lines bounding this gap, and where they cross.
+    const n1x = -cur.dy;
+    const n1y = cur.dx;
+    const n2x = next.dy;
+    const n2y = -next.dx;
+    const det = n1x * n2y - n1y * n2x;
+    if (Math.abs(det) < 1e-6) continue;
+    const px = j.x + (cur.half * n2y - next.half * n1y) / det;
+    const py = j.y + (n1x * next.half - n2x * cur.half) / det;
+
+    // Fillet: the circle of radius r tangent to both kerbs, sitting in the
+    // grass corner. It touches them `tangent` from the corner point.
+    const r = Math.max(2, Math.min(5, Math.round(Math.min(cur.half, next.half) * 0.5)));
+    const reach = r / Math.sin(gap / 2);
+    const tangent = r / Math.tan(gap / 2);
+    const cx = px + Math.cos(cur.a + gap / 2) * reach;
+    const cy = py + Math.sin(cur.a + gap / 2) * reach;
+
+    // Asphalt = the curvilinear triangle between the corner, the two tangent
+    // points and the arc. That is exactly a kerb return: the square notch two
+    // crossing strips leave behind becomes a curve.
+    const box = Math.ceil(reach) + 1;
+    for (let y = Math.floor(py - box); y <= Math.ceil(py + box); y++) {
+      for (let x = Math.floor(px - box); x <= Math.ceil(px + box); x++) {
+        const vx = x - px;
+        const vy = y - py;
+        if (cur.dx * vy - cur.dy * vx < -0.25) continue;
+        if (vx * next.dy - vy * next.dx < -0.25) continue;
+        const t1 = vx * cur.dx + vy * cur.dy;
+        const t2 = vx * next.dx + vy * next.dy;
+        if (t1 < -0.25 || t1 > tangent + 0.25) continue;
+        if (t2 < -0.25 || t2 > tangent + 0.25) continue;
+        if (Math.hypot(x - cx, y - cy) < r - 0.25) continue;
+        pixel(x, y);
+      }
+    }
+  }
+}
+
+/* ----------------------------------------------------------------- curbs */
+
+/**
+ * Trace the outline of the asphalt mask. A pixel is a curb when it is asphalt
+ * and at least one of its four neighbours is not, which makes the curb exactly
+ * 1px, continuous around rounded junction aprons, and impossible to draw across
+ * a junction.
+ */
+export function drawCurbs(s: Surface, mask: Surface, c: RoadColours): void {
+  const w = mask.width;
+  const h = mask.height;
+  const m = mask.pixels;
+  for (let y = 0; y < h; y++) {
+    const row = y * w;
+    for (let x = 0; x < w; x++) {
+      const v = m[row + x]!;
+      if (v === 0) continue;
+      const up = y > 0 ? m[row - w + x]! : 0;
+      const dn = y < h - 1 ? m[row + w + x]! : 0;
+      const lf = x > 0 ? m[row + x - 1]! : 0;
+      const rt = x < w - 1 ? m[row + x + 1]! : 0;
+      if (up && dn && lf && rt) continue;
+      s.pixels[row + x] = v === MASK.path ? c.pathEdge : c.edge;
+    }
+  }
+}
+
+/* ------------------------------------------------------------- bus stops */
+
+/** A 6x10 pole-and-sign marker, hand-drawn here so the art package stays put. */
+export function drawBusStop(s: Surface, c: RoadColours, x: number, y: number): void {
+  const bx = Math.round(x);
+  const by = Math.round(y);
+  // Pole: 4px under the sign, standing on (bx, by).
+  for (let k = 0; k < 4; k++) put(s, bx, by - k, c.busInk);
+  // Sign: 6x6, blue with an ink outline and a light bar for the route strip.
+  fillRect(s, bx - 3, by - 9, 6, 6, c.busSign);
+  strokeRect(s, bx - 3, by - 9, 6, 6, c.busInk);
+  fillRect(s, bx - 2, by - 7, 4, 1, c.busSignInk);
+  fillRect(s, bx - 2, by - 5, 3, 1, c.busSignInk);
+}
+
+/* ------------------------------------------------------------ the raster */
+
+/** Painted geometry of one chain, in the surface's own pixel coordinates. */
+interface Stroke {
+  chain: StreetChain;
+  /** ~0.5px spacing so offsets and dashes are gap-free. */
+  pts: Pt[];
+  /** Cumulative arc length along `pts`, native pixels, continuous. */
+  acc: number[];
+}
+
 /**
  * Paint every road into a native-pixel surface. `offsetX/offsetY` are the
- * native-pixel coordinates of the surface's top-left corner.
- *
- * Borders for all kinds go down first, then fills, then a disc at every node so
- * joins are solid, then centre lines, then the bus overlay. Painting in that
- * order means crossings and T-junctions never show a seam.
+ * native-pixel coordinates of the surface's top-left corner. Called once per
+ * static-layer rebuild; everything expensive happens here and nowhere else.
  */
 export function drawRoads(
   s: Surface,
@@ -256,76 +458,177 @@ export function drawRoads(
   offsetY: number,
 ): void {
   const c = roadColours(pal);
-  const cache = new Map<TownEdge, Pt[]>();
+  const chains = chainsFor(town);
+  const mask = createSurface(s.width, s.height);
 
-  const nativePts = (edge: TownEdge): Pt[] => {
-    let hit = cache.get(edge);
-    if (!hit) {
-      hit = densify(
-        sampleEdge(town, edge).map((p) => ({
-          x: p.x * PX_PER_UNIT - offsetX,
-          y: p.y * PX_PER_UNIT - offsetY,
-        })),
-      );
-      cache.set(edge, hit);
-    }
-    return hit;
-  };
+  const strokes = new Map<StreetChain, Stroke>();
+  for (const chain of chains) {
+    const pts = densify(
+      chain.pts.map((p) => ({ x: p.x * PX_PER_UNIT - offsetX, y: p.y * PX_PER_UNIT - offsetY })),
+      0.5,
+    );
+    strokes.set(chain, { chain, pts, acc: arcLengths(pts) });
+  }
 
-  const solid = town.edges.filter((e) => e.kind !== 'busline');
+  const roads = chains.filter((ch) => ch.kind !== 'busline');
 
-  // 1. Borders.
+  // 1. Asphalt, widest kind first, into the surface and the mask together.
   for (const kind of PAINT_ORDER) {
-    const style = ROAD_STYLE[kind];
-    for (const edge of solid) {
-      if (edge.kind !== kind) continue;
-      stamp(s, nativePts(edge), style.width / 2, kind === 'path' ? c.pathEdge : c.edge);
-    }
-  }
-  // 2. Fills.
-  for (const kind of PAINT_ORDER) {
-    const style = ROAD_STYLE[kind];
-    for (const edge of solid) {
-      if (edge.kind !== kind) continue;
-      const fill = kind === 'path' ? c.path : kind === 'highway' ? c.dark : c.fill;
-      stamp(s, nativePts(edge), style.width / 2 - 1, fill);
+    const radius = ROAD_STYLE[kind].width / 2;
+    for (const chain of roads) {
+      if (chain.kind !== kind) continue;
+      const pts = strokes.get(chain)!.pts;
+      stamp(s, pts, radius, fillFor(kind, c));
+      stamp(mask, pts, radius, MASK[kind]!);
     }
   }
 
-  // 3. Junction discs so differently sized roads meet cleanly.
-  const widest = new Map<NodeId, RoadKind>();
-  for (const edge of solid) {
-    for (const id of [edge.a, edge.b]) {
-      const cur = widest.get(id);
-      if (!cur || ROAD_STYLE[edge.kind].width > ROAD_STYLE[cur].width) widest.set(id, edge.kind);
+  // 2. Junction aprons.
+  const junctions = findJunctions(town, roads);
+  for (const j of junctions) {
+    const fill = fillFor(j.kind, c);
+    const kindMask = MASK[j.kind]!;
+    paintJunction(
+      { ...j, x: j.x - offsetX, y: j.y - offsetY },
+      (x, y, r) => {
+        disc(s, x, y, r, fill);
+        disc(mask, x, y, r, kindMask);
+      },
+      (x, y) => {
+        put(s, x, y, fill);
+        put(mask, x, y, kindMask);
+      },
+    );
+  }
+
+  // 3. Curbs: the outline of everything painted so far.
+  drawCurbs(s, mask, c);
+
+  // 4. Centre dashes, along chain arc length, cleared around junctions.
+  const blockers = new Map<NodeId, number>();
+  for (const j of junctions) blockers.set(j.id, j.radius + DASH_CLEARANCE);
+  for (const chain of roads) {
+    const style = ROAD_STYLE[chain.kind];
+    if (!style.centreLine) continue;
+    const stroke = strokes.get(chain)!;
+    const blocked = blockedSpans(chain, blockers);
+    dashCentre(s, stroke, blocked, style.doubleLine === true, c.centre);
+  }
+
+  // 5. Bus overlay: never on the centreline.
+  const busChains = chains.filter((ch) => ch.kind === 'busline');
+  for (const chain of busChains) drawBusLine(s, strokes.get(chain)!, c);
+  for (const p of busStops(town, chains, junctions, strokes)) {
+    drawBusStop(s, c, p.x - offsetX, p.y - offsetY);
+  }
+}
+
+/** Arc-length windows on a chain that the centre line must skip. */
+function blockedSpans(chain: StreetChain, blockers: Map<NodeId, number>): [number, number][] {
+  const out: [number, number][] = [];
+  chain.nodes.forEach((id, i) => {
+    const clear = blockers.get(id);
+    if (clear === undefined) return;
+    const idx = i === 0 ? chain.spans[0]!.start : chain.spans[i - 1]!.end;
+    const at = chain.acc[idx]! * PX_PER_UNIT;
+    out.push([at - clear, at + clear]);
+  });
+  return out;
+}
+
+function isBlocked(spans: [number, number][], at: number): boolean {
+  for (const [a, b] of spans) if (at >= a && at <= b) return true;
+  return false;
+}
+
+function dashCentre(
+  s: Surface,
+  stroke: Stroke,
+  blocked: [number, number][],
+  double: boolean,
+  idx: number,
+): void {
+  const { pts, acc } = stroke;
+  const period = DASH + GAP;
+  for (let i = 1; i < pts.length; i++) {
+    const at = acc[i]!;
+    if (at % period >= DASH - 0.5) continue;
+    if (isBlocked(blocked, at)) continue;
+    const a = pts[i - 1]!;
+    const b = pts[i]!;
+    const len = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+    if (!double) {
+      put(s, b.x, b.y, idx);
+      continue;
     }
+    const nx = -((b.y - a.y) / len) * 1.5;
+    const ny = ((b.x - a.x) / len) * 1.5;
+    put(s, b.x + nx, b.y + ny, idx);
+    put(s, b.x - nx, b.y - ny, idx);
   }
-  for (const node of town.nodes) {
-    const kind = widest.get(node.id);
-    if (!kind) continue;
-    const r = ROAD_STYLE[kind].width / 2;
-    const x = node.x * PX_PER_UNIT - offsetX;
-    const y = node.y * PX_PER_UNIT - offsetY;
-    disc(s, x, y, r, kind === 'path' ? c.pathEdge : c.edge);
-    disc(s, x, y, r - 1, kind === 'path' ? c.path : kind === 'highway' ? c.dark : c.fill);
+}
+
+/** A thin dotted line riding one consistent side of the road it follows. */
+function drawBusLine(s: Surface, stroke: Stroke, c: RoadColours): void {
+  const { pts, acc } = stroke;
+  for (let i = 1; i < pts.length; i++) {
+    if (acc[i]! % 5 >= 1.5) continue;
+    const a = pts[i - 1]!;
+    const b = pts[i]!;
+    const len = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+    const nx = (-(b.y - a.y) / len) * BUS_OFFSET;
+    const ny = ((b.x - a.x) / len) * BUS_OFFSET;
+    put(s, b.x + nx, b.y + ny, c.bus);
+  }
+}
+
+/**
+ * Where bus stop markers go: any node on a bus line that is either a place or a
+ * junction. The marker stands clear of the asphalt, on the same side the dotted
+ * overlay runs.
+ */
+function busStops(
+  town: Town,
+  chains: StreetChain[],
+  junctions: Junction[],
+  strokes: Map<StreetChain, Stroke>,
+): Pt[] {
+  const junctionClear = new Map<NodeId, number>(junctions.map((j) => [j.id, j.radius + 4]));
+  const byId = new Map<NodeId, TownNode>(town.nodes.map((n) => [n.id, n]));
+  const roadHalf = new Map<NodeId, number>();
+  for (const chain of chains) {
+    if (chain.kind === 'busline') continue;
+    const half = ROAD_STYLE[chain.kind].width / 2;
+    for (const id of chain.nodes) roadHalf.set(id, Math.max(roadHalf.get(id) ?? 0, half));
   }
 
-  // 4. Dashed centre lines, measured along arc length so curves dash evenly.
-  for (const edge of solid) {
-    if (!ROAD_STYLE[edge.kind].centreLine) continue;
-    dashAlong(s, nativePts(edge), 6, 4, 0, (x, y) => put(s, x, y, c.centre));
-  }
-
-  // 5. Bus lines: a 2px dashed overlay riding on top of whatever road they share.
-  for (const edge of town.edges) {
-    if (edge.kind !== 'busline') continue;
-    dashAlong(s, nativePts(edge), 5, 5, 2, (x, y) => {
-      put(s, x, y, c.bus);
-      put(s, x + 1, y, c.bus);
-      put(s, x, y + 1, c.bus);
-      put(s, x + 1, y + 1, c.bus);
+  const out: Pt[] = [];
+  const done = new Set<NodeId>();
+  for (const chain of chains) {
+    if (chain.kind !== 'busline') continue;
+    chain.nodes.forEach((id, i) => {
+      if (done.has(id)) return;
+      const node = byId.get(id);
+      if (!node) return;
+      const clear = junctionClear.get(id);
+      if (!node.location && clear === undefined) return;
+      done.add(id);
+      const idx = i === 0 ? chain.spans[0]!.start : chain.spans[i - 1]!.end;
+      const dir = direction(chain.pts, idx, i === 0 ? 1 : -1) ?? { x: 1, y: 0 };
+      const sign = i === 0 ? 1 : -1;
+      const off = (roadHalf.get(id) ?? 5) + 5;
+      // Sideways off the kerb, and - at a junction - back along the road so the
+      // sign does not land in the middle of the crossing street. The pole base
+      // sits 5px below the offset point so the 10px sign clears the asphalt.
+      // `dir` always points INTO the chain, so the shift stays on the road.
+      const back = clear ?? 0;
+      out.push({
+        x: node.x * PX_PER_UNIT + -dir.y * off * sign + dir.x * back,
+        y: node.y * PX_PER_UNIT + dir.x * off * sign + dir.y * back + 5,
+      });
     });
   }
+  return out;
 }
 
 /** Walk a densified polyline, calling `paint` only inside the dash part of the cycle. */

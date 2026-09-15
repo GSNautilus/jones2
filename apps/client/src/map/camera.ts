@@ -12,8 +12,15 @@
  */
 import { PX_PER_UNIT } from './art';
 
-/** The only zoom levels. Integers, so drawImage never interpolates. */
-export const ZOOM_LEVELS: readonly number[] = [2, 3, 4];
+/**
+ * The only zoom levels. Integers, so drawImage never interpolates. Level 1 is
+ * native resolution: a big town fits on screen whole, at the cost of labels
+ * (the renderer hides them there).
+ */
+export const ZOOM_LEVELS: readonly number[] = [1, 2, 3, 4];
+
+/** Below this zoom, text overlays are unreadable and are not drawn. */
+export const LABEL_MIN_ZOOM = 2;
 
 export interface View {
   /** One of ZOOM_LEVELS. */

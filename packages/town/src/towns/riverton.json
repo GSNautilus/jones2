@@ -6,58 +6,38 @@
     {
       "id": "bank",
       "name": "First Jones Bank",
-      "x": 164,
-      "y": 205,
+      "x": 394,
+      "y": 518,
       "location": "bank",
       "pixel": {
         "kind": "bank"
       }
     },
     {
-      "id": "university",
-      "name": "Hi-Tech University",
-      "x": 371,
-      "y": 186,
-      "location": "university",
-      "pixel": {
-        "kind": "university"
-      }
-    },
-    {
-      "id": "clinic",
-      "name": "Doc's Walk-In Clinic",
-      "x": 465,
-      "y": 198,
-      "location": "clinic",
-      "pixel": {
-        "kind": "clinic"
-      }
-    },
-    {
-      "id": "employment",
-      "name": "Employment Office",
-      "x": 204,
-      "y": 325,
-      "location": "employment",
-      "pixel": {
-        "kind": "employment"
-      }
-    },
-    {
       "id": "bus_depot",
       "name": "Bus Depot",
-      "x": 268,
-      "y": 245,
+      "x": 501,
+      "y": 480,
       "location": "bus_depot",
       "pixel": {
         "kind": "bus_depot"
       }
     },
     {
+      "id": "employment",
+      "name": "Employment Office",
+      "x": 539,
+      "y": 600,
+      "location": "employment",
+      "pixel": {
+        "kind": "employment"
+      }
+    },
+    {
       "id": "newsstand",
       "name": "Corner Newsstand",
-      "x": 255,
-      "y": 170,
+      "x": 641,
+      "y": 452,
       "location": "newsstand",
       "pixel": {
         "kind": "newsstand"
@@ -66,138 +46,58 @@
     {
       "id": "monolith",
       "name": "Monolith Burgers",
-      "x": 413,
-      "y": 300,
+      "x": 758,
+      "y": 553,
       "location": "monolith",
       "pixel": {
         "kind": "monolith"
       }
     },
     {
+      "id": "clinic",
+      "name": "Doc's Walk-In Clinic",
+      "x": 822,
+      "y": 432,
+      "location": "clinic",
+      "pixel": {
+        "kind": "clinic"
+      }
+    },
+    {
       "id": "cafe",
       "name": "Java Hut",
-      "x": 501,
-      "y": 300,
+      "x": 891,
+      "y": 590,
       "location": "cafe",
       "pixel": {
         "kind": "cafe"
       }
     },
     {
-      "id": "qt_clothing",
-      "name": "QT Clothing",
-      "x": 565,
-      "y": 95,
-      "location": "qt_clothing",
+      "id": "university",
+      "name": "Hi-Tech University",
+      "x": 688,
+      "y": 363,
+      "location": "university",
       "pixel": {
-        "kind": "qt_clothing"
+        "kind": "university"
       }
     },
     {
-      "id": "zmart",
-      "name": "Z-Mart",
-      "x": 648,
-      "y": 168,
-      "location": "zmart",
+      "id": "lowcost",
+      "name": "Low-Cost Housing",
+      "x": 533,
+      "y": 318,
+      "location": "lowcost",
       "pixel": {
-        "kind": "zmart"
-      }
-    },
-    {
-      "id": "socket_city",
-      "name": "Socket City",
-      "x": 555,
-      "y": 199,
-      "location": "socket_city",
-      "pixel": {
-        "kind": "socket_city"
-      }
-    },
-    {
-      "id": "blacks_market",
-      "name": "Black's Market",
-      "x": 590,
-      "y": 320,
-      "location": "blacks_market",
-      "pixel": {
-        "kind": "blacks_market"
-      }
-    },
-    {
-      "id": "pawn",
-      "name": "Pawn Shop",
-      "x": 680,
-      "y": 365,
-      "location": "pawn",
-      "pixel": {
-        "kind": "pawn"
-      }
-    },
-    {
-      "id": "auto",
-      "name": "Honest Al's Autos",
-      "x": 680,
-      "y": 240,
-      "location": "auto",
-      "pixel": {
-        "kind": "auto"
-      }
-    },
-    {
-      "id": "park",
-      "name": "Riverside Park",
-      "x": 60,
-      "y": 200,
-      "location": "park",
-      "pixel": {
-        "kind": "park"
-      }
-    },
-    {
-      "id": "gym",
-      "name": "Flex Factory Gym",
-      "x": 223,
-      "y": 406,
-      "location": "gym",
-      "pixel": {
-        "kind": "gym"
-      }
-    },
-    {
-      "id": "cinema",
-      "name": "Bijou Cinema",
-      "x": 318,
-      "y": 337,
-      "location": "cinema",
-      "pixel": {
-        "kind": "cinema"
-      }
-    },
-    {
-      "id": "gilded_fork",
-      "name": "The Gilded Fork",
-      "x": 129,
-      "y": 420,
-      "location": "gilded_fork",
-      "pixel": {
-        "kind": "gilded_fork"
-      }
-    },
-    {
-      "id": "chez_cholesterol",
-      "name": "Chez Cholesterol",
-      "x": 319,
-      "y": 432,
-      "location": "chez_cholesterol",
-      "pixel": {
-        "kind": "chez_cholesterol"
+        "kind": "lowcost"
       }
     },
     {
       "id": "factory",
       "name": "Consolidated Widgets",
-      "x": 336,
-      "y": 94,
+      "x": 500,
+      "y": 193,
       "location": "factory",
       "pixel": {
         "kind": "factory"
@@ -206,52 +106,18 @@
     {
       "id": "shady_acres",
       "name": "Shady Acres",
-      "x": 468,
-      "y": 106,
+      "x": 716,
+      "y": 234,
       "location": "shady_acres",
       "pixel": {
         "kind": "shady_acres"
       }
     },
     {
-      "id": "lowcost",
-      "name": "Low-Cost Housing",
-      "x": 180,
-      "y": 112,
-      "location": "lowcost",
-      "pixel": {
-        "kind": "lowcost"
-      }
-    },
-    {
-      "id": "security_apts",
-      "name": "Security Apartments",
-      "x": 413,
-      "y": 406,
-      "location": "security_apts",
-      "pixel": {
-        "kind": "security_apts"
-      }
-    },
-    {
-      "id": "house_elm",
-      "name": "12 Elm Street",
-      "x": 48,
-      "y": 430,
-      "location": "house_elm",
-      "pixel": {
-        "kind": "house",
-        "params": {
-          "wall": "cream",
-          "roof": "brick"
-        }
-      }
-    },
-    {
       "id": "house_hill",
       "name": "Hilltop Manor",
-      "x": 660,
-      "y": 80,
+      "x": 853,
+      "y": 191,
       "location": "house_hill",
       "pixel": {
         "kind": "house",
@@ -264,10 +130,154 @@
       }
     },
     {
+      "id": "qt_clothing",
+      "name": "QT Clothing",
+      "x": 1082,
+      "y": 253,
+      "location": "qt_clothing",
+      "pixel": {
+        "kind": "qt_clothing"
+      }
+    },
+    {
+      "id": "socket_city",
+      "name": "Socket City",
+      "x": 991,
+      "y": 368,
+      "location": "socket_city",
+      "pixel": {
+        "kind": "socket_city"
+      }
+    },
+    {
+      "id": "zmart",
+      "name": "Z-Mart",
+      "x": 1155,
+      "y": 387,
+      "location": "zmart",
+      "pixel": {
+        "kind": "zmart"
+      }
+    },
+    {
+      "id": "auto",
+      "name": "Honest Al's Autos",
+      "x": 1167,
+      "y": 548,
+      "location": "auto",
+      "pixel": {
+        "kind": "auto"
+      }
+    },
+    {
+      "id": "blacks_market",
+      "name": "Black's Market",
+      "x": 1028,
+      "y": 523,
+      "location": "blacks_market",
+      "pixel": {
+        "kind": "blacks_market"
+      }
+    },
+    {
+      "id": "pawn",
+      "name": "Pawn Shop",
+      "x": 1139,
+      "y": 623,
+      "location": "pawn",
+      "pixel": {
+        "kind": "pawn"
+      }
+    },
+    {
+      "id": "cinema",
+      "name": "Bijou Cinema",
+      "x": 440,
+      "y": 670,
+      "location": "cinema",
+      "pixel": {
+        "kind": "cinema"
+      }
+    },
+    {
+      "id": "gym",
+      "name": "Flex Factory Gym",
+      "x": 548,
+      "y": 711,
+      "location": "gym",
+      "pixel": {
+        "kind": "gym"
+      }
+    },
+    {
+      "id": "gilded_fork",
+      "name": "The Gilded Fork",
+      "x": 653,
+      "y": 710,
+      "location": "gilded_fork",
+      "pixel": {
+        "kind": "gilded_fork"
+      }
+    },
+    {
+      "id": "chez_cholesterol",
+      "name": "Chez Cholesterol",
+      "x": 750,
+      "y": 683,
+      "location": "chez_cholesterol",
+      "pixel": {
+        "kind": "chez_cholesterol"
+      }
+    },
+    {
+      "id": "house_elm",
+      "name": "12 Elm Street",
+      "x": 92,
+      "y": 686,
+      "location": "house_elm",
+      "pixel": {
+        "kind": "house",
+        "params": {
+          "wall": "cream",
+          "roof": "brick"
+        }
+      }
+    },
+    {
+      "id": "park",
+      "name": "Riverside Park",
+      "x": 100,
+      "y": 574,
+      "location": "park",
+      "pixel": {
+        "kind": "park"
+      }
+    },
+    {
+      "id": "lookout",
+      "name": "Lookout Point",
+      "x": 74,
+      "y": 298,
+      "location": "lookout",
+      "pixel": {
+        "kind": "lookout"
+      }
+    },
+    {
+      "id": "security_apts",
+      "name": "Security Apartments",
+      "x": 871,
+      "y": 699,
+      "location": "security_apts",
+      "pixel": {
+        "kind": "security_apts"
+      }
+    },
+    {
       "id": "house_lake",
       "name": "Lakeside Cottage",
-      "x": 696,
-      "y": 432,
+      "x": 1166,
+      "y": 682,
       "location": "house_lake",
       "pixel": {
         "kind": "house",
@@ -279,1728 +289,3967 @@
       }
     },
     {
-      "id": "lookout",
-      "name": "Lookout Point",
-      "x": 54,
-      "y": 70,
-      "location": "lookout",
-      "pixel": {
-        "kind": "lookout"
-      }
+      "id": "highway_w",
+      "x": 300,
+      "y": 26
     },
     {
-      "id": "j_west",
-      "x": 120,
-      "y": 300
+      "id": "highway_e",
+      "x": 1214,
+      "y": 664
+    },
+    {
+      "id": "strip_rd_w",
+      "x": 982,
+      "y": 206
+    },
+    {
+      "id": "strip_rd_e",
+      "x": 1016,
+      "y": 600
+    },
+    {
+      "id": "main_st_w",
+      "x": 268,
+      "y": 604
+    },
+    {
+      "id": "j_east",
+      "x": 1099,
+      "y": 423
     },
     {
       "id": "j_center",
-      "x": 210,
-      "y": 246
+      "x": 510,
+      "y": 508
     },
     {
-      "id": "j_mc",
-      "x": 356,
-      "y": 226
+      "id": "j_west",
+      "x": 323,
+      "y": 581
     },
     {
-      "id": "j_shop1",
-      "x": 546,
-      "y": 118
-    },
-    {
-      "id": "j_north",
-      "x": 306,
-      "y": 103
-    },
-    {
-      "id": "j_hill",
-      "x": 590,
-      "y": 107
-    },
-    {
-      "id": "j_lake",
-      "x": 628,
-      "y": 372
+      "id": "river_ln_e",
+      "x": 800,
+      "y": 698
     },
     {
       "id": "j_elm",
-      "x": 87,
-      "y": 431
+      "x": 358,
+      "y": 653
     },
     {
-      "id": "j_hwyNW",
-      "x": 120,
+      "id": "elm_ln_e",
+      "x": 110,
+      "y": 612
+    },
+    {
+      "id": "j_park",
+      "x": 232,
+      "y": 676
+    },
+    {
+      "id": "park_path_e",
+      "x": 128,
+      "y": 452
+    },
+    {
+      "id": "j_bluff",
+      "x": 140,
+      "y": 479
+    },
+    {
+      "id": "lookout_path_e",
+      "x": 118,
+      "y": 228
+    },
+    {
+      "id": "j_mill",
+      "x": 596,
+      "y": 482
+    },
+    {
+      "id": "j_hwy_mill",
+      "x": 550,
       "y": 20
     },
     {
-      "id": "j_hwyN",
-      "x": 270,
-      "y": 20
+      "id": "j_campus",
+      "x": 714,
+      "y": 460
     },
     {
-      "id": "j_hwyNE",
-      "x": 650,
-      "y": 20
+      "id": "campus_ln_e",
+      "x": 748,
+      "y": 372
     },
     {
-      "id": "j_hwyE",
-      "x": 750,
-      "y": 150
+      "id": "j_hill",
+      "x": 599,
+      "y": 275
     },
     {
-      "id": "j_hwyE2",
-      "x": 750,
-      "y": 380
+      "id": "j_strip_n",
+      "x": 999,
+      "y": 226
+    },
+    {
+      "id": "j_manor",
+      "x": 796,
+      "y": 263
+    },
+    {
+      "id": "manor_dr_e",
+      "x": 800,
+      "y": 156
+    },
+    {
+      "id": "j_hill_ramp",
+      "x": 919,
+      "y": 255
+    },
+    {
+      "id": "j_hwy_hill",
+      "x": 919,
+      "y": 43
+    },
+    {
+      "id": "j_lake_w",
+      "x": 932,
+      "y": 438
+    },
+    {
+      "id": "lake_rd_e",
+      "x": 1200,
+      "y": 706
+    },
+    {
+      "id": "a_bank",
+      "x": 406,
+      "y": 546
+    },
+    {
+      "id": "a_newsstand",
+      "x": 644,
+      "y": 471
+    },
+    {
+      "id": "a_monolith",
+      "x": 748,
+      "y": 456
+    },
+    {
+      "id": "a_clinic",
+      "x": 823,
+      "y": 451
+    },
+    {
+      "id": "a_cafe",
+      "x": 873,
+      "y": 446
+    },
+    {
+      "id": "a_university",
+      "x": 712,
+      "y": 388
+    },
+    {
+      "id": "a_lowcost",
+      "x": 611,
+      "y": 365
+    },
+    {
+      "id": "a_factory",
+      "x": 587,
+      "y": 173
+    },
+    {
+      "id": "a_shady_acres",
+      "x": 712,
+      "y": 255
+    },
+    {
+      "id": "a_house_hill",
+      "x": 795,
+      "y": 180
+    },
+    {
+      "id": "a_qt_clothing",
+      "x": 1041,
+      "y": 280
+    },
+    {
+      "id": "a_socket_city",
+      "x": 1069,
+      "y": 328
+    },
+    {
+      "id": "a_zmart",
+      "x": 1095,
+      "y": 400
+    },
+    {
+      "id": "a_auto",
+      "x": 1089,
+      "y": 519
+    },
+    {
+      "id": "a_blacks_market",
+      "x": 1076,
+      "y": 548
+    },
+    {
+      "id": "a_cinema",
+      "x": 427,
+      "y": 705
+    },
+    {
+      "id": "a_gym",
+      "x": 546,
+      "y": 731
+    },
+    {
+      "id": "a_gilded_fork",
+      "x": 655,
+      "y": 731
+    },
+    {
+      "id": "a_chez_cholesterol",
+      "x": 758,
+      "y": 711
+    },
+    {
+      "id": "a_house_elm",
+      "x": 133,
+      "y": 628
+    },
+    {
+      "id": "a_park",
+      "x": 168,
+      "y": 543
+    },
+    {
+      "id": "a_lookout",
+      "x": 131,
+      "y": 281
+    },
+    {
+      "id": "a_security_apts",
+      "x": 994,
+      "y": 625
+    },
+    {
+      "id": "a_house_lake",
+      "x": 1167,
+      "y": 707
+    },
+    {
+      "id": "w_highway_0_1",
+      "x": 425,
+      "y": 22
+    },
+    {
+      "id": "w_highway_1_1",
+      "x": 673,
+      "y": 21
+    },
+    {
+      "id": "w_highway_1_2",
+      "x": 796,
+      "y": 28
+    },
+    {
+      "id": "w_highway_2_1",
+      "x": 1044,
+      "y": 80
+    },
+    {
+      "id": "w_highway_2_2",
+      "x": 1142,
+      "y": 165
+    },
+    {
+      "id": "w_highway_2_3",
+      "x": 1205,
+      "y": 279
+    },
+    {
+      "id": "w_highway_2_4",
+      "x": 1238,
+      "y": 406
+    },
+    {
+      "id": "w_highway_2_5",
+      "x": 1241,
+      "y": 537
+    },
+    {
+      "id": "w_main_st_10_1",
+      "x": 1016,
+      "y": 433
+    },
+    {
+      "id": "w_park_path_0_1",
+      "x": 221,
+      "y": 606
+    },
+    {
+      "id": "w_lookout_path_0_1",
+      "x": 180,
+      "y": 389
+    },
+    {
+      "id": "w_mill_rd_3_1",
+      "x": 553,
+      "y": 100
+    },
+    {
+      "id": "w_hwy_hill_ramp_0_1",
+      "x": 929,
+      "y": 152
+    },
+    {
+      "id": "w_lake_rd_0_1",
+      "x": 951,
+      "y": 535
+    },
+    {
+      "id": "w_lake_rd_1_1",
+      "x": 1069,
+      "y": 688
     }
   ],
   "edges": [
     {
-      "a": "j_west",
-      "b": "j_center",
-      "kind": "street",
-      "minutes": 27,
+      "a": "highway_w",
+      "b": "w_highway_0_1",
+      "minutes": 10,
+      "kind": "highway",
+      "street": "highway",
       "curve": [
         {
-          "x": 152.7650189484679,
-          "y": 286.60836491411317
+          "x": 319,
+          "y": 25
         },
         {
-          "x": 183.61347527947092,
-          "y": 270.02245879911817
-        }
-      ]
-    },
-    {
-      "a": "j_center",
-      "b": "bus_depot",
-      "kind": "street",
-      "minutes": 15,
-      "curve": [
-        {
-          "x": 239.0642764060522,
-          "y": 249.22803155102605
-        }
-      ]
-    },
-    {
-      "a": "bus_depot",
-      "b": "newsstand",
-      "kind": "street",
-      "minutes": 19,
-      "curve": [
-        {
-          "x": 267.991046499069,
-          "y": 219.25044082905026
+          "x": 334,
+          "y": 25
         },
         {
-          "x": 261.7862271318173,
-          "y": 194.5748317415961
-        }
-      ]
-    },
-    {
-      "a": "newsstand",
-      "b": "j_mc",
-      "kind": "street",
-      "minutes": 29,
-      "curve": [
-        {
-          "x": 300,
-          "y": 194
-        }
-      ]
-    },
-    {
-      "a": "j_mc",
-      "b": "clinic",
-      "kind": "street",
-      "minutes": 29,
-      "curve": [
-        {
-          "x": 390.65034715771935,
-          "y": 210.1150419115981
+          "x": 355,
+          "y": 24
         },
         {
-          "x": 430.14636703751995,
-          "y": 213.09359549129798
-        }
-      ]
-    },
-    {
-      "a": "clinic",
-      "b": "monolith",
-      "kind": "street",
-      "minutes": 30,
-      "curve": [
-        {
-          "x": 442.174192088718,
-          "y": 229.19991492104577
+          "x": 374,
+          "y": 24
         },
         {
-          "x": 436.50505633107065,
-          "y": 269.1463685870818
+          "x": 399,
+          "y": 23
         }
       ]
     },
     {
-      "a": "monolith",
-      "b": "cafe",
-      "kind": "street",
-      "minutes": 22,
+      "a": "w_highway_0_1",
+      "b": "j_hwy_mill",
+      "minutes": 10,
+      "kind": "highway",
+      "street": "highway",
       "curve": [
         {
-          "x": 442.3333333333333,
-          "y": 303.0294136799695
+          "x": 447,
+          "y": 21
         },
         {
-          "x": 471.6666666666667,
-          "y": 303.3042368634194
-        }
-      ]
-    },
-    {
-      "a": "cafe",
-      "b": "socket_city",
-      "kind": "street",
-      "minutes": 29,
-      "curve": [
-        {
-          "x": 531.7003514888354,
-          "y": 251.47840574650607
-        }
-      ]
-    },
-    {
-      "a": "j_center",
-      "b": "employment",
-      "kind": "street",
-      "minutes": 20,
-      "curve": [
-        {
-          "x": 211.59814471176207,
-          "y": 272.60661014688486
+          "x": 470,
+          "y": 21
         },
         {
-          "x": 208.9439340960558,
-          "y": 298.8902565980127
-        }
-      ]
-    },
-    {
-      "a": "j_center",
-      "b": "bank",
-      "kind": "street",
-      "minutes": 16,
-      "curve": [
-        {
-          "x": 191.86683483805126,
-          "y": 235.47460806787745
+          "x": 488,
+          "y": 21
         },
         {
-          "x": 181.73453819442165,
-          "y": 215.97263194447
+          "x": 506,
+          "y": 20
+        },
+        {
+          "x": 527,
+          "y": 20
         }
       ]
     },
     {
-      "a": "j_mc",
-      "b": "university",
-      "kind": "street",
+      "a": "j_hwy_mill",
+      "b": "w_highway_1_1",
+      "minutes": 10,
+      "kind": "highway",
+      "street": "highway",
+      "curve": [
+        {
+          "x": 576,
+          "y": 20
+        },
+        {
+          "x": 591,
+          "y": 20
+        },
+        {
+          "x": 611,
+          "y": 20
+        },
+        {
+          "x": 631,
+          "y": 21
+        },
+        {
+          "x": 647,
+          "y": 21
+        }
+      ]
+    },
+    {
+      "a": "w_highway_1_1",
+      "b": "w_highway_1_2",
+      "minutes": 10,
+      "kind": "highway",
+      "street": "highway",
+      "curve": [
+        {
+          "x": 699,
+          "y": 22
+        },
+        {
+          "x": 719,
+          "y": 23
+        },
+        {
+          "x": 738,
+          "y": 24
+        },
+        {
+          "x": 754,
+          "y": 24
+        },
+        {
+          "x": 773,
+          "y": 26
+        }
+      ]
+    },
+    {
+      "a": "w_highway_1_2",
+      "b": "j_hwy_hill",
+      "minutes": 10,
+      "kind": "highway",
+      "street": "highway",
+      "curve": [
+        {
+          "x": 820,
+          "y": 30
+        },
+        {
+          "x": 841,
+          "y": 32
+        },
+        {
+          "x": 859,
+          "y": 34
+        },
+        {
+          "x": 876,
+          "y": 37
+        },
+        {
+          "x": 896,
+          "y": 39
+        }
+      ]
+    },
+    {
+      "a": "j_hwy_hill",
+      "b": "w_highway_2_1",
       "minutes": 11,
+      "kind": "highway",
+      "street": "highway",
       "curve": [
         {
-          "x": 364.82604999320114,
-          "y": 206.49726874745045
-        }
-      ]
-    },
-    {
-      "a": "j_shop1",
-      "b": "qt_clothing",
-      "kind": "street",
-      "minutes": 8,
-      "curve": [
-        {
-          "x": 554.043850994041,
-          "y": 105.29709429942514
-        }
-      ]
-    },
-    {
-      "a": "j_shop1",
-      "b": "socket_city",
-      "kind": "street",
-      "minutes": 21,
-      "curve": [
-        {
-          "x": 553.6506201948489,
-          "y": 144.48326442279458
+          "x": 945,
+          "y": 48
         },
         {
-          "x": 546.7837921128385,
-          "y": 172.57957865412905
-        }
-      ]
-    },
-    {
-      "a": "socket_city",
-      "b": "zmart",
-      "kind": "street",
-      "minutes": 25,
-      "curve": [
-        {
-          "x": 602.8269097856701,
-          "y": 187.48072935701035
-        }
-      ]
-    },
-    {
-      "a": "socket_city",
-      "b": "blacks_market",
-      "kind": "street",
-      "minutes": 32,
-      "curve": [
-        {
-          "x": 559.3977253263606,
-          "y": 241.43591967143834
+          "x": 964,
+          "y": 52
         },
         {
-          "x": 583.7033892546648,
-          "y": 278.1133447059509
-        }
-      ]
-    },
-    {
-      "a": "blacks_market",
-      "b": "pawn",
-      "kind": "street",
-      "minutes": 26,
-      "curve": [
-        {
-          "x": 622.0398370395118,
-          "y": 330.92032592097644
+          "x": 985,
+          "y": 57
         },
         {
-          "x": 647.616508098977,
-          "y": 354.7669838020462
-        }
-      ]
-    },
-    {
-      "a": "pawn",
-      "b": "auto",
-      "kind": "street",
-      "minutes": 32,
-      "curve": [
-        {
-          "x": 687.7764394038386,
-          "y": 302.5
-        }
-      ]
-    },
-    {
-      "a": "university",
-      "b": "j_north",
-      "kind": "street",
-      "minutes": 27,
-      "curve": [
-        {
-          "x": 354.02161872487835,
-          "y": 154.6617845327258
+          "x": 1005,
+          "y": 63
         },
         {
-          "x": 324.7227266264427,
-          "y": 132.9721618788903
+          "x": 1022,
+          "y": 69
         }
       ]
     },
     {
-      "a": "j_north",
-      "b": "factory",
-      "kind": "street",
-      "minutes": 8,
+      "a": "w_highway_2_1",
+      "b": "w_highway_2_2",
+      "minutes": 11,
+      "kind": "highway",
+      "street": "highway",
       "curve": [
         {
-          "x": 320.39717341216164,
-          "y": 96.49057804053882
-        }
-      ]
-    },
-    {
-      "a": "j_north",
-      "b": "lowcost",
-      "kind": "street",
-      "minutes": 32,
-      "curve": [
-        {
-          "x": 263.7148283909998,
-          "y": 102.0075974739974
+          "x": 1065,
+          "y": 92
         },
         {
-          "x": 222.3299451819485,
-          "y": 113.61923254727876
-        }
-      ]
-    },
-    {
-      "a": "j_north",
-      "b": "shady_acres",
-      "kind": "street",
-      "minutes": 41,
-      "curve": []
-    },
-    {
-      "a": "shady_acres",
-      "b": "j_hill",
-      "kind": "street",
-      "minutes": 32,
-      "curve": [
-        {
-          "x": 508.7306761134789,
-          "y": 98.52418082224352
+          "x": 1082,
+          "y": 104
         },
         {
-          "x": 549.2807547638371,
-          "y": 113.08125214521324
+          "x": 1098,
+          "y": 117
+        },
+        {
+          "x": 1113,
+          "y": 131
+        },
+        {
+          "x": 1127,
+          "y": 146
         }
       ]
     },
     {
-      "a": "j_hill",
-      "b": "house_hill",
-      "kind": "street",
-      "minutes": 19,
-      "curve": []
+      "a": "w_highway_2_2",
+      "b": "w_highway_2_3",
+      "minutes": 11,
+      "kind": "highway",
+      "street": "highway",
+      "curve": [
+        {
+          "x": 1155,
+          "y": 183
+        },
+        {
+          "x": 1166,
+          "y": 199
+        },
+        {
+          "x": 1177,
+          "y": 219
+        },
+        {
+          "x": 1186,
+          "y": 237
+        },
+        {
+          "x": 1195,
+          "y": 256
+        }
+      ]
     },
     {
-      "a": "j_hill",
-      "b": "qt_clothing",
+      "a": "w_highway_2_3",
+      "b": "w_highway_2_4",
+      "minutes": 11,
+      "kind": "highway",
+      "street": "highway",
+      "curve": [
+        {
+          "x": 1213,
+          "y": 304
+        },
+        {
+          "x": 1220,
+          "y": 324
+        },
+        {
+          "x": 1225,
+          "y": 344
+        },
+        {
+          "x": 1229,
+          "y": 361
+        },
+        {
+          "x": 1234,
+          "y": 380
+        }
+      ]
+    },
+    {
+      "a": "w_highway_2_4",
+      "b": "w_highway_2_5",
+      "minutes": 11,
+      "kind": "highway",
+      "street": "highway",
+      "curve": [
+        {
+          "x": 1240,
+          "y": 430
+        },
+        {
+          "x": 1241,
+          "y": 451
+        },
+        {
+          "x": 1242,
+          "y": 472
+        },
+        {
+          "x": 1242,
+          "y": 493
+        },
+        {
+          "x": 1242,
+          "y": 513
+        }
+      ]
+    },
+    {
+      "a": "w_highway_2_5",
+      "b": "highway_e",
+      "minutes": 11,
+      "kind": "highway",
+      "street": "highway",
+      "curve": [
+        {
+          "x": 1239,
+          "y": 569
+        },
+        {
+          "x": 1236,
+          "y": 593
+        },
+        {
+          "x": 1230,
+          "y": 615
+        },
+        {
+          "x": 1225,
+          "y": 632
+        },
+        {
+          "x": 1219,
+          "y": 648
+        }
+      ]
+    },
+    {
+      "a": "strip_rd_w",
+      "b": "j_strip_n",
+      "minutes": 3,
       "kind": "street",
+      "street": "strip_rd",
+      "curve": [
+        {
+          "x": 991,
+          "y": 217
+        }
+      ]
+    },
+    {
+      "a": "j_strip_n",
+      "b": "a_qt_clothing",
+      "minutes": 9,
+      "kind": "street",
+      "street": "strip_rd",
+      "curve": [
+        {
+          "x": 1010,
+          "y": 240
+        },
+        {
+          "x": 1020,
+          "y": 252
+        },
+        {
+          "x": 1029,
+          "y": 264
+        }
+      ]
+    },
+    {
+      "a": "a_qt_clothing",
+      "b": "a_socket_city",
       "minutes": 7,
+      "kind": "street",
+      "street": "strip_rd",
       "curve": [
         {
-          "x": 576.8620236713876,
-          "y": 102.32911735127564
+          "x": 1051,
+          "y": 296
+        },
+        {
+          "x": 1060,
+          "y": 311
+        }
+      ]
+    },
+    {
+      "a": "a_socket_city",
+      "b": "a_zmart",
+      "minutes": 10,
+      "kind": "street",
+      "street": "strip_rd",
+      "curve": [
+        {
+          "x": 1078,
+          "y": 347
+        },
+        {
+          "x": 1085,
+          "y": 365
+        },
+        {
+          "x": 1090,
+          "y": 380
+        }
+      ]
+    },
+    {
+      "a": "a_zmart",
+      "b": "j_east",
+      "minutes": 3,
+      "kind": "street",
+      "street": "strip_rd",
+      "curve": [
+        {
+          "x": 1097,
+          "y": 411
+        }
+      ]
+    },
+    {
+      "a": "j_east",
+      "b": "a_auto",
+      "minutes": 12,
+      "kind": "street",
+      "street": "strip_rd",
+      "curve": [
+        {
+          "x": 1101,
+          "y": 446
+        },
+        {
+          "x": 1101,
+          "y": 464
+        },
+        {
+          "x": 1100,
+          "y": 479
+        },
+        {
+          "x": 1096,
+          "y": 497
+        }
+      ]
+    },
+    {
+      "a": "a_auto",
+      "b": "a_blacks_market",
+      "minutes": 4,
+      "kind": "street",
+      "street": "strip_rd",
+      "curve": [
+        {
+          "x": 1083,
+          "y": 535
+        }
+      ]
+    },
+    {
+      "a": "a_blacks_market",
+      "b": "strip_rd_e",
+      "minutes": 10,
+      "kind": "street",
+      "street": "strip_rd",
+      "curve": [
+        {
+          "x": 1064,
+          "y": 568
+        },
+        {
+          "x": 1047,
+          "y": 582
+        },
+        {
+          "x": 1031,
+          "y": 591
+        }
+      ]
+    },
+    {
+      "a": "main_st_w",
+      "b": "j_west",
+      "minutes": 8,
+      "kind": "street",
+      "street": "main_st",
+      "curve": [
+        {
+          "x": 280,
+          "y": 599
+        },
+        {
+          "x": 293,
+          "y": 594
+        },
+        {
+          "x": 305,
+          "y": 589
         }
       ]
     },
     {
       "a": "j_west",
-      "b": "park",
-      "kind": "path",
-      "minutes": 39,
-      "curve": [
-        {
-          "x": 107.25783905154094,
-          "y": 262.3119632357421
-        },
-        {
-          "x": 85.23468519223388,
-          "y": 230.192522217993
-        }
-      ]
-    },
-    {
-      "a": "j_west",
-      "b": "gym",
-      "kind": "street",
-      "minutes": 38,
-      "curve": [
-        {
-          "x": 147.85486623384787,
-          "y": 341.6284475903805
-        },
-        {
-          "x": 193.4493617401136,
-          "y": 366.0193308877512
-        }
-      ]
-    },
-    {
-      "a": "gym",
-      "b": "cinema",
-      "kind": "street",
-      "minutes": 30,
-      "curve": [
-        {
-          "x": 258.7127560528955,
-          "y": 388.57070277814114
-        },
-        {
-          "x": 281.84860491968243,
-          "y": 353.8253739232343
-        }
-      ]
-    },
-    {
-      "a": "gym",
-      "b": "gilded_fork",
-      "kind": "street",
-      "minutes": 24,
-      "curve": [
-        {
-          "x": 190.95013045482935,
-          "y": 405.855637815759
-        },
-        {
-          "x": 160.78699473174973,
-          "y": 418.37934557984335
-        }
-      ]
-    },
-    {
-      "a": "cinema",
-      "b": "chez_cholesterol",
-      "kind": "street",
-      "minutes": 24,
-      "curve": [
-        {
-          "x": 321.77155904627887,
-          "y": 368.6304748170567
-        },
-        {
-          "x": 324.1842831982484,
-          "y": 400.27525315931666
-        }
-      ]
-    },
-    {
-      "a": "gilded_fork",
-      "b": "chez_cholesterol",
-      "kind": "street",
-      "minutes": 49,
-      "curve": [
-        {
-          "x": 176.00843988006358,
-          "y": 430.78303523232665
-        },
-        {
-          "x": 224.38150442216215,
-          "y": 419.959513315766
-        },
-        {
-          "x": 270.8971404762914,
-          "y": 438.54527579205296
-        }
-      ]
-    },
-    {
-      "a": "gilded_fork",
-      "b": "j_elm",
-      "kind": "street",
+      "b": "a_bank",
       "minutes": 11,
+      "kind": "street",
+      "street": "main_st",
       "curve": [
         {
-          "x": 107.51033111138572,
-          "y": 423.63035515256365
+          "x": 345,
+          "y": 572
+        },
+        {
+          "x": 360,
+          "y": 566
+        },
+        {
+          "x": 374,
+          "y": 560
+        },
+        {
+          "x": 389,
+          "y": 554
+        }
+      ]
+    },
+    {
+      "a": "a_bank",
+      "b": "j_center",
+      "minutes": 14,
+      "kind": "street",
+      "street": "main_st",
+      "curve": [
+        {
+          "x": 426,
+          "y": 538
+        },
+        {
+          "x": 443,
+          "y": 531
+        },
+        {
+          "x": 458,
+          "y": 526
+        },
+        {
+          "x": 473,
+          "y": 520
+        },
+        {
+          "x": 491,
+          "y": 514
+        }
+      ]
+    },
+    {
+      "a": "j_center",
+      "b": "j_mill",
+      "minutes": 11,
+      "kind": "street",
+      "street": "main_st",
+      "curve": [
+        {
+          "x": 530,
+          "y": 502
+        },
+        {
+          "x": 545,
+          "y": 497
+        },
+        {
+          "x": 560,
+          "y": 492
+        },
+        {
+          "x": 576,
+          "y": 488
+        }
+      ]
+    },
+    {
+      "a": "j_mill",
+      "b": "a_newsstand",
+      "minutes": 6,
+      "kind": "street",
+      "street": "main_st",
+      "curve": [
+        {
+          "x": 613,
+          "y": 478
+        },
+        {
+          "x": 626,
+          "y": 475
+        }
+      ]
+    },
+    {
+      "a": "a_newsstand",
+      "b": "j_campus",
+      "minutes": 9,
+      "kind": "street",
+      "street": "main_st",
+      "curve": [
+        {
+          "x": 664,
+          "y": 467
+        },
+        {
+          "x": 680,
+          "y": 465
+        },
+        {
+          "x": 693,
+          "y": 463
+        }
+      ]
+    },
+    {
+      "a": "j_campus",
+      "b": "a_monolith",
+      "minutes": 4,
+      "kind": "street",
+      "street": "main_st",
+      "curve": [
+        {
+          "x": 732,
+          "y": 458
+        }
+      ]
+    },
+    {
+      "a": "a_monolith",
+      "b": "a_clinic",
+      "minutes": 9,
+      "kind": "street",
+      "street": "main_st",
+      "curve": [
+        {
+          "x": 768,
+          "y": 454
+        },
+        {
+          "x": 785,
+          "y": 453
+        },
+        {
+          "x": 801,
+          "y": 452
+        }
+      ]
+    },
+    {
+      "a": "a_clinic",
+      "b": "a_cafe",
+      "minutes": 6,
+      "kind": "street",
+      "street": "main_st",
+      "curve": [
+        {
+          "x": 840,
+          "y": 449
+        },
+        {
+          "x": 856,
+          "y": 448
+        }
+      ]
+    },
+    {
+      "a": "a_cafe",
+      "b": "j_lake_w",
+      "minutes": 8,
+      "kind": "street",
+      "street": "main_st",
+      "curve": [
+        {
+          "x": 892,
+          "y": 443
+        },
+        {
+          "x": 903,
+          "y": 442
+        },
+        {
+          "x": 917,
+          "y": 440
+        }
+      ]
+    },
+    {
+      "a": "j_lake_w",
+      "b": "w_main_st_10_1",
+      "minutes": 10,
+      "kind": "street",
+      "street": "main_st",
+      "curve": [
+        {
+          "x": 956,
+          "y": 435
+        },
+        {
+          "x": 976,
+          "y": 434
+        },
+        {
+          "x": 992,
+          "y": 434
+        }
+      ]
+    },
+    {
+      "a": "w_main_st_10_1",
+      "b": "j_east",
+      "minutes": 10,
+      "kind": "street",
+      "street": "main_st",
+      "curve": [
+        {
+          "x": 1041,
+          "y": 431
+        },
+        {
+          "x": 1063,
+          "y": 428
+        },
+        {
+          "x": 1080,
+          "y": 426
+        }
+      ]
+    },
+    {
+      "a": "j_west",
+      "b": "j_elm",
+      "minutes": 10,
+      "kind": "street",
+      "street": "river_ln",
+      "curve": [
+        {
+          "x": 329,
+          "y": 598
+        },
+        {
+          "x": 336,
+          "y": 617
+        },
+        {
+          "x": 345,
+          "y": 635
         }
       ]
     },
     {
       "a": "j_elm",
-      "b": "house_elm",
+      "b": "a_cinema",
+      "minutes": 11,
       "kind": "street",
-      "minutes": 10,
+      "street": "river_ln",
       "curve": [
         {
-          "x": 67.44225076245574,
-          "y": 432.75222026422585
-        }
-      ]
-    },
-    {
-      "a": "bus_depot",
-      "b": "cinema",
-      "kind": "street",
-      "minutes": 26,
-      "curve": [
-        {
-          "x": 296.87828630182474,
-          "y": 288.89223570553
-        }
-      ]
-    },
-    {
-      "a": "cinema",
-      "b": "security_apts",
-      "kind": "street",
-      "minutes": 29,
-      "curve": [
-        {
-          "x": 362.9664327167299,
-          "y": 374.98824481029936
-        }
-      ]
-    },
-    {
-      "a": "security_apts",
-      "b": "j_lake",
-      "kind": "street",
-      "minutes": 55,
-      "curve": [
-        {
-          "x": 521.892471406352,
-          "y": 397.8053338931082
-        }
-      ]
-    },
-    {
-      "a": "j_lake",
-      "b": "house_lake",
-      "kind": "street",
-      "minutes": 23,
-      "curve": [
-        {
-          "x": 652.5999932511585,
-          "y": 389.8088965375759
+          "x": 369,
+          "y": 667
         },
         {
-          "x": 675.4408794834636,
-          "y": 409.61144769651906
+          "x": 380,
+          "y": 678
+        },
+        {
+          "x": 391,
+          "y": 686
+        },
+        {
+          "x": 405,
+          "y": 695
         }
       ]
     },
     {
-      "a": "j_lake",
-      "b": "pawn",
+      "a": "a_cinema",
+      "b": "a_gym",
+      "minutes": 15,
       "kind": "street",
+      "street": "river_ln",
+      "curve": [
+        {
+          "x": 448,
+          "y": 712
+        },
+        {
+          "x": 468,
+          "y": 718
+        },
+        {
+          "x": 486,
+          "y": 722
+        },
+        {
+          "x": 503,
+          "y": 725
+        },
+        {
+          "x": 524,
+          "y": 729
+        }
+      ]
+    },
+    {
+      "a": "a_gym",
+      "b": "a_gilded_fork",
+      "minutes": 14,
+      "kind": "street",
+      "street": "river_ln",
+      "curve": [
+        {
+          "x": 568,
+          "y": 733
+        },
+        {
+          "x": 582,
+          "y": 734
+        },
+        {
+          "x": 600,
+          "y": 734
+        },
+        {
+          "x": 619,
+          "y": 734
+        },
+        {
+          "x": 633,
+          "y": 733
+        }
+      ]
+    },
+    {
+      "a": "a_gilded_fork",
+      "b": "a_chez_cholesterol",
       "minutes": 13,
-      "curve": [
-        {
-          "x": 653.6767285706711,
-          "y": 366.09855509641443
-        }
-      ]
-    },
-    {
-      "a": "j_lake",
-      "b": "auto",
       "kind": "street",
-      "minutes": 35,
-      "curve": []
-    },
-    {
-      "a": "park",
-      "b": "lookout",
-      "kind": "path",
-      "minutes": 49,
+      "street": "river_ln",
       "curve": [
         {
-          "x": 49.17359134326689,
-          "y": 167.93044963031076
+          "x": 677,
+          "y": 728
         },
         {
-          "x": 68.5097221180913,
-          "y": 134.4687820560881
+          "x": 699,
+          "y": 724
         },
         {
-          "x": 47.75949736613548,
-          "y": 102.85725396771683
+          "x": 715,
+          "y": 721
+        },
+        {
+          "x": 736,
+          "y": 717
         }
       ]
     },
     {
-      "a": "lowcost",
-      "b": "lookout",
-      "kind": "path",
-      "minutes": 46,
+      "a": "a_chez_cholesterol",
+      "b": "river_ln_e",
+      "minutes": 5,
+      "kind": "street",
+      "street": "river_ln",
       "curve": [
         {
-          "x": 150.45640369032975,
-          "y": 95.63078892901075
+          "x": 775,
+          "y": 706
         },
         {
-          "x": 120.03493662323802,
-          "y": 81.89519013028593
-        },
-        {
-          "x": 83.20762031706283,
-          "y": 87.37713904881151
+          "x": 788,
+          "y": 701
         }
       ]
     },
     {
-      "a": "j_hwyNW",
-      "b": "j_hwyN",
-      "kind": "highway",
-      "minutes": 25,
+      "a": "j_elm",
+      "b": "j_park",
+      "minutes": 18,
+      "kind": "street",
+      "street": "elm_ln",
       "curve": [
+        {
+          "x": 344,
+          "y": 666
+        },
+        {
+          "x": 329,
+          "y": 679
+        },
+        {
+          "x": 314,
+          "y": 687
+        },
+        {
+          "x": 298,
+          "y": 689
+        },
+        {
+          "x": 279,
+          "y": 687
+        },
+        {
+          "x": 256,
+          "y": 682
+        }
+      ]
+    },
+    {
+      "a": "j_park",
+      "b": "a_house_elm",
+      "minutes": 14,
+      "kind": "street",
+      "street": "elm_ln",
+      "curve": [
+        {
+          "x": 211,
+          "y": 669
+        },
+        {
+          "x": 195,
+          "y": 663
+        },
+        {
+          "x": 180,
+          "y": 656
+        },
+        {
+          "x": 165,
+          "y": 649
+        },
+        {
+          "x": 150,
+          "y": 640
+        }
+      ]
+    },
+    {
+      "a": "a_house_elm",
+      "b": "elm_ln_e",
+      "minutes": 4,
+      "kind": "street",
+      "street": "elm_ln",
+      "curve": [
+        {
+          "x": 121,
+          "y": 619
+        }
+      ]
+    },
+    {
+      "a": "j_park",
+      "b": "w_park_path_0_1",
+      "minutes": 14,
+      "kind": "path",
+      "street": "park_path",
+      "curve": [
+        {
+          "x": 240,
+          "y": 660
+        },
+        {
+          "x": 245,
+          "y": 649
+        },
+        {
+          "x": 247,
+          "y": 634
+        },
+        {
+          "x": 241,
+          "y": 623
+        }
+      ]
+    },
+    {
+      "a": "w_park_path_0_1",
+      "b": "a_park",
+      "minutes": 14,
+      "kind": "path",
+      "street": "park_path",
+      "curve": [
+        {
+          "x": 202,
+          "y": 592
+        },
+        {
+          "x": 191,
+          "y": 582
+        },
+        {
+          "x": 184,
+          "y": 573
+        },
+        {
+          "x": 176,
+          "y": 560
+        }
+      ]
+    },
+    {
+      "a": "a_park",
+      "b": "j_bluff",
+      "minutes": 12,
+      "kind": "path",
+      "street": "park_path",
+      "curve": [
+        {
+          "x": 158,
+          "y": 521
+        },
+        {
+          "x": 153,
+          "y": 508
+        },
+        {
+          "x": 146,
+          "y": 494
+        }
+      ]
+    },
+    {
+      "a": "j_bluff",
+      "b": "park_path_e",
+      "minutes": 5,
+      "kind": "path",
+      "street": "park_path",
+      "curve": [
+        {
+          "x": 133,
+          "y": 463
+        }
+      ]
+    },
+    {
+      "a": "j_bluff",
+      "b": "w_lookout_path_0_1",
+      "minutes": 20,
+      "kind": "path",
+      "street": "lookout_path",
+      "curve": [
+        {
+          "x": 157,
+          "y": 476
+        },
         {
           "x": 170,
-          "y": 26.432303302746732
+          "y": 473
         },
         {
-          "x": 220,
-          "y": 15.109697320993291
+          "x": 181,
+          "y": 463
+        },
+        {
+          "x": 184,
+          "y": 446
+        },
+        {
+          "x": 184,
+          "y": 420
         }
       ]
     },
     {
-      "a": "j_hwyN",
-      "b": "j_hwyNE",
-      "kind": "highway",
-      "minutes": 64,
-      "curve": [
-        {
-          "x": 365,
-          "y": 9.476685808971524
-        },
-        {
-          "x": 460,
-          "y": 31.70421473858878
-        },
-        {
-          "x": 555,
-          "y": 28.262589641613886
-        }
-      ]
-    },
-    {
-      "a": "j_hwyNE",
-      "b": "j_hwyE",
-      "kind": "highway",
-      "minutes": 29,
-      "curve": [
-        {
-          "x": 708,
-          "y": 47
-        }
-      ]
-    },
-    {
-      "a": "j_hwyE",
-      "b": "j_hwyE2",
-      "kind": "highway",
-      "minutes": 39,
-      "curve": [
-        {
-          "x": 760.5463486287277,
-          "y": 207.5
-        },
-        {
-          "x": 740.9024249325506,
-          "y": 265
-        },
-        {
-          "x": 744.7940980266081,
-          "y": 322.5
-        }
-      ]
-    },
-    {
-      "a": "j_hwyN",
-      "b": "j_north",
-      "kind": "highway",
-      "minutes": 18,
-      "curve": [
-        {
-          "x": 278,
-          "y": 99
-        }
-      ]
-    },
-    {
-      "a": "j_hwyNE",
-      "b": "house_hill",
-      "kind": "highway",
-      "minutes": 10,
-      "curve": [
-        {
-          "x": 655.7464719444475,
-          "y": 39.59781023148098
-        },
-        {
-          "x": 658.5611278501959,
-          "y": 59.68425646941178
-        }
-      ]
-    },
-    {
-      "a": "j_hwyE2",
-      "b": "j_lake",
-      "kind": "highway",
-      "minutes": 21,
-      "curve": [
-        {
-          "x": 709.1065162347381,
-          "y": 380.79229408691015
-        },
-        {
-          "x": 669.0027568202574,
-          "y": 369.5412918244073
-        }
-      ]
-    },
-    {
-      "a": "bus_depot",
-      "b": "newsstand",
-      "kind": "busline",
+      "a": "w_lookout_path_0_1",
+      "b": "a_lookout",
       "minutes": 20,
+      "kind": "path",
+      "street": "lookout_path",
       "curve": [
         {
-          "x": 267.8216694363461,
-          "y": 219.27979951992222
+          "x": 174,
+          "y": 365
         },
         {
-          "x": 254.95768719653034,
-          "y": 195.75844533037917
+          "x": 165,
+          "y": 347
+        },
+        {
+          "x": 156,
+          "y": 332
+        },
+        {
+          "x": 147,
+          "y": 318
+        },
+        {
+          "x": 138,
+          "y": 300
         }
       ]
     },
     {
-      "a": "newsstand",
-      "b": "j_mc",
-      "kind": "busline",
-      "minutes": 29,
+      "a": "a_lookout",
+      "b": "lookout_path_e",
+      "minutes": 9,
+      "kind": "path",
+      "street": "lookout_path",
       "curve": [
         {
-          "x": 300,
-          "y": 194
+          "x": 126,
+          "y": 260
+        },
+        {
+          "x": 122,
+          "y": 244
         }
       ]
     },
     {
-      "a": "j_mc",
-      "b": "university",
-      "kind": "busline",
+      "a": "j_mill",
+      "b": "a_lowcost",
+      "minutes": 16,
+      "kind": "street",
+      "street": "mill_rd",
+      "curve": [
+        {
+          "x": 588,
+          "y": 464
+        },
+        {
+          "x": 581,
+          "y": 446
+        },
+        {
+          "x": 578,
+          "y": 427
+        },
+        {
+          "x": 582,
+          "y": 408
+        },
+        {
+          "x": 595,
+          "y": 388
+        }
+      ]
+    },
+    {
+      "a": "a_lowcost",
+      "b": "j_hill",
+      "minutes": 12,
+      "kind": "street",
+      "street": "mill_rd",
+      "curve": [
+        {
+          "x": 619,
+          "y": 346
+        },
+        {
+          "x": 620,
+          "y": 330
+        },
+        {
+          "x": 616,
+          "y": 314
+        },
+        {
+          "x": 609,
+          "y": 297
+        }
+      ]
+    },
+    {
+      "a": "j_hill",
+      "b": "a_factory",
+      "minutes": 13,
+      "kind": "street",
+      "street": "mill_rd",
+      "curve": [
+        {
+          "x": 590,
+          "y": 250
+        },
+        {
+          "x": 588,
+          "y": 232
+        },
+        {
+          "x": 588,
+          "y": 211
+        },
+        {
+          "x": 589,
+          "y": 193
+        }
+      ]
+    },
+    {
+      "a": "a_factory",
+      "b": "w_mill_rd_3_1",
+      "minutes": 10,
+      "kind": "street",
+      "street": "mill_rd",
+      "curve": [
+        {
+          "x": 579,
+          "y": 152
+        },
+        {
+          "x": 570,
+          "y": 134
+        },
+        {
+          "x": 562,
+          "y": 119
+        }
+      ]
+    },
+    {
+      "a": "w_mill_rd_3_1",
+      "b": "j_hwy_mill",
+      "minutes": 10,
+      "kind": "street",
+      "street": "mill_rd",
+      "curve": [
+        {
+          "x": 548,
+          "y": 75
+        },
+        {
+          "x": 547,
+          "y": 57
+        },
+        {
+          "x": 549,
+          "y": 38
+        }
+      ]
+    },
+    {
+      "a": "j_campus",
+      "b": "a_university",
+      "minutes": 9,
+      "kind": "street",
+      "street": "campus_ln",
+      "curve": [
+        {
+          "x": 709,
+          "y": 440
+        },
+        {
+          "x": 706,
+          "y": 420
+        },
+        {
+          "x": 705,
+          "y": 405
+        }
+      ]
+    },
+    {
+      "a": "a_university",
+      "b": "campus_ln_e",
+      "minutes": 5,
+      "kind": "street",
+      "street": "campus_ln",
+      "curve": [
+        {
+          "x": 728,
+          "y": 380
+        },
+        {
+          "x": 736,
+          "y": 377
+        }
+      ]
+    },
+    {
+      "a": "j_hill",
+      "b": "a_shady_acres",
+      "minutes": 15,
+      "kind": "street",
+      "street": "hill_rd",
+      "curve": [
+        {
+          "x": 611,
+          "y": 267
+        },
+        {
+          "x": 623,
+          "y": 260
+        },
+        {
+          "x": 641,
+          "y": 252
+        },
+        {
+          "x": 659,
+          "y": 249
+        },
+        {
+          "x": 681,
+          "y": 250
+        }
+      ]
+    },
+    {
+      "a": "a_shady_acres",
+      "b": "j_manor",
       "minutes": 11,
+      "kind": "street",
+      "street": "hill_rd",
       "curve": [
         {
-          "x": 364.89622473695783,
-          "y": 206.52358427635917
-        }
-      ]
-    },
-    {
-      "a": "university",
-      "b": "j_north",
-      "kind": "busline",
-      "minutes": 27,
-      "curve": [
-        {
-          "x": 354.8856935389997,
-          "y": 153.98509943732955
+          "x": 730,
+          "y": 258
         },
         {
-          "x": 323.9792012691747,
-          "y": 133.55444077313626
-        }
-      ]
-    },
-    {
-      "a": "j_north",
-      "b": "factory",
-      "kind": "busline",
-      "minutes": 8,
-      "curve": [
-        {
-          "x": 321.529614978382,
-          "y": 100.26538326127339
-        }
-      ]
-    },
-    {
-      "a": "j_mc",
-      "b": "clinic",
-      "kind": "busline",
-      "minutes": 29,
-      "curve": [
-        {
-          "x": 390.5294444851389,
-          "y": 209.6443850790528
+          "x": 749,
+          "y": 261
         },
         {
-          "x": 430.4851016380732,
-          "y": 214.41224090059472
+          "x": 763,
+          "y": 263
+        },
+        {
+          "x": 780,
+          "y": 264
         }
       ]
     },
     {
-      "a": "clinic",
+      "a": "j_manor",
+      "b": "j_hill_ramp",
+      "minutes": 16,
+      "kind": "street",
+      "street": "hill_rd",
+      "curve": [
+        {
+          "x": 823,
+          "y": 259
+        },
+        {
+          "x": 848,
+          "y": 254
+        },
+        {
+          "x": 868,
+          "y": 250
+        },
+        {
+          "x": 886,
+          "y": 248
+        },
+        {
+          "x": 903,
+          "y": 249
+        }
+      ]
+    },
+    {
+      "a": "j_hill_ramp",
+      "b": "j_strip_n",
+      "minutes": 12,
+      "kind": "street",
+      "street": "hill_rd",
+      "curve": [
+        {
+          "x": 937,
+          "y": 264
+        },
+        {
+          "x": 951,
+          "y": 266
+        },
+        {
+          "x": 969,
+          "y": 256
+        },
+        {
+          "x": 984,
+          "y": 241
+        }
+      ]
+    },
+    {
+      "a": "j_manor",
+      "b": "a_house_hill",
+      "minutes": 11,
+      "kind": "street",
+      "street": "manor_dr",
+      "curve": [
+        {
+          "x": 794,
+          "y": 245
+        },
+        {
+          "x": 792,
+          "y": 231
+        },
+        {
+          "x": 791,
+          "y": 214
+        },
+        {
+          "x": 792,
+          "y": 201
+        }
+      ]
+    },
+    {
+      "a": "a_house_hill",
+      "b": "manor_dr_e",
+      "minutes": 3,
+      "kind": "street",
+      "street": "manor_dr",
+      "curve": [
+        {
+          "x": 798,
+          "y": 166
+        }
+      ]
+    },
+    {
+      "a": "j_hill_ramp",
+      "b": "w_hwy_hill_ramp_0_1",
+      "minutes": 10,
+      "kind": "highway",
+      "street": "hwy_hill_ramp",
+      "curve": [
+        {
+          "x": 929,
+          "y": 239
+        },
+        {
+          "x": 939,
+          "y": 223
+        },
+        {
+          "x": 947,
+          "y": 205
+        },
+        {
+          "x": 950,
+          "y": 188
+        },
+        {
+          "x": 944,
+          "y": 172
+        }
+      ]
+    },
+    {
+      "a": "w_hwy_hill_ramp_0_1",
+      "b": "j_hwy_hill",
+      "minutes": 10,
+      "kind": "highway",
+      "street": "hwy_hill_ramp",
+      "curve": [
+        {
+          "x": 913,
+          "y": 130
+        },
+        {
+          "x": 906,
+          "y": 113
+        },
+        {
+          "x": 907,
+          "y": 94
+        },
+        {
+          "x": 909,
+          "y": 78
+        },
+        {
+          "x": 914,
+          "y": 60
+        }
+      ]
+    },
+    {
+      "a": "j_lake_w",
+      "b": "w_lake_rd_0_1",
+      "minutes": 13,
+      "kind": "street",
+      "street": "lake_rd",
+      "curve": [
+        {
+          "x": 934,
+          "y": 455
+        },
+        {
+          "x": 935,
+          "y": 472
+        },
+        {
+          "x": 938,
+          "y": 493
+        },
+        {
+          "x": 943,
+          "y": 511
+        }
+      ]
+    },
+    {
+      "a": "w_lake_rd_0_1",
+      "b": "a_security_apts",
+      "minutes": 13,
+      "kind": "street",
+      "street": "lake_rd",
+      "curve": [
+        {
+          "x": 959,
+          "y": 556
+        },
+        {
+          "x": 967,
+          "y": 573
+        },
+        {
+          "x": 973,
+          "y": 587
+        },
+        {
+          "x": 982,
+          "y": 603
+        }
+      ]
+    },
+    {
+      "a": "a_security_apts",
+      "b": "w_lake_rd_1_1",
+      "minutes": 13,
+      "kind": "street",
+      "street": "lake_rd",
+      "curve": [
+        {
+          "x": 1007,
+          "y": 644
+        },
+        {
+          "x": 1017,
+          "y": 656
+        },
+        {
+          "x": 1032,
+          "y": 668
+        },
+        {
+          "x": 1046,
+          "y": 677
+        }
+      ]
+    },
+    {
+      "a": "w_lake_rd_1_1",
+      "b": "a_house_lake",
+      "minutes": 13,
+      "kind": "street",
+      "street": "lake_rd",
+      "curve": [
+        {
+          "x": 1091,
+          "y": 696
+        },
+        {
+          "x": 1107,
+          "y": 701
+        },
+        {
+          "x": 1127,
+          "y": 705
+        },
+        {
+          "x": 1144,
+          "y": 706
+        }
+      ]
+    },
+    {
+      "a": "a_house_lake",
+      "b": "lake_rd_e",
+      "minutes": 4,
+      "kind": "street",
+      "street": "lake_rd",
+      "curve": [
+        {
+          "x": 1187,
+          "y": 706
+        }
+      ]
+    },
+    {
+      "a": "a_bank",
+      "b": "bank",
+      "minutes": 4,
+      "kind": "street",
+      "street": "dwy_bank"
+    },
+    {
+      "a": "j_center",
+      "b": "bus_depot",
+      "minutes": 4,
+      "kind": "street",
+      "street": "dwy_bus_depot"
+    },
+    {
+      "a": "j_center",
+      "b": "employment",
+      "minutes": 12,
+      "kind": "street",
+      "street": "dwy_employment"
+    },
+    {
+      "a": "a_newsstand",
+      "b": "newsstand",
+      "minutes": 2,
+      "kind": "street",
+      "street": "dwy_newsstand"
+    },
+    {
+      "a": "a_monolith",
       "b": "monolith",
-      "kind": "busline",
-      "minutes": 30,
-      "curve": [
-        {
-          "x": 453.70735362050675,
-          "y": 235.07956589803612
-        },
-        {
-          "x": 423.22128388042916,
-          "y": 262.37424929851943
-        }
-      ]
+      "minutes": 12,
+      "kind": "street",
+      "street": "dwy_monolith"
     },
     {
-      "a": "monolith",
+      "a": "a_clinic",
+      "b": "clinic",
+      "minutes": 2,
+      "kind": "street",
+      "street": "dwy_clinic"
+    },
+    {
+      "a": "a_cafe",
       "b": "cafe",
-      "kind": "busline",
-      "minutes": 23,
-      "curve": [
-        {
-          "x": 442.3333333333333,
-          "y": 294.4851727403095
-        },
-        {
-          "x": 471.6666666666667,
-          "y": 305.1825218460932
-        }
-      ]
+      "minutes": 18,
+      "kind": "street",
+      "street": "dwy_cafe"
     },
     {
-      "a": "cafe",
+      "a": "a_university",
+      "b": "university",
+      "minutes": 4,
+      "kind": "street",
+      "street": "dwy_university"
+    },
+    {
+      "a": "a_lowcost",
+      "b": "lowcost",
+      "minutes": 11,
+      "kind": "street",
+      "street": "dwy_lowcost"
+    },
+    {
+      "a": "a_factory",
+      "b": "factory",
+      "minutes": 11,
+      "kind": "street",
+      "street": "dwy_factory"
+    },
+    {
+      "a": "a_shady_acres",
+      "b": "shady_acres",
+      "minutes": 3,
+      "kind": "street",
+      "street": "dwy_shady_acres"
+    },
+    {
+      "a": "a_house_hill",
+      "b": "house_hill",
+      "minutes": 7,
+      "kind": "street",
+      "street": "dwy_house_hill"
+    },
+    {
+      "a": "a_qt_clothing",
+      "b": "qt_clothing",
+      "minutes": 6,
+      "kind": "street",
+      "street": "dwy_qt_clothing"
+    },
+    {
+      "a": "a_socket_city",
       "b": "socket_city",
-      "kind": "busline",
-      "minutes": 29,
-      "curve": [
-        {
-          "x": 532.8520483751428,
-          "y": 252.0941644777991
-        }
-      ]
+      "minutes": 11,
+      "kind": "street",
+      "street": "dwy_socket_city"
     },
     {
-      "a": "socket_city",
-      "b": "blacks_market",
-      "kind": "busline",
-      "minutes": 32,
-      "curve": [
-        {
-          "x": 570.8595423403041,
-          "y": 238.12051805583488
-        },
-        {
-          "x": 573.6971394377954,
-          "y": 281.00771448769
-        }
-      ]
+      "a": "a_zmart",
+      "b": "zmart",
+      "minutes": 8,
+      "kind": "street",
+      "street": "dwy_zmart"
     },
     {
-      "a": "blacks_market",
-      "b": "pawn",
-      "kind": "busline",
-      "minutes": 26,
-      "curve": [
-        {
-          "x": 621.7572096474142,
-          "y": 331.48558070517146
-        },
-        {
-          "x": 646.9015328179067,
-          "y": 356.1969343641866
-        }
-      ]
-    },
-    {
-      "a": "pawn",
+      "a": "a_auto",
       "b": "auto",
-      "kind": "busline",
-      "minutes": 31,
-      "curve": [
-        {
-          "x": 675.0650294085644,
-          "y": 302.5
-        }
-      ]
+      "minutes": 10,
+      "kind": "street",
+      "street": "dwy_auto"
     },
     {
-      "a": "bus_depot",
+      "a": "a_blacks_market",
+      "b": "blacks_market",
+      "minutes": 7,
+      "kind": "street",
+      "street": "dwy_blacks_market"
+    },
+    {
+      "a": "a_blacks_market",
+      "b": "pawn",
+      "minutes": 12,
+      "kind": "street",
+      "street": "dwy_pawn"
+    },
+    {
+      "a": "a_cinema",
       "b": "cinema",
-      "kind": "busline",
-      "minutes": 26,
-      "curve": [
-        {
-          "x": 296.5277307932442,
-          "y": 289.08275500367165
-        }
-      ]
+      "minutes": 5,
+      "kind": "street",
+      "street": "dwy_cinema"
     },
     {
-      "a": "cinema",
+      "a": "a_gym",
+      "b": "gym",
+      "minutes": 3,
+      "kind": "street",
+      "street": "dwy_gym"
+    },
+    {
+      "a": "a_gilded_fork",
+      "b": "gilded_fork",
+      "minutes": 3,
+      "kind": "street",
+      "street": "dwy_gilded_fork"
+    },
+    {
+      "a": "a_chez_cholesterol",
+      "b": "chez_cholesterol",
+      "minutes": 4,
+      "kind": "street",
+      "street": "dwy_chez_cholesterol"
+    },
+    {
+      "a": "a_house_elm",
+      "b": "house_elm",
+      "minutes": 9,
+      "kind": "street",
+      "street": "dwy_house_elm"
+    },
+    {
+      "a": "a_park",
+      "b": "park",
+      "minutes": 12,
+      "kind": "path",
+      "street": "dwy_park"
+    },
+    {
+      "a": "a_lookout",
+      "b": "lookout",
+      "minutes": 10,
+      "kind": "path",
+      "street": "dwy_lookout"
+    },
+    {
+      "a": "a_security_apts",
       "b": "security_apts",
-      "kind": "busline",
-      "minutes": 30,
-      "curve": [
-        {
-          "x": 369.035309563974,
-          "y": 366.63254480322416
-        }
-      ]
+      "minutes": 18,
+      "kind": "street",
+      "street": "dwy_security_apts"
     },
     {
-      "a": "security_apts",
-      "b": "j_lake",
-      "kind": "busline",
-      "minutes": 55,
-      "curve": [
-        {
-          "x": 518.9981609167291,
-          "y": 379.5030763851993
-        }
-      ]
-    },
-    {
-      "a": "j_lake",
+      "a": "a_house_lake",
       "b": "house_lake",
+      "minutes": 3,
+      "kind": "street",
+      "street": "dwy_house_lake"
+    },
+    {
+      "a": "j_center",
+      "b": "bus_depot",
+      "minutes": 4,
       "kind": "busline",
-      "minutes": 23,
+      "street": "bus_1"
+    },
+    {
+      "a": "j_center",
+      "b": "j_mill",
+      "minutes": 11,
+      "kind": "busline",
+      "street": "bus_1",
       "curve": [
         {
-          "x": 648.7431344163782,
-          "y": 394.18000321699355
+          "x": 530,
+          "y": 502
         },
         {
-          "x": 670.0437671828324,
-          "y": 415.7281749705677
+          "x": 545,
+          "y": 497
+        },
+        {
+          "x": 560,
+          "y": 492
+        },
+        {
+          "x": 576,
+          "y": 488
         }
       ]
+    },
+    {
+      "a": "j_mill",
+      "b": "a_newsstand",
+      "minutes": 6,
+      "kind": "busline",
+      "street": "bus_1",
+      "curve": [
+        {
+          "x": 613,
+          "y": 478
+        },
+        {
+          "x": 626,
+          "y": 475
+        }
+      ]
+    },
+    {
+      "a": "a_newsstand",
+      "b": "j_campus",
+      "minutes": 9,
+      "kind": "busline",
+      "street": "bus_1",
+      "curve": [
+        {
+          "x": 664,
+          "y": 467
+        },
+        {
+          "x": 680,
+          "y": 465
+        },
+        {
+          "x": 693,
+          "y": 463
+        }
+      ]
+    },
+    {
+      "a": "j_campus",
+      "b": "a_monolith",
+      "minutes": 4,
+      "kind": "busline",
+      "street": "bus_1",
+      "curve": [
+        {
+          "x": 732,
+          "y": 458
+        }
+      ]
+    },
+    {
+      "a": "a_monolith",
+      "b": "a_clinic",
+      "minutes": 9,
+      "kind": "busline",
+      "street": "bus_1",
+      "curve": [
+        {
+          "x": 768,
+          "y": 454
+        },
+        {
+          "x": 785,
+          "y": 453
+        },
+        {
+          "x": 801,
+          "y": 452
+        }
+      ]
+    },
+    {
+      "a": "a_clinic",
+      "b": "a_cafe",
+      "minutes": 6,
+      "kind": "busline",
+      "street": "bus_1",
+      "curve": [
+        {
+          "x": 840,
+          "y": 449
+        },
+        {
+          "x": 856,
+          "y": 448
+        }
+      ]
+    },
+    {
+      "a": "a_cafe",
+      "b": "cafe",
+      "minutes": 18,
+      "kind": "busline",
+      "street": "bus_1"
+    },
+    {
+      "a": "a_bank",
+      "b": "j_center",
+      "minutes": 14,
+      "kind": "busline",
+      "street": "bus_1",
+      "curve": [
+        {
+          "x": 426,
+          "y": 538
+        },
+        {
+          "x": 443,
+          "y": 531
+        },
+        {
+          "x": 458,
+          "y": 526
+        },
+        {
+          "x": 473,
+          "y": 520
+        },
+        {
+          "x": 491,
+          "y": 514
+        }
+      ]
+    },
+    {
+      "a": "a_bank",
+      "b": "bank",
+      "minutes": 4,
+      "kind": "busline",
+      "street": "bus_1"
+    },
+    {
+      "a": "j_mill",
+      "b": "a_lowcost",
+      "minutes": 16,
+      "kind": "busline",
+      "street": "bus_2",
+      "curve": [
+        {
+          "x": 588,
+          "y": 464
+        },
+        {
+          "x": 581,
+          "y": 446
+        },
+        {
+          "x": 578,
+          "y": 427
+        },
+        {
+          "x": 582,
+          "y": 408
+        },
+        {
+          "x": 595,
+          "y": 388
+        }
+      ]
+    },
+    {
+      "a": "a_lowcost",
+      "b": "j_hill",
+      "minutes": 12,
+      "kind": "busline",
+      "street": "bus_2",
+      "curve": [
+        {
+          "x": 619,
+          "y": 346
+        },
+        {
+          "x": 620,
+          "y": 330
+        },
+        {
+          "x": 616,
+          "y": 314
+        },
+        {
+          "x": 609,
+          "y": 297
+        }
+      ]
+    },
+    {
+      "a": "j_hill",
+      "b": "a_factory",
+      "minutes": 13,
+      "kind": "busline",
+      "street": "bus_2",
+      "curve": [
+        {
+          "x": 590,
+          "y": 250
+        },
+        {
+          "x": 588,
+          "y": 232
+        },
+        {
+          "x": 588,
+          "y": 211
+        },
+        {
+          "x": 589,
+          "y": 193
+        }
+      ]
+    },
+    {
+      "a": "a_factory",
+      "b": "factory",
+      "minutes": 11,
+      "kind": "busline",
+      "street": "bus_2"
+    },
+    {
+      "a": "a_cafe",
+      "b": "j_lake_w",
+      "minutes": 8,
+      "kind": "busline",
+      "street": "bus_3",
+      "curve": [
+        {
+          "x": 892,
+          "y": 443
+        },
+        {
+          "x": 903,
+          "y": 442
+        },
+        {
+          "x": 917,
+          "y": 440
+        }
+      ]
+    },
+    {
+      "a": "j_lake_w",
+      "b": "w_main_st_10_1",
+      "minutes": 10,
+      "kind": "busline",
+      "street": "bus_3",
+      "curve": [
+        {
+          "x": 956,
+          "y": 435
+        },
+        {
+          "x": 976,
+          "y": 434
+        },
+        {
+          "x": 992,
+          "y": 434
+        }
+      ]
+    },
+    {
+      "a": "w_main_st_10_1",
+      "b": "j_east",
+      "minutes": 10,
+      "kind": "busline",
+      "street": "bus_3",
+      "curve": [
+        {
+          "x": 1041,
+          "y": 431
+        },
+        {
+          "x": 1063,
+          "y": 428
+        },
+        {
+          "x": 1080,
+          "y": 426
+        }
+      ]
+    },
+    {
+      "a": "j_east",
+      "b": "a_auto",
+      "minutes": 12,
+      "kind": "busline",
+      "street": "bus_3",
+      "curve": [
+        {
+          "x": 1101,
+          "y": 446
+        },
+        {
+          "x": 1101,
+          "y": 464
+        },
+        {
+          "x": 1100,
+          "y": 479
+        },
+        {
+          "x": 1096,
+          "y": 497
+        }
+      ]
+    },
+    {
+      "a": "a_auto",
+      "b": "a_blacks_market",
+      "minutes": 4,
+      "kind": "busline",
+      "street": "bus_3",
+      "curve": [
+        {
+          "x": 1083,
+          "y": 535
+        }
+      ]
+    },
+    {
+      "a": "a_blacks_market",
+      "b": "pawn",
+      "minutes": 12,
+      "kind": "busline",
+      "street": "bus_3"
+    },
+    {
+      "a": "a_zmart",
+      "b": "j_east",
+      "minutes": 3,
+      "kind": "busline",
+      "street": "bus_3",
+      "curve": [
+        {
+          "x": 1097,
+          "y": 411
+        }
+      ]
+    },
+    {
+      "a": "a_socket_city",
+      "b": "a_zmart",
+      "minutes": 10,
+      "kind": "busline",
+      "street": "bus_3",
+      "curve": [
+        {
+          "x": 1078,
+          "y": 347
+        },
+        {
+          "x": 1085,
+          "y": 365
+        },
+        {
+          "x": 1090,
+          "y": 380
+        }
+      ]
+    },
+    {
+      "a": "a_qt_clothing",
+      "b": "a_socket_city",
+      "minutes": 7,
+      "kind": "busline",
+      "street": "bus_3",
+      "curve": [
+        {
+          "x": 1051,
+          "y": 296
+        },
+        {
+          "x": 1060,
+          "y": 311
+        }
+      ]
+    },
+    {
+      "a": "a_qt_clothing",
+      "b": "qt_clothing",
+      "minutes": 6,
+      "kind": "busline",
+      "street": "bus_3"
+    },
+    {
+      "a": "j_lake_w",
+      "b": "w_lake_rd_0_1",
+      "minutes": 13,
+      "kind": "busline",
+      "street": "bus_4",
+      "curve": [
+        {
+          "x": 934,
+          "y": 455
+        },
+        {
+          "x": 935,
+          "y": 472
+        },
+        {
+          "x": 938,
+          "y": 493
+        },
+        {
+          "x": 943,
+          "y": 511
+        }
+      ]
+    },
+    {
+      "a": "w_lake_rd_0_1",
+      "b": "a_security_apts",
+      "minutes": 13,
+      "kind": "busline",
+      "street": "bus_4",
+      "curve": [
+        {
+          "x": 959,
+          "y": 556
+        },
+        {
+          "x": 967,
+          "y": 573
+        },
+        {
+          "x": 973,
+          "y": 587
+        },
+        {
+          "x": 982,
+          "y": 603
+        }
+      ]
+    },
+    {
+      "a": "a_security_apts",
+      "b": "w_lake_rd_1_1",
+      "minutes": 13,
+      "kind": "busline",
+      "street": "bus_4",
+      "curve": [
+        {
+          "x": 1007,
+          "y": 644
+        },
+        {
+          "x": 1017,
+          "y": 656
+        },
+        {
+          "x": 1032,
+          "y": 668
+        },
+        {
+          "x": 1046,
+          "y": 677
+        }
+      ]
+    },
+    {
+      "a": "w_lake_rd_1_1",
+      "b": "a_house_lake",
+      "minutes": 13,
+      "kind": "busline",
+      "street": "bus_4",
+      "curve": [
+        {
+          "x": 1091,
+          "y": 696
+        },
+        {
+          "x": 1107,
+          "y": 701
+        },
+        {
+          "x": 1127,
+          "y": 705
+        },
+        {
+          "x": 1144,
+          "y": 706
+        }
+      ]
+    },
+    {
+      "a": "a_house_lake",
+      "b": "house_lake",
+      "minutes": 3,
+      "kind": "busline",
+      "street": "bus_4"
+    },
+    {
+      "a": "j_center",
+      "b": "employment",
+      "minutes": 12,
+      "kind": "busline",
+      "street": "bus_1"
+    },
+    {
+      "a": "a_newsstand",
+      "b": "newsstand",
+      "minutes": 2,
+      "kind": "busline",
+      "street": "bus_1"
+    },
+    {
+      "a": "a_monolith",
+      "b": "monolith",
+      "minutes": 12,
+      "kind": "busline",
+      "street": "bus_1"
+    },
+    {
+      "a": "a_clinic",
+      "b": "clinic",
+      "minutes": 2,
+      "kind": "busline",
+      "street": "bus_1"
+    },
+    {
+      "a": "a_lowcost",
+      "b": "lowcost",
+      "minutes": 11,
+      "kind": "busline",
+      "street": "bus_2"
+    },
+    {
+      "a": "a_socket_city",
+      "b": "socket_city",
+      "minutes": 11,
+      "kind": "busline",
+      "street": "bus_3"
+    },
+    {
+      "a": "a_zmart",
+      "b": "zmart",
+      "minutes": 8,
+      "kind": "busline",
+      "street": "bus_3"
+    },
+    {
+      "a": "a_auto",
+      "b": "auto",
+      "minutes": 10,
+      "kind": "busline",
+      "street": "bus_3"
+    },
+    {
+      "a": "a_blacks_market",
+      "b": "blacks_market",
+      "minutes": 7,
+      "kind": "busline",
+      "street": "bus_3"
+    },
+    {
+      "a": "a_security_apts",
+      "b": "security_apts",
+      "minutes": 18,
+      "kind": "busline",
+      "street": "bus_4"
     }
   ],
   "decor": [
     {
       "kind": "water",
-      "x": 95,
-      "y": 12,
-      "w": 55,
-      "h": 110
+      "x": 288,
+      "y": 0,
+      "w": 58,
+      "h": 66
     },
     {
       "kind": "water",
-      "x": 35,
-      "y": 120,
-      "w": 75,
-      "h": 100
+      "x": 276,
+      "y": 44,
+      "w": 58,
+      "h": 68
     },
     {
       "kind": "water",
-      "x": 40,
-      "y": 210,
-      "w": 80,
-      "h": 120
+      "x": 260,
+      "y": 92,
+      "w": 60,
+      "h": 70
     },
     {
       "kind": "water",
-      "x": 50,
-      "y": 320,
-      "w": 30,
-      "h": 35
+      "x": 244,
+      "y": 142,
+      "w": 60,
+      "h": 68
     },
     {
       "kind": "water",
-      "x": 600,
-      "y": 390,
-      "w": 150,
-      "h": 58
+      "x": 230,
+      "y": 192,
+      "w": 58,
+      "h": 70
+    },
+    {
+      "kind": "water",
+      "x": 218,
+      "y": 244,
+      "w": 58,
+      "h": 72
+    },
+    {
+      "kind": "water",
+      "x": 210,
+      "y": 298,
+      "w": 58,
+      "h": 72
+    },
+    {
+      "kind": "water",
+      "x": 206,
+      "y": 352,
+      "w": 58,
+      "h": 72
+    },
+    {
+      "kind": "water",
+      "x": 206,
+      "y": 406,
+      "w": 60,
+      "h": 70
+    },
+    {
+      "kind": "water",
+      "x": 208,
+      "y": 456,
+      "w": 62,
+      "h": 68
+    },
+    {
+      "kind": "water",
+      "x": 206,
+      "y": 506,
+      "w": 62,
+      "h": 70
+    },
+    {
+      "kind": "water",
+      "x": 180,
+      "y": 556,
+      "w": 62,
+      "h": 70
+    },
+    {
+      "kind": "water",
+      "x": 162,
+      "y": 606,
+      "w": 60,
+      "h": 70
+    },
+    {
+      "kind": "water",
+      "x": 140,
+      "y": 656,
+      "w": 60,
+      "h": 70
+    },
+    {
+      "kind": "water",
+      "x": 116,
+      "y": 704,
+      "w": 62,
+      "h": 64
+    },
+    {
+      "kind": "water",
+      "x": 996,
+      "y": 722,
+      "w": 110,
+      "h": 46
+    },
+    {
+      "kind": "water",
+      "x": 1092,
+      "y": 714,
+      "w": 104,
+      "h": 54
+    },
+    {
+      "kind": "water",
+      "x": 1182,
+      "y": 720,
+      "w": 82,
+      "h": 48
+    },
+    {
+      "kind": "water",
+      "x": 1044,
+      "y": 710,
+      "w": 130,
+      "h": 24
     },
     {
       "kind": "plaza",
-      "x": 310,
-      "y": 230,
-      "w": 70,
-      "h": 46
+      "x": 612,
+      "y": 498,
+      "w": 92,
+      "h": 56
+    },
+    {
+      "kind": "plaza",
+      "x": 976,
+      "y": 148,
+      "w": 84,
+      "h": 56
     },
     {
       "kind": "grass",
-      "x": 90,
-      "y": 165,
-      "w": 34,
-      "h": 46
+      "x": 372,
+      "y": 300,
+      "w": 100,
+      "h": 72
+    },
+    {
+      "kind": "grass",
+      "x": 60,
+      "y": 560,
+      "w": 92,
+      "h": 66
     },
     {
       "kind": "bridge",
-      "x": 108,
-      "y": 288
+      "x": 323,
+      "y": 25
+    },
+    {
+      "kind": "bridge",
+      "x": 187,
+      "y": 660
+    },
+    {
+      "kind": "bridge",
+      "x": 231,
+      "y": 614
+    },
+    {
+      "kind": "bridge",
+      "x": 193,
+      "y": 584
     },
     {
       "kind": "dock",
-      "x": 650,
-      "y": 395
+      "x": 1052,
+      "y": 712
     },
     {
       "kind": "lamp",
-      "x": 136,
-      "y": 309
+      "x": 273,
+      "y": 617
     },
     {
       "kind": "lamp",
-      "x": 156,
-      "y": 275
+      "x": 307,
+      "y": 573
     },
     {
       "kind": "lamp",
-      "x": 190,
-      "y": 251
+      "x": 362,
+      "y": 580
     },
     {
       "kind": "lamp",
-      "x": 259,
-      "y": 258
-    },
-    {
-      "kind": "lamp",
-      "x": 287,
-      "y": 249
-    },
-    {
-      "kind": "lamp",
-      "x": 244,
-      "y": 173
-    },
-    {
-      "kind": "lamp",
-      "x": 287,
-      "y": 172
-    },
-    {
-      "kind": "lamp",
-      "x": 339,
-      "y": 205
-    },
-    {
-      "kind": "lamp",
-      "x": 385,
-      "y": 221
-    },
-    {
-      "kind": "lamp",
-      "x": 423,
-      "y": 205
+      "x": 396,
+      "y": 536
     },
     {
       "kind": "lamp",
       "x": 450,
-      "y": 218
+      "y": 544
     },
     {
       "kind": "lamp",
-      "x": 457,
-      "y": 249
+      "x": 486,
+      "y": 501
     },
     {
       "kind": "lamp",
-      "x": 404,
-      "y": 304
+      "x": 540,
+      "y": 513
     },
     {
       "kind": "lamp",
-      "x": 460,
-      "y": 285
+      "x": 579,
+      "y": 473
     },
     {
       "kind": "lamp",
-      "x": 485,
-      "y": 313
+      "x": 632,
+      "y": 488
     },
     {
-      "kind": "bench",
-      "x": 112,
-      "y": 175
+      "kind": "lamp",
+      "x": 674,
+      "y": 451
     },
     {
-      "kind": "bench",
-      "x": 38,
-      "y": 227
-    },
-    {
-      "kind": "bench",
-      "x": 349,
-      "y": 233
-    },
-    {
-      "kind": "bench",
-      "x": 295,
-      "y": 250
-    },
-    {
-      "kind": "car_red",
+      "kind": "lamp",
       "x": 728,
-      "y": 283
+      "y": 470
     },
     {
-      "kind": "car_blue",
-      "x": 733,
-      "y": 242
+      "kind": "lamp",
+      "x": 770,
+      "y": 440
     },
     {
-      "kind": "car_green",
-      "x": 725,
-      "y": 300
+      "kind": "lamp",
+      "x": 820,
+      "y": 465
     },
     {
-      "kind": "car_red",
-      "x": 648,
-      "y": 292
+      "kind": "lamp",
+      "x": 869,
+      "y": 433
     },
     {
-      "kind": "car_blue",
-      "x": 610,
-      "y": 210
+      "kind": "lamp",
+      "x": 916,
+      "y": 454
     },
     {
-      "kind": "car_green",
-      "x": 600,
-      "y": 134
+      "kind": "lamp",
+      "x": 961,
+      "y": 421
     },
     {
-      "kind": "bus",
-      "x": 318,
-      "y": 223
+      "kind": "lamp",
+      "x": 1011,
+      "y": 447
     },
     {
-      "kind": "signpost",
-      "x": 70,
-      "y": 110
+      "kind": "lamp",
+      "x": 1057,
+      "y": 415
     },
     {
-      "kind": "signpost",
-      "x": 83,
-      "y": 406
+      "kind": "lamp",
+      "x": 971,
+      "y": 215
     },
     {
-      "kind": "signpost",
-      "x": 610,
-      "y": 88
+      "kind": "lamp",
+      "x": 1024,
+      "y": 234
     },
     {
-      "kind": "hydrant",
-      "x": 352,
-      "y": 212
+      "kind": "lamp",
+      "x": 1030,
+      "y": 289
     },
     {
-      "kind": "hydrant",
-      "x": 497,
-      "y": 223
-    },
-    {
-      "kind": "mailbox",
-      "x": 320,
-      "y": 235
-    },
-    {
-      "kind": "mailbox",
-      "x": 484,
-      "y": 201
-    },
-    {
-      "kind": "fence_h",
-      "x": 660,
-      "y": 10
-    },
-    {
-      "kind": "fence_h",
-      "x": 750,
-      "y": 10
-    },
-    {
-      "kind": "fence_h",
-      "x": 664,
-      "y": 92
-    },
-    {
-      "kind": "fence_h",
-      "x": 750,
-      "y": 90
-    },
-    {
-      "kind": "fence_v",
-      "x": 652,
-      "y": 6
-    },
-    {
-      "kind": "fence_v",
-      "x": 676,
-      "y": 84
-    },
-    {
-      "kind": "fence_v",
-      "x": 755,
-      "y": 30
-    },
-    {
-      "kind": "fence_v",
-      "x": 755,
-      "y": 60
-    },
-    {
-      "kind": "flowers",
-      "x": 507,
-      "y": 356
-    },
-    {
-      "kind": "rock",
-      "x": 36,
-      "y": 274
-    },
-    {
-      "kind": "flowers",
-      "x": 551,
-      "y": 346
-    },
-    {
-      "kind": "tree_pine",
-      "x": 715,
-      "y": 276
-    },
-    {
-      "kind": "bush",
-      "x": 21,
-      "y": 256
-    },
-    {
-      "kind": "tree_pine",
-      "x": 458,
-      "y": 277
-    },
-    {
-      "kind": "flowers",
-      "x": 416,
-      "y": 420
-    },
-    {
-      "kind": "flowers",
-      "x": 286,
-      "y": 36
-    },
-    {
-      "kind": "bush",
-      "x": 747,
-      "y": 21
-    },
-    {
-      "kind": "tree_pine",
-      "x": 26,
-      "y": 254
-    },
-    {
-      "kind": "flowers",
-      "x": 306,
-      "y": 172
-    },
-    {
-      "kind": "flowers",
-      "x": 29,
-      "y": 96
-    },
-    {
-      "kind": "tree_round",
-      "x": 505,
-      "y": 398
-    },
-    {
-      "kind": "rock",
-      "x": 473,
-      "y": 343
-    },
-    {
-      "kind": "flowers",
-      "x": 742,
-      "y": 54
-    },
-    {
-      "kind": "rock",
-      "x": 502,
-      "y": 123
-    },
-    {
-      "kind": "tree_round",
-      "x": 614,
-      "y": 51
-    },
-    {
-      "kind": "tree_round",
-      "x": 422,
-      "y": 46
-    },
-    {
-      "kind": "bush",
-      "x": 721,
-      "y": 341
-    },
-    {
-      "kind": "tree_round",
-      "x": 466,
+      "kind": "lamp",
+      "x": 1078,
       "y": 316
     },
     {
-      "kind": "tree_oak",
-      "x": 441,
-      "y": 126
+      "kind": "lamp",
+      "x": 1072,
+      "y": 371
     },
     {
-      "kind": "tree_round",
-      "x": 700,
-      "y": 145
+      "kind": "lamp",
+      "x": 1111,
+      "y": 410
     },
     {
-      "kind": "bush",
-      "x": 223,
-      "y": 82
+      "kind": "lamp",
+      "x": 1087,
+      "y": 460
     },
     {
-      "kind": "flowers",
-      "x": 740,
-      "y": 50
+      "kind": "lamp",
+      "x": 1106,
+      "y": 512
     },
     {
-      "kind": "flowers",
-      "x": 420,
-      "y": 74
+      "kind": "lamp",
+      "x": 1063,
+      "y": 544
     },
     {
-      "kind": "bush",
-      "x": 645,
-      "y": 275
-    },
-    {
-      "kind": "tree_round",
-      "x": 430,
-      "y": 119
-    },
-    {
-      "kind": "tree_pine",
-      "x": 341,
-      "y": 232
-    },
-    {
-      "kind": "flowers",
-      "x": 115,
-      "y": 189
-    },
-    {
-      "kind": "tree_pine",
-      "x": 24,
-      "y": 338
-    },
-    {
-      "kind": "tree_round",
-      "x": 146,
-      "y": 302
-    },
-    {
-      "kind": "rock",
-      "x": 692,
-      "y": 287
+      "kind": "lamp",
+      "x": 1051,
+      "y": 595
     },
     {
       "kind": "bush",
-      "x": 158,
-      "y": 317
+      "x": 580,
+      "y": 261
     },
     {
       "kind": "bush",
-      "x": 251,
-      "y": 87
+      "x": 665,
+      "y": 268
     },
     {
       "kind": "bush",
-      "x": 82,
-      "y": 390
+      "x": 730,
+      "y": 277
     },
     {
       "kind": "bush",
-      "x": 410,
-      "y": 92
-    },
-    {
-      "kind": "tree_pine",
-      "x": 39,
-      "y": 374
-    },
-    {
-      "kind": "tree_round",
-      "x": 534,
-      "y": 366
+      "x": 808,
+      "y": 244
     },
     {
       "kind": "bush",
-      "x": 518,
-      "y": 114
+      "x": 870,
+      "y": 270
     },
     {
       "kind": "bush",
-      "x": 298,
-      "y": 147
+      "x": 939,
+      "y": 280
     },
     {
       "kind": "bush",
-      "x": 482,
-      "y": 113
+      "x": 978,
+      "y": 221
     },
     {
       "kind": "bush",
-      "x": 733,
-      "y": 345
+      "x": 351,
+      "y": 582
     },
     {
       "kind": "bush",
-      "x": 304,
-      "y": 145
-    },
-    {
-      "kind": "rock",
-      "x": 482,
-      "y": 207
+      "x": 334,
+      "y": 652
     },
     {
       "kind": "bush",
-      "x": 539,
-      "y": 396
+      "x": 385,
+      "y": 704
     },
     {
       "kind": "bush",
       "x": 461,
-      "y": 359
-    },
-    {
-      "kind": "tree_round",
-      "x": 619,
-      "y": 241
-    },
-    {
-      "kind": "bush",
-      "x": 610,
-      "y": 43
-    },
-    {
-      "kind": "flowers",
-      "x": 735,
-      "y": 25
-    },
-    {
-      "kind": "flowers",
-      "x": 195,
-      "y": 221
-    },
-    {
-      "kind": "flowers",
-      "x": 506,
-      "y": 211
-    },
-    {
-      "kind": "tree_pine",
-      "x": 533,
-      "y": 400
-    },
-    {
-      "kind": "tree_oak",
-      "x": 222,
-      "y": 167
-    },
-    {
-      "kind": "bush",
-      "x": 693,
-      "y": 95
-    },
-    {
-      "kind": "rock",
-      "x": 381,
-      "y": 191
-    },
-    {
-      "kind": "flowers",
-      "x": 553,
-      "y": 327
-    },
-    {
-      "kind": "tree_oak",
-      "x": 726,
-      "y": 280
-    },
-    {
-      "kind": "tree_round",
-      "x": 732,
-      "y": 152
-    },
-    {
-      "kind": "flowers",
-      "x": 462,
-      "y": 328
-    },
-    {
-      "kind": "tree_round",
-      "x": 534,
-      "y": 417
-    },
-    {
-      "kind": "tree_pine",
-      "x": 713,
-      "y": 306
-    },
-    {
-      "kind": "flowers",
-      "x": 510,
-      "y": 194
+      "y": 697
     },
     {
       "kind": "bush",
       "x": 517,
-      "y": 83
-    },
-    {
-      "kind": "tree_pine",
-      "x": 719,
-      "y": 259
-    },
-    {
-      "kind": "tree_round",
-      "x": 511,
-      "y": 48
-    },
-    {
-      "kind": "rock",
-      "x": 128,
-      "y": 209
+      "y": 744
     },
     {
       "kind": "bush",
-      "x": 280,
-      "y": 134
+      "x": 585,
+      "y": 757
     },
     {
-      "kind": "rock",
-      "x": 269,
-      "y": 391
+      "kind": "bush",
+      "x": 652,
+      "y": 717
+    },
+    {
+      "kind": "bush",
+      "x": 722,
+      "y": 744
+    },
+    {
+      "kind": "bush",
+      "x": 786,
+      "y": 723
+    },
+    {
+      "kind": "bush",
+      "x": 945,
+      "y": 425
+    },
+    {
+      "kind": "bush",
+      "x": 917,
+      "y": 511
+    },
+    {
+      "kind": "bush",
+      "x": 953,
+      "y": 588
+    },
+    {
+      "kind": "bush",
+      "x": 1023,
+      "y": 629
+    },
+    {
+      "kind": "bush",
+      "x": 1058,
+      "y": 704
+    },
+    {
+      "kind": "bush",
+      "x": 1125,
+      "y": 691
+    },
+    {
+      "kind": "bush",
+      "x": 565,
+      "y": 479
+    },
+    {
+      "kind": "bush",
+      "x": 600,
+      "y": 413
+    },
+    {
+      "kind": "bush",
+      "x": 637,
+      "y": 353
+    },
+    {
+      "kind": "bush",
+      "x": 581,
+      "y": 277
+    },
+    {
+      "kind": "bush",
+      "x": 609,
+      "y": 194
+    },
+    {
+      "kind": "bush",
+      "x": 584,
+      "y": 122
+    },
+    {
+      "kind": "bush",
+      "x": 528,
+      "y": 60
+    },
+    {
+      "kind": "bush",
+      "x": 361,
+      "y": 677
+    },
+    {
+      "kind": "bush",
+      "x": 302,
+      "y": 669
+    },
+    {
+      "kind": "bush",
+      "x": 253,
+      "y": 656
+    },
+    {
+      "kind": "bush",
+      "x": 201,
+      "y": 684
+    },
+    {
+      "kind": "bush",
+      "x": 138,
+      "y": 608
+    },
+    {
+      "kind": "bush",
+      "x": 699,
+      "y": 474
+    },
+    {
+      "kind": "bush",
+      "x": 727,
+      "y": 416
+    },
+    {
+      "kind": "bush",
+      "x": 751,
+      "y": 389
     },
     {
       "kind": "flowers",
-      "x": 491,
-      "y": 203
+      "x": 127,
+      "y": 471
     },
     {
-      "kind": "bush",
-      "x": 648,
-      "y": 272
+      "kind": "flowers",
+      "x": 195,
+      "y": 459
     },
     {
-      "kind": "tree_round",
-      "x": 403,
-      "y": 68
-    },
-    {
-      "kind": "tree_round",
-      "x": 735,
-      "y": 52
-    },
-    {
-      "kind": "rock",
-      "x": 391,
-      "y": 53
-    },
-    {
-      "kind": "tree_round",
-      "x": 611,
-      "y": 66
-    },
-    {
-      "kind": "bush",
-      "x": 394,
-      "y": 52
-    },
-    {
-      "kind": "bush",
-      "x": 318,
-      "y": 151
-    },
-    {
-      "kind": "tree_round",
-      "x": 512,
-      "y": 71
-    },
-    {
-      "kind": "bush",
-      "x": 519,
-      "y": 427
-    },
-    {
-      "kind": "bush",
-      "x": 588,
-      "y": 242
-    },
-    {
-      "kind": "bush",
-      "x": 601,
-      "y": 240
-    },
-    {
-      "kind": "tree_round",
-      "x": 467,
-      "y": 115
-    },
-    {
-      "kind": "tree_round",
-      "x": 525,
+      "kind": "flowers",
+      "x": 199,
       "y": 394
     },
     {
-      "kind": "bush",
-      "x": 387,
-      "y": 45
-    },
-    {
-      "kind": "bush",
-      "x": 724,
-      "y": 40
+      "kind": "flowers",
+      "x": 149,
+      "y": 351
     },
     {
       "kind": "flowers",
-      "x": 246,
-      "y": 41
+      "x": 154,
+      "y": 289
     },
     {
       "kind": "flowers",
-      "x": 702,
-      "y": 116
+      "x": 136,
+      "y": 238
+    },
+    {
+      "kind": "flowers",
+      "x": 218,
+      "y": 684
+    },
+    {
+      "kind": "flowers",
+      "x": 259,
+      "y": 618
+    },
+    {
+      "kind": "flowers",
+      "x": 196,
+      "y": 554
+    },
+    {
+      "kind": "flowers",
+      "x": 156,
+      "y": 550
+    },
+    {
+      "kind": "flowers",
+      "x": 164,
+      "y": 484
     },
     {
       "kind": "tree_round",
-      "x": 471,
-      "y": 332
-    },
-    {
-      "kind": "bush",
-      "x": 515,
-      "y": 80
-    },
-    {
-      "kind": "tree_oak",
-      "x": 507,
-      "y": 142
-    },
-    {
-      "kind": "flowers",
-      "x": 382,
-      "y": 45
-    },
-    {
-      "kind": "bush",
-      "x": 597,
-      "y": 116
+      "x": 211,
+      "y": 178
     },
     {
       "kind": "tree_round",
-      "x": 234,
-      "y": 155
-    },
-    {
-      "kind": "bush",
-      "x": 275,
-      "y": 147
-    },
-    {
-      "kind": "bush",
-      "x": 240,
-      "y": 412
-    },
-    {
-      "kind": "rock",
-      "x": 501,
-      "y": 326
+      "x": 213,
+      "y": 185
     },
     {
       "kind": "tree_pine",
-      "x": 543,
-      "y": 399
+      "x": 132,
+      "y": 145
+    },
+    {
+      "kind": "tree_round",
+      "x": 107,
+      "y": 186
+    },
+    {
+      "kind": "tree_pine",
+      "x": 145,
+      "y": 181
+    },
+    {
+      "kind": "tree_round",
+      "x": 151,
+      "y": 178
+    },
+    {
+      "kind": "tree_oak",
+      "x": 146,
+      "y": 175
+    },
+    {
+      "kind": "tree_pine",
+      "x": 157,
+      "y": 138
+    },
+    {
+      "kind": "tree_pine",
+      "x": 309,
+      "y": 176
+    },
+    {
+      "kind": "tree_oak",
+      "x": 290,
+      "y": 220
+    },
+    {
+      "kind": "tree_pine",
+      "x": 289,
+      "y": 232
+    },
+    {
+      "kind": "tree_pine",
+      "x": 314,
+      "y": 227
+    },
+    {
+      "kind": "tree_oak",
+      "x": 364,
+      "y": 187
+    },
+    {
+      "kind": "tree_oak",
+      "x": 363,
+      "y": 215
+    },
+    {
+      "kind": "tree_pine",
+      "x": 372,
+      "y": 264
+    },
+    {
+      "kind": "tree_pine",
+      "x": 300,
+      "y": 309
+    },
+    {
+      "kind": "tree_oak",
+      "x": 344,
+      "y": 475
+    },
+    {
+      "kind": "tree_round",
+      "x": 322,
+      "y": 430
+    },
+    {
+      "kind": "tree_oak",
+      "x": 426,
+      "y": 382
+    },
+    {
+      "kind": "tree_round",
+      "x": 411,
+      "y": 423
+    },
+    {
+      "kind": "tree_pine",
+      "x": 396,
+      "y": 413
+    },
+    {
+      "kind": "tree_pine",
+      "x": 317,
+      "y": 382
+    },
+    {
+      "kind": "tree_round",
+      "x": 323,
+      "y": 389
+    },
+    {
+      "kind": "tree_pine",
+      "x": 388,
+      "y": 152
+    },
+    {
+      "kind": "tree_pine",
+      "x": 375,
+      "y": 182
+    },
+    {
+      "kind": "tree_oak",
+      "x": 460,
+      "y": 79
+    },
+    {
+      "kind": "tree_pine",
+      "x": 367,
+      "y": 149
+    },
+    {
+      "kind": "tree_pine",
+      "x": 407,
+      "y": 197
+    },
+    {
+      "kind": "tree_oak",
+      "x": 439,
+      "y": 193
+    },
+    {
+      "kind": "tree_round",
+      "x": 430,
+      "y": 167
+    },
+    {
+      "kind": "tree_oak",
+      "x": 750,
+      "y": 81
+    },
+    {
+      "kind": "tree_round",
+      "x": 651,
+      "y": 164
+    },
+    {
+      "kind": "tree_pine",
+      "x": 661,
+      "y": 94
+    },
+    {
+      "kind": "tree_pine",
+      "x": 662,
+      "y": 170
+    },
+    {
+      "kind": "tree_pine",
+      "x": 716,
+      "y": 126
+    },
+    {
+      "kind": "tree_oak",
+      "x": 624,
+      "y": 151
+    },
+    {
+      "kind": "tree_pine",
+      "x": 698,
+      "y": 95
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1025,
+      "y": 89
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1067,
+      "y": 153
+    },
+    {
+      "kind": "tree_round",
+      "x": 1023,
+      "y": 116
+    },
+    {
+      "kind": "tree_round",
+      "x": 1051,
+      "y": 165
+    },
+    {
+      "kind": "tree_oak",
+      "x": 996,
+      "y": 39
+    },
+    {
+      "kind": "tree_oak",
+      "x": 1080,
+      "y": 138
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1173,
+      "y": 245
+    },
+    {
+      "kind": "tree_oak",
+      "x": 1244,
+      "y": 254
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1212,
+      "y": 259
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1178,
+      "y": 255
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1209,
+      "y": 350
+    },
+    {
+      "kind": "tree_pine",
+      "x": 590,
+      "y": 580
+    },
+    {
+      "kind": "tree_pine",
+      "x": 623,
+      "y": 544
+    },
+    {
+      "kind": "tree_oak",
+      "x": 620,
+      "y": 538
+    },
+    {
+      "kind": "tree_oak",
+      "x": 609,
+      "y": 617
+    },
+    {
+      "kind": "tree_pine",
+      "x": 622,
+      "y": 536
+    },
+    {
+      "kind": "tree_pine",
+      "x": 650,
+      "y": 563
+    },
+    {
+      "kind": "tree_oak",
+      "x": 917,
+      "y": 659
+    },
+    {
+      "kind": "tree_pine",
+      "x": 823,
+      "y": 621
+    },
+    {
+      "kind": "tree_round",
+      "x": 876,
+      "y": 706
+    },
+    {
+      "kind": "tree_pine",
+      "x": 917,
+      "y": 638
+    },
+    {
+      "kind": "tree_pine",
+      "x": 825,
+      "y": 649
+    },
+    {
+      "kind": "tree_pine",
+      "x": 824,
+      "y": 668
+    },
+    {
+      "kind": "tree_oak",
+      "x": 1180,
+      "y": 556
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1173,
+      "y": 590
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1177,
+      "y": 555
+    },
+    {
+      "kind": "tree_oak",
+      "x": 1213,
+      "y": 554
+    },
+    {
+      "kind": "tree_pine",
+      "x": 129,
+      "y": 659
+    },
+    {
+      "kind": "tree_pine",
+      "x": 87,
+      "y": 721
+    },
+    {
+      "kind": "tree_oak",
+      "x": 86,
+      "y": 723
+    },
+    {
+      "kind": "tree_oak",
+      "x": 95,
+      "y": 634
+    },
+    {
+      "kind": "tree_oak",
+      "x": 91,
+      "y": 695
+    },
+    {
+      "kind": "tree_oak",
+      "x": 68,
+      "y": 355
+    },
+    {
+      "kind": "tree_round",
+      "x": 115,
+      "y": 350
+    },
+    {
+      "kind": "tree_oak",
+      "x": 77,
+      "y": 390
+    },
+    {
+      "kind": "tree_pine",
+      "x": 98,
+      "y": 405
+    },
+    {
+      "kind": "tree_round",
+      "x": 92,
+      "y": 353
+    },
+    {
+      "kind": "bench",
+      "x": 520,
+      "y": 520
+    },
+    {
+      "kind": "bench",
+      "x": 566,
+      "y": 508
+    },
+    {
+      "kind": "bench",
+      "x": 178,
+      "y": 520
+    },
+    {
+      "kind": "bench",
+      "x": 196,
+      "y": 486
+    },
+    {
+      "kind": "bench",
+      "x": 1036,
+      "y": 420
+    },
+    {
+      "kind": "bench",
+      "x": 1124,
+      "y": 664
+    },
+    {
+      "kind": "bench",
+      "x": 696,
+      "y": 616
+    },
+    {
+      "kind": "picnic_table",
+      "x": 206,
+      "y": 505
+    },
+    {
+      "kind": "picnic_table",
+      "x": 664,
+      "y": 606
+    },
+    {
+      "kind": "car_red",
+      "x": 1156,
+      "y": 398
+    },
+    {
+      "kind": "car_blue",
+      "x": 1160,
+      "y": 434
+    },
+    {
+      "kind": "car_green",
+      "x": 1154,
+      "y": 466
+    },
+    {
+      "kind": "car_red",
+      "x": 1042,
+      "y": 328
+    },
+    {
+      "kind": "car_blue",
+      "x": 1024,
+      "y": 540
+    },
+    {
+      "kind": "car_green",
+      "x": 467,
+      "y": 509
+    },
+    {
+      "kind": "car_red",
+      "x": 739,
+      "y": 470
+    },
+    {
+      "kind": "car_blue",
+      "x": 900,
+      "y": 466
+    },
+    {
+      "kind": "bus",
+      "x": 557,
+      "y": 478
+    },
+    {
+      "kind": "signpost",
+      "x": 1081,
+      "y": 412
+    },
+    {
+      "kind": "signpost",
+      "x": 344,
+      "y": 601
+    },
+    {
+      "kind": "signpost",
+      "x": 352,
+      "y": 676
+    },
+    {
+      "kind": "signpost",
+      "x": 225,
+      "y": 697
+    },
+    {
+      "kind": "signpost",
+      "x": 161,
+      "y": 456
+    },
+    {
+      "kind": "signpost",
+      "x": 601,
+      "y": 461
+    },
+    {
+      "kind": "signpost",
+      "x": 562,
+      "y": 37
+    },
+    {
+      "kind": "signpost",
+      "x": 709,
+      "y": 474
+    },
+    {
+      "kind": "signpost",
+      "x": 594,
+      "y": 292
+    },
+    {
+      "kind": "signpost",
+      "x": 1024,
+      "y": 237
+    },
+    {
+      "kind": "signpost",
+      "x": 810,
+      "y": 282
+    },
+    {
+      "kind": "signpost",
+      "x": 895,
+      "y": 237
+    },
+    {
+      "kind": "signpost",
+      "x": 908,
+      "y": 26
+    },
+    {
+      "kind": "signpost",
+      "x": 948,
+      "y": 414
+    },
+    {
+      "kind": "hydrant",
+      "x": 486,
+      "y": 528
+    },
+    {
+      "kind": "hydrant",
+      "x": 696,
+      "y": 475
+    },
+    {
+      "kind": "hydrant",
+      "x": 1060,
+      "y": 350
+    },
+    {
+      "kind": "mailbox",
+      "x": 604,
+      "y": 494
+    },
+    {
+      "kind": "mailbox",
+      "x": 842,
+      "y": 462
+    },
+    {
+      "kind": "mailbox",
+      "x": 390,
+      "y": 650
+    },
+    {
+      "kind": "fence_h",
+      "x": 809,
+      "y": 117
+    },
+    {
+      "kind": "fence_h",
+      "x": 809,
+      "y": 205
+    },
+    {
+      "kind": "fence_h",
+      "x": 831,
+      "y": 117
+    },
+    {
+      "kind": "fence_h",
+      "x": 831,
+      "y": 205
+    },
+    {
+      "kind": "fence_h",
+      "x": 853,
+      "y": 117
+    },
+    {
+      "kind": "fence_h",
+      "x": 853,
+      "y": 205
+    },
+    {
+      "kind": "fence_h",
+      "x": 875,
+      "y": 117
+    },
+    {
+      "kind": "fence_h",
+      "x": 875,
+      "y": 205
+    },
+    {
+      "kind": "fence_h",
+      "x": 893,
+      "y": 117
+    },
+    {
+      "kind": "fence_h",
+      "x": 897,
+      "y": 205
+    },
+    {
+      "kind": "fence_v",
+      "x": 801,
+      "y": 137
+    },
+    {
+      "kind": "fence_v",
+      "x": 902,
+      "y": 140
+    },
+    {
+      "kind": "fence_v",
+      "x": 809,
+      "y": 175
+    },
+    {
+      "kind": "fence_v",
+      "x": 905,
+      "y": 161
+    },
+    {
+      "kind": "fence_v",
+      "x": 809,
+      "y": 185
+    },
+    {
+      "kind": "fence_v",
+      "x": 905,
+      "y": 185
+    },
+    {
+      "kind": "flowers",
+      "x": 429,
+      "y": 211
+    },
+    {
+      "kind": "flowers",
+      "x": 1120,
+      "y": 41
+    },
+    {
+      "kind": "bush",
+      "x": 896,
+      "y": 163
+    },
+    {
+      "kind": "bush",
+      "x": 752,
+      "y": 408
+    },
+    {
+      "kind": "bush",
+      "x": 468,
+      "y": 281
+    },
+    {
+      "kind": "tree_round",
+      "x": 964,
+      "y": 23
+    },
+    {
+      "kind": "flowers",
+      "x": 628,
+      "y": 181
+    },
+    {
+      "kind": "flowers",
+      "x": 333,
+      "y": 274
+    },
+    {
+      "kind": "rock",
+      "x": 282,
+      "y": 732
+    },
+    {
+      "kind": "bush",
+      "x": 901,
+      "y": 742
+    },
+    {
+      "kind": "rock",
+      "x": 146,
+      "y": 82
+    },
+    {
+      "kind": "bush",
+      "x": 788,
+      "y": 133
+    },
+    {
+      "kind": "flowers",
+      "x": 65,
+      "y": 370
+    },
+    {
+      "kind": "bush",
+      "x": 323,
+      "y": 485
     }
   ]
 }

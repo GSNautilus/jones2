@@ -64,6 +64,11 @@ Phase B (DONE 2026-09-14):
 - Renderer adapter uses `LOCATION_RECIPES` and `PROPS`; `PX_PER_UNIT = 1`.
 - Screenshot-verified in headless Edge: map and play modes.
 
+Phase C — roads and distances (DONE 2026-09-14):
+- Renderer: streets are chained by `edge.street` into one continuous stroke (continuous dashes through mid-street nodes); kerbs are the outline of the asphalt mask so they cannot cross junctions; junction aprons with kerb-return fillets; dashes stop short of junctions; highway double line; bus routes as a 1px blue dotted line at the kerb with stop markers; zoom level 1 added for overview. `apps/client/tools/roads-png.ts` renders `art/sheets/roads-test.png`. 125 client tests.
+- Town: streets-first generator on 1280×768 — 13 named streets + 4 bus lines, side streets meet parents at ≥70°, buildings placed along streets with doors to the road using real sprite boxes; 93 nodes, 133 edges, 246 decor; per-pixel minute rate halved so hop times stay as before (downtown median 9 min; depot→lookout 147 min walking). Note: cross-town totals to some places dropped because arterials replaced building-to-building chains (e.g. zmart 183→88 min); tune the street rates in `tools/riverton.ts` if the game needs longer trips.
+- Overlap checker also flags near-crossings and missing street ids; reports clean.
+
 Known weaknesses (from the art agent's own critique): QT Clothing palm trees read as blobs; `fence_v` reads as a zigzag; the dress form in QT's window; cinema marquee second line cramped. Water is rectangles (no shoreline tiles yet). Editor has no curve-point editing yet (edit `curve` arrays in JSON or the generator).
 
 Suggested next: a human plays a full week in the client; shoreline/rounded water; editor curve handles; UI sprites adopted by the HUD skin (currently CSS fallbacks); the interiors (location screens with clerks) as the next art chunk.

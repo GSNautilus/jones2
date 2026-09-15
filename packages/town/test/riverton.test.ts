@@ -1,11 +1,27 @@
 import { LOCATIONS } from '@jones2/sim';
 import { describe, expect, it } from 'vitest';
-import { TownGraph, riverton, type Town } from '../src';
+import { TownGraph, riverton, type Town, type TownEdge } from '../src';
 
 const town = riverton as Town;
 const g = new TownGraph(town);
 
 const LOCATION_IDS = Object.keys(LOCATIONS);
+
+const CANVAS_W = 1280;
+const CANVAS_H = 768;
+const MARGIN = 16;
+
+const nodeById = new Map(town.nodes.map((n) => [n.id, n]));
+const pos = (id: string) => {
+  const n = nodeById.get(id);
+  if (!n) throw new Error(`Unknown node ${id}`);
+  return { x: n.x, y: n.y };
+};
+
+/** Roads the player walks or drives on — buslines mirror them and are skipped. */
+const DRAWN = town.edges.filter((e) => e.kind !== 'busline');
+/** The street spine: everything but the short driveways up to a building's door. */
+const SPINE = DRAWN.filter((e) => !e.street!.startsWith('dwy_'));
 
 describe('riverton — sim location coverage', () => {
   it('has every sim location exactly once', () => {
@@ -16,11 +32,11 @@ describe('riverton — sim location coverage', () => {
       list.push(n.id);
       owners.set(n.location, list);
     }
+    expect(owners.size, 'expected all 27 sim locations on the map').toBe(27);
     for (const id of LOCATION_IDS) {
       expect(owners.get(id), `location "${id}" is missing a node`).toBeDefined();
       expect(owners.get(id)!.length, `location "${id}" used by more than one node`).toBe(1);
     }
-    // and nothing extra
     for (const [loc] of owners) {
       expect(LOCATION_IDS, `node uses unknown location "${loc}"`).toContain(loc);
     }
@@ -39,6 +55,20 @@ describe('riverton — graph integrity', () => {
   it('has unique node ids', () => {
     const ids = town.nodes.map((n) => n.id);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('starts at the bus depot', () => {
+    expect(town.startNode).toBe('bus_depot');
+  });
+
+  it('keeps the two-edge walk bus_depot -> j_center -> employment', () => {
+    // apps/client hardcodes this path in its replay tests.
+    const has = (a: string, b: string) => town.edges.some((e) => (e.a === a && e.b === b) || (e.a === b && e.b === a));
+    expect(nodeById.has('j_center')).toBe(true);
+    expect(has('bus_depot', 'j_center'), 'no edge bus_depot - j_center').toBe(true);
+    expect(has('j_center', 'employment'), 'no edge j_center - employment').toBe(true);
+    const route = g.route('bus_depot', 'employment', 'walk')!;
+    expect(route.path).toEqual(['bus_depot', 'j_center', 'employment']);
   });
 
   it('every location is reachable on foot from bus_depot', () => {
@@ -65,12 +95,97 @@ describe('riverton — graph integrity', () => {
   });
 });
 
-describe('riverton — geometry', () => {
-  const CANVAS_W = 768;
-  const CANVAS_H = 448;
-  const MARGIN = 16;
+describe('riverton — streets', () => {
+  it('every edge belongs to a named street', () => {
+    for (const e of town.edges) {
+      expect(e.street, `edge ${e.a}-${e.b} has no street id`).toBeTruthy();
+    }
+  });
 
-  it('every node sits within the 768x448 canvas, with margin', () => {
+  it('each street is one connected chain, not scattered fragments', () => {
+    const byStreet = new Map<string, TownEdge[]>();
+    for (const e of SPINE) {
+      const list = byStreet.get(e.street!) ?? [];
+      list.push(e);
+      byStreet.set(e.street!, list);
+    }
+    expect(byStreet.size, 'expected at least ten named streets').toBeGreaterThanOrEqual(10);
+    for (const [id, list] of byStreet) {
+      const seen = new Set<string>([list[0]!.a]);
+      let grew = true;
+      while (grew) {
+        grew = false;
+        for (const e of list) {
+          if (seen.has(e.a) && !seen.has(e.b)) {
+            seen.add(e.b);
+            grew = true;
+          } else if (seen.has(e.b) && !seen.has(e.a)) {
+            seen.add(e.a);
+            grew = true;
+          }
+        }
+      }
+      const nodesOnStreet = new Set(list.flatMap((e) => [e.a, e.b]));
+      expect(seen.size, `street "${id}" is not a single chain`).toBe(nodesOnStreet.size);
+    }
+  });
+
+  /**
+   * Direction an edge leaves `node` in, following the drawn curve rather than
+   * the straight line to the far end.
+   */
+  function heading(e: TownEdge, node: string): { x: number; y: number } {
+    const here = pos(node);
+    const curve = e.curve ?? [];
+    const next = e.a === node ? (curve[0] ?? pos(e.b)) : (curve[curve.length - 1] ?? pos(e.a));
+    const dx = next.x - here.x;
+    const dy = next.y - here.y;
+    const len = Math.hypot(dx, dy) || 1;
+    return { x: dx / len, y: dy / len };
+  }
+
+  it('every side street meets its parent street at 70-110 degrees', () => {
+    const incident = new Map<string, TownEdge[]>();
+    for (const e of SPINE) {
+      for (const id of [e.a, e.b]) {
+        const list = incident.get(id) ?? [];
+        list.push(e);
+        incident.set(id, list);
+      }
+    }
+    const offenders: string[] = [];
+    let checked = 0;
+    for (const [node, list] of incident) {
+      const streetsHere = new Set(list.map((e) => e.street!));
+      if (streetsHere.size < 2) continue;
+      for (const side of streetsHere) {
+        const mine = list.filter((e) => e.street === side);
+        if (mine.length !== 1) continue; // this street runs through; it is not the branch
+        const branch = heading(mine[0]!, node);
+        for (const parent of streetsHere) {
+          if (parent === side) continue;
+          const theirs = list.filter((e) => e.street === parent);
+          if (theirs.length !== 2) continue; // only a through street defines a tangent
+          const a = heading(theirs[0]!, node);
+          const b = heading(theirs[1]!, node);
+          // the two headings point opposite ways along the parent; average the line
+          const lx = a.x - b.x;
+          const ly = a.y - b.y;
+          const len = Math.hypot(lx, ly) || 1;
+          const dot = Math.abs((branch.x * lx + branch.y * ly) / len);
+          const deg = (Math.acos(Math.min(1, dot)) * 180) / Math.PI;
+          checked++;
+          if (deg < 70) offenders.push(`${side} leaves ${parent} at ${node} at ${deg.toFixed(0)}deg`);
+        }
+      }
+    }
+    expect(checked, 'expected several T-junctions to check').toBeGreaterThanOrEqual(6);
+    expect(offenders, offenders.join('\n')).toHaveLength(0);
+  });
+});
+
+describe('riverton — geometry', () => {
+  it('every node sits within the 1280x768 canvas, with margin', () => {
     for (const n of town.nodes) {
       expect(n.x, `${n.id}.x`).toBeGreaterThanOrEqual(MARGIN);
       expect(n.x, `${n.id}.x`).toBeLessThanOrEqual(CANVAS_W - MARGIN);
@@ -103,13 +218,62 @@ describe('riverton — geometry', () => {
     }
     expect(offenders, offenders.join(', ')).toHaveLength(0);
   });
+
+  it('spreads the town across the canvas rather than hugging downtown', () => {
+    const xs = town.nodes.map((n) => n.x);
+    const ys = town.nodes.map((n) => n.y);
+    expect(Math.max(...xs) - Math.min(...xs)).toBeGreaterThan(CANVAS_W * 0.8);
+    expect(Math.max(...ys) - Math.min(...ys)).toBeGreaterThan(CANVAS_H * 0.8);
+  });
+});
+
+describe('riverton — travel times', () => {
+  /** The downtown box: main street and the blocks either side of it. */
+  const DOWNTOWN = { x0: 300, y0: 380, x1: 980, y1: 640 };
+  const inDowntown = (id: string): boolean => {
+    const p = pos(id);
+    return p.x >= DOWNTOWN.x0 && p.x <= DOWNTOWN.x1 && p.y >= DOWNTOWN.y0 && p.y <= DOWNTOWN.y1;
+  };
+
+  it('a typical downtown hop is 4 to 12 minutes on foot', () => {
+    const hops = DRAWN.filter((e) => inDowntown(e.a) && inDowntown(e.b))
+      .map((e) => e.minutes)
+      .sort((a, b) => a - b);
+    expect(hops.length, 'expected a good number of downtown hops').toBeGreaterThanOrEqual(12);
+    const median = hops[Math.floor(hops.length / 2)]!;
+    expect(median, `downtown hops: ${hops.join(',')}`).toBeGreaterThanOrEqual(4);
+    expect(median, `downtown hops: ${hops.join(',')}`).toBeLessThanOrEqual(12);
+  });
+
+  it('the lookout is a serious walk from the depot', () => {
+    const r = g.route('bus_depot', 'lookout', 'walk')!;
+    expect(r).not.toBeNull();
+    expect(r.minutes).toBeGreaterThanOrEqual(45);
+  });
+
+  it('the far corners cost much more than a downtown errand', () => {
+    const near = g.route('bus_depot', 'newsstand', 'walk')!.minutes;
+    for (const far of ['lookout', 'house_lake', 'house_hill', 'zmart']) {
+      const r = g.route('bus_depot', far, 'walk')!;
+      expect(r.minutes, `${far} should be far from the depot`).toBeGreaterThan(near * 2.5);
+    }
+  });
+
+  it('every edge costs at least two minutes', () => {
+    for (const e of town.edges) expect(e.minutes, `${e.a}-${e.b}`).toBeGreaterThanOrEqual(2);
+  });
 });
 
 describe('riverton — decor', () => {
-  it('has at least 60 pieces of scattered decor', () => {
-    const AREA = new Set(['water', 'grass', 'plaza', 'path']);
-    const scattered = (town.decor ?? []).filter((d) => !AREA.has(d.kind));
-    expect(scattered.length).toBeGreaterThanOrEqual(60);
+  it('has at least 150 pieces of decor', () => {
+    expect((town.decor ?? []).length).toBeGreaterThanOrEqual(150);
+  });
+
+  it('has woods, hedgerows, street furniture, water and bridges', () => {
+    const kinds = new Set((town.decor ?? []).map((d) => d.kind));
+    for (const kind of ['tree_pine', 'bush', 'lamp', 'bench', 'water', 'bridge', 'dock', 'signpost', 'bus']) {
+      expect(kinds.has(kind), `no ${kind} decor`).toBe(true);
+    }
   });
 });
 

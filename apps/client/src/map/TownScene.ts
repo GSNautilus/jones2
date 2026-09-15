@@ -17,6 +17,7 @@ import type { NodeId, Town } from '@jones2/town';
 import type { CreateTownScene, FigurePose, FigureStyle, PickResult, TownScene, TownSceneOptions } from './api';
 import { PX_PER_UNIT, getArt } from './art';
 import {
+  LABEL_MIN_ZOOM,
   type View,
   ZOOM_LEVELS,
   centreOrigin,
@@ -37,7 +38,7 @@ import {
   resolveFigure,
 } from './figures';
 import { type Ground, type Placement, buildGround, ditherEllipse, pickNode } from './ground';
-import { dashAlong, sampleEdge } from './roads';
+import { dashAlong, edgePolyline } from './roads';
 import {
   RenderPalette,
   type Surface,
@@ -470,15 +471,12 @@ class PixelTownScene implements TownScene {
     for (let i = 1; i < path.length; i++) {
       const from = path[i - 1]!;
       const to = path[i]!;
-      const edge = this.town.edges.find(
-        (e) => (e.a === from && e.b === to) || (e.a === to && e.b === from),
-      );
-      if (!edge) continue;
-      let pts = sampleEdge(this.town, edge).map((p) => ({
+      // The chain's own samples, so the route sits exactly on the drawn road.
+      const pts = edgePolyline(this.town, from, to).map((p) => ({
         x: p.x * PX_PER_UNIT - ox,
         y: p.y * PX_PER_UNIT - oy,
       }));
-      if (edge.a !== from) pts = pts.reverse();
+      if (pts.length < 2) continue;
       dashAlong(frame, pts, 2, 4, 0, (x, y) => {
         put(frame, x, y, colour);
         put(frame, x + 1, y, colour);
@@ -518,9 +516,12 @@ class PixelTownScene implements TownScene {
       if (hides) blitAnchored(frame, p.sprite, p.nx - ox, p.ny - oy);
     }
 
-    for (const f of resolved) {
-      const sprite = this.art.character(f.dir, f.frame, 1);
-      drawFigureLabel(frame, this.pal, f, sprite.height, ox, oy);
+    // Name plates are 3x5 text: below zoom 2 they are noise, so they go away.
+    if (this.view.zoom >= LABEL_MIN_ZOOM) {
+      for (const f of resolved) {
+        const sprite = this.art.character(f.dir, f.frame, 1);
+        drawFigureLabel(frame, this.pal, f, sprite.height, ox, oy);
+      }
     }
   }
 
@@ -537,6 +538,7 @@ class PixelTownScene implements TownScene {
         fillRect(frame, x - 2, y - 2, 5, 5, handle);
         strokeRect(frame, x - 3, y - 3, 7, 7, ink);
       }
+      if (this.view.zoom < LABEL_MIN_ZOOM) continue;
       const label = n.id;
       const w = label.length * 4 + 1;
       fillRect(frame, x - Math.floor(w / 2), y + 5, w, 7, panel);

@@ -43,8 +43,13 @@ describe('fitZoom', () => {
     }
   });
 
+  it('picks level 1 for a town too big for level 2', () => {
+    // A large town has to be viewable whole, even at native resolution.
+    expect(fitZoom(900, 700, 1000, 800)).toBe(1);
+  });
+
   it('falls back to the smallest level when nothing fits', () => {
-    expect(fitZoom(5000, 5000, 100, 100)).toBe(2);
+    expect(fitZoom(5000, 5000, 100, 100)).toBe(1);
   });
 });
 
@@ -54,7 +59,9 @@ describe('stepZoom', () => {
     expect(stepZoom(3, -1)).toBe(4);
     expect(stepZoom(4, -1)).toBe(4);
     expect(stepZoom(4, 1)).toBe(3);
-    expect(stepZoom(2, 1)).toBe(2);
+    expect(stepZoom(2, 1)).toBe(1);
+    expect(stepZoom(1, 1)).toBe(1);
+    expect(stepZoom(1, -1)).toBe(2);
   });
 });
 
