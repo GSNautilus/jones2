@@ -13,6 +13,35 @@ export type RoadKind = 'street' | 'path' | 'highway' | 'busline';
 
 export type TransportMode = 'walk' | 'bike' | 'bus' | 'car';
 
+/**
+ * How the renderer draws a location's building. Purely visual: the sim never
+ * reads this. Town units: 1 unit = 1 metre-ish; x runs east, y runs south.
+ */
+export interface BuildingRecipe {
+  width: number;
+  depth: number;
+  height: number;
+  /** Hex colour of the walls. */
+  color: string;
+  roof: 'flat' | 'gable' | 'hip' | 'none';
+  roofColor?: string;
+  /** Text on the sign. Defaults to the node name. */
+  sign?: string;
+  /** One landmark prop on or beside the building. */
+  prop?: 'burger' | 'tree' | 'chimney' | 'antenna' | 'fountain' | 'car' | 'book' | 'dumbbell' | 'cross' | 'dollar' | 'none';
+  /** Quarter turns clockwise from facing south (toward +y). The door is on the facing side. */
+  facing: 0 | 1 | 2 | 3;
+}
+
+export interface Decor {
+  kind: 'tree' | 'bush' | 'lamp' | 'bench' | 'water' | 'grass' | 'plaza';
+  x: number;
+  y: number;
+  /** Size for area decor (water, grass, plaza). */
+  w?: number;
+  h?: number;
+}
+
 export interface TownNode {
   id: NodeId;
   /** Display name. Junctions can be unnamed. */
@@ -22,6 +51,8 @@ export interface TownNode {
   y: number;
   /** If this node is a place the player can act at, the sim location id. */
   location?: LocationId;
+  /** Present on location nodes; junctions have none. */
+  building?: BuildingRecipe;
 }
 
 export interface TownEdge {
@@ -39,6 +70,8 @@ export interface Town {
   startNode: NodeId;
   nodes: TownNode[];
   edges: TownEdge[];
+  /** Visual-only scenery. */
+  decor?: Decor[];
 }
 
 export interface TransportProfile {

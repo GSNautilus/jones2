@@ -3,121 +3,1022 @@
   "name": "Riverton",
   "startNode": "bus_depot",
   "nodes": [
-    { "id": "bus_depot", "name": "Bus Depot", "x": 50, "y": 52, "location": "bus_depot" },
-    { "id": "j_center", "x": 50, "y": 48 },
-    { "id": "employment", "name": "Employment Office", "x": 45, "y": 46, "location": "employment" },
-    { "id": "bank", "name": "First Jones Bank", "x": 55, "y": 46, "location": "bank" },
-    { "id": "newsstand", "name": "Corner Newsstand", "x": 50, "y": 44, "location": "newsstand" },
-    { "id": "university", "name": "Hi-Tech University", "x": 57, "y": 39, "location": "university" },
-    { "id": "clinic", "name": "Doc's Walk-In Clinic", "x": 43, "y": 39, "location": "clinic" },
-    { "id": "monolith", "name": "Monolith Burgers", "x": 57, "y": 54, "location": "monolith" },
-    { "id": "cafe", "name": "Java Hut", "x": 46, "y": 56, "location": "cafe" },
-
-    { "id": "j_east", "x": 65, "y": 50 },
-    { "id": "qt_clothing", "name": "QT Clothing", "x": 66, "y": 45, "location": "qt_clothing" },
-    { "id": "socket_city", "name": "Socket City", "x": 71, "y": 50, "location": "socket_city" },
-    { "id": "blacks_market", "name": "Black's Market", "x": 66, "y": 55, "location": "blacks_market" },
-    { "id": "zmart", "name": "Z-Mart", "x": 73, "y": 45, "location": "zmart" },
-    { "id": "pawn", "name": "Pawn Shop", "x": 74, "y": 56, "location": "pawn" },
-    { "id": "auto", "name": "Honest Al's Autos", "x": 80, "y": 50, "location": "auto" },
-
-    { "id": "j_west", "x": 35, "y": 50 },
-    { "id": "park", "name": "Riverside Park", "x": 28, "y": 50, "location": "park" },
-    { "id": "gym", "name": "Flex Factory Gym", "x": 34, "y": 57, "location": "gym" },
-    { "id": "cinema", "name": "Bijou Cinema", "x": 41, "y": 58, "location": "cinema" },
-    { "id": "gilded_fork", "name": "The Gilded Fork", "x": 34, "y": 62, "location": "gilded_fork" },
-    { "id": "chez_cholesterol", "name": "Chez Cholesterol", "x": 42, "y": 64, "location": "chez_cholesterol" },
-
-    { "id": "j_north", "x": 50, "y": 32 },
-    { "id": "factory", "name": "Consolidated Widgets", "x": 50, "y": 22, "location": "factory" },
-    { "id": "shady_acres", "name": "Shady Acres", "x": 59, "y": 30, "location": "shady_acres" },
-    { "id": "lowcost", "name": "Low-Cost Housing", "x": 41, "y": 32, "location": "lowcost" },
-
-    { "id": "j_south", "x": 55, "y": 62 },
-    { "id": "security_apts", "name": "Security Apartments", "x": 58, "y": 66, "location": "security_apts" },
-
-    { "id": "j_elm", "x": 28, "y": 68 },
-    { "id": "house_elm", "name": "12 Elm Street", "x": 24, "y": 72, "location": "house_elm" },
-    { "id": "j_hill", "x": 68, "y": 26 },
-    { "id": "house_hill", "name": "Hilltop Manor", "x": 72, "y": 18, "location": "house_hill" },
-    { "id": "j_lake", "x": 82, "y": 70 },
-    { "id": "house_lake", "name": "Lakeside Cottage", "x": 88, "y": 78, "location": "house_lake" },
-    { "id": "lookout", "name": "Lookout Point", "x": 12, "y": 18, "location": "lookout" }
+    {
+      "id": "bus_depot",
+      "name": "Bus Depot",
+      "x": 50,
+      "y": 52,
+      "location": "bus_depot",
+      "building": {
+        "width": 10,
+        "depth": 6,
+        "height": 4,
+        "color": "#8a8f98",
+        "roof": "flat",
+        "facing": 0,
+        "sign": "BUS DEPOT"
+      }
+    },
+    {
+      "id": "j_center",
+      "x": 50,
+      "y": 48
+    },
+    {
+      "id": "employment",
+      "name": "Employment Office",
+      "x": 45,
+      "y": 46,
+      "location": "employment",
+      "building": {
+        "width": 8,
+        "depth": 8,
+        "height": 5,
+        "color": "#d9cfa8",
+        "roof": "flat",
+        "facing": 0,
+        "sign": "EMPLOYMENT"
+      }
+    },
+    {
+      "id": "bank",
+      "name": "First Jones Bank",
+      "x": 55,
+      "y": 46,
+      "location": "bank",
+      "building": {
+        "width": 10,
+        "depth": 8,
+        "height": 7,
+        "color": "#f2f2ee",
+        "roof": "flat",
+        "facing": 0,
+        "prop": "dollar",
+        "sign": "FIRST JONES BANK"
+      }
+    },
+    {
+      "id": "newsstand",
+      "name": "Corner Newsstand",
+      "x": 50,
+      "y": 44,
+      "location": "newsstand",
+      "building": {
+        "width": 3,
+        "depth": 3,
+        "height": 3,
+        "color": "#c0392b",
+        "roof": "flat",
+        "facing": 0,
+        "sign": "NEWS"
+      }
+    },
+    {
+      "id": "university",
+      "name": "Hi-Tech University",
+      "x": 57,
+      "y": 39,
+      "location": "university",
+      "building": {
+        "width": 14,
+        "depth": 10,
+        "height": 8,
+        "color": "#a44a3f",
+        "roof": "hip",
+        "facing": 0,
+        "prop": "book",
+        "sign": "HI-TECH U",
+        "roofColor": "#5a3a30"
+      }
+    },
+    {
+      "id": "clinic",
+      "name": "Doc's Walk-In Clinic",
+      "x": 43,
+      "y": 39,
+      "location": "clinic",
+      "building": {
+        "width": 9,
+        "depth": 8,
+        "height": 5,
+        "color": "#ffffff",
+        "roof": "flat",
+        "facing": 0,
+        "prop": "cross",
+        "sign": "DOC'S CLINIC"
+      }
+    },
+    {
+      "id": "monolith",
+      "name": "Monolith Burgers",
+      "x": 57,
+      "y": 54,
+      "location": "monolith",
+      "building": {
+        "width": 8,
+        "depth": 8,
+        "height": 4,
+        "color": "#f4c542",
+        "roof": "flat",
+        "facing": 0,
+        "prop": "burger",
+        "sign": "MONOLITH BURGERS"
+      }
+    },
+    {
+      "id": "cafe",
+      "name": "Java Hut",
+      "x": 46,
+      "y": 56,
+      "location": "cafe",
+      "building": {
+        "width": 6,
+        "depth": 6,
+        "height": 4,
+        "color": "#8d6748",
+        "roof": "gable",
+        "facing": 0,
+        "sign": "JAVA HUT",
+        "roofColor": "#4e3524"
+      }
+    },
+    {
+      "id": "j_east",
+      "x": 65,
+      "y": 50
+    },
+    {
+      "id": "qt_clothing",
+      "name": "QT Clothing",
+      "x": 66,
+      "y": 45,
+      "location": "qt_clothing",
+      "building": {
+        "width": 8,
+        "depth": 6,
+        "height": 5,
+        "color": "#e88bb0",
+        "roof": "flat",
+        "facing": 0,
+        "sign": "QT CLOTHING"
+      }
+    },
+    {
+      "id": "socket_city",
+      "name": "Socket City",
+      "x": 71,
+      "y": 50,
+      "location": "socket_city",
+      "building": {
+        "width": 10,
+        "depth": 8,
+        "height": 6,
+        "color": "#3b6fd6",
+        "roof": "flat",
+        "facing": 0,
+        "prop": "antenna",
+        "sign": "SOCKET CITY"
+      }
+    },
+    {
+      "id": "blacks_market",
+      "name": "Black's Market",
+      "x": 66,
+      "y": 55,
+      "location": "blacks_market",
+      "building": {
+        "width": 9,
+        "depth": 8,
+        "height": 4,
+        "color": "#4f9d5d",
+        "roof": "gable",
+        "facing": 0,
+        "sign": "BLACK'S MARKET",
+        "roofColor": "#2f6b3a"
+      }
+    },
+    {
+      "id": "zmart",
+      "name": "Z-Mart",
+      "x": 73,
+      "y": 45,
+      "location": "zmart",
+      "building": {
+        "width": 14,
+        "depth": 10,
+        "height": 6,
+        "color": "#e67e22",
+        "roof": "flat",
+        "facing": 0,
+        "sign": "Z-MART"
+      }
+    },
+    {
+      "id": "pawn",
+      "name": "Pawn Shop",
+      "x": 74,
+      "y": 56,
+      "location": "pawn",
+      "building": {
+        "width": 6,
+        "depth": 6,
+        "height": 4,
+        "color": "#5b5b6b",
+        "roof": "flat",
+        "facing": 0,
+        "sign": "PAWN"
+      }
+    },
+    {
+      "id": "auto",
+      "name": "Honest Al's Autos",
+      "x": 80,
+      "y": 50,
+      "location": "auto",
+      "building": {
+        "width": 12,
+        "depth": 8,
+        "height": 4,
+        "color": "#9aa5b1",
+        "roof": "flat",
+        "facing": 0,
+        "prop": "car",
+        "sign": "HONEST AL'S"
+      }
+    },
+    {
+      "id": "j_west",
+      "x": 35,
+      "y": 50
+    },
+    {
+      "id": "park",
+      "name": "Riverside Park",
+      "x": 28,
+      "y": 50,
+      "location": "park",
+      "building": {
+        "width": 3,
+        "depth": 3,
+        "height": 2,
+        "color": "#6ab04c",
+        "roof": "none",
+        "facing": 0,
+        "prop": "tree",
+        "sign": "RIVERSIDE PARK"
+      }
+    },
+    {
+      "id": "gym",
+      "name": "Flex Factory Gym",
+      "x": 34,
+      "y": 57,
+      "location": "gym",
+      "building": {
+        "width": 10,
+        "depth": 8,
+        "height": 5,
+        "color": "#7d5ba6",
+        "roof": "flat",
+        "facing": 0,
+        "prop": "dumbbell",
+        "sign": "FLEX FACTORY"
+      }
+    },
+    {
+      "id": "cinema",
+      "name": "Bijou Cinema",
+      "x": 41,
+      "y": 58,
+      "location": "cinema",
+      "building": {
+        "width": 9,
+        "depth": 8,
+        "height": 6,
+        "color": "#7a1f2b",
+        "roof": "flat",
+        "facing": 0,
+        "sign": "BIJOU"
+      }
+    },
+    {
+      "id": "gilded_fork",
+      "name": "The Gilded Fork",
+      "x": 34,
+      "y": 62,
+      "location": "gilded_fork",
+      "building": {
+        "width": 8,
+        "depth": 7,
+        "height": 5,
+        "color": "#e9dcb5",
+        "roof": "hip",
+        "facing": 0,
+        "sign": "THE GILDED FORK",
+        "roofColor": "#8c7a3c"
+      }
+    },
+    {
+      "id": "chez_cholesterol",
+      "name": "Chez Cholesterol",
+      "x": 42,
+      "y": 64,
+      "location": "chez_cholesterol",
+      "building": {
+        "width": 8,
+        "depth": 7,
+        "height": 5,
+        "color": "#c94c3f",
+        "roof": "hip",
+        "facing": 0,
+        "prop": "chimney",
+        "sign": "CHEZ CHOLESTEROL",
+        "roofColor": "#6e2a22"
+      }
+    },
+    {
+      "id": "j_north",
+      "x": 50,
+      "y": 32
+    },
+    {
+      "id": "factory",
+      "name": "Consolidated Widgets",
+      "x": 50,
+      "y": 22,
+      "location": "factory",
+      "building": {
+        "width": 16,
+        "depth": 12,
+        "height": 8,
+        "color": "#7f8c8d",
+        "roof": "flat",
+        "facing": 0,
+        "prop": "chimney",
+        "sign": "CONSOLIDATED WIDGETS"
+      }
+    },
+    {
+      "id": "shady_acres",
+      "name": "Shady Acres",
+      "x": 59,
+      "y": 30,
+      "location": "shady_acres",
+      "building": {
+        "width": 12,
+        "depth": 8,
+        "height": 6,
+        "color": "#8e8f5a",
+        "roof": "flat",
+        "facing": 0,
+        "sign": "SHADY ACRES"
+      }
+    },
+    {
+      "id": "lowcost",
+      "name": "Low-Cost Housing",
+      "x": 41,
+      "y": 32,
+      "location": "lowcost",
+      "building": {
+        "width": 12,
+        "depth": 9,
+        "height": 9,
+        "color": "#a0a0a0",
+        "roof": "flat",
+        "facing": 0,
+        "sign": "LOW-COST HOUSING"
+      }
+    },
+    {
+      "id": "j_south",
+      "x": 55,
+      "y": 62
+    },
+    {
+      "id": "security_apts",
+      "name": "Security Apartments",
+      "x": 58,
+      "y": 66,
+      "location": "security_apts",
+      "building": {
+        "width": 10,
+        "depth": 10,
+        "height": 12,
+        "color": "#5d6d7e",
+        "roof": "flat",
+        "facing": 0,
+        "sign": "SECURITY APTS"
+      }
+    },
+    {
+      "id": "j_elm",
+      "x": 28,
+      "y": 68
+    },
+    {
+      "id": "house_elm",
+      "name": "12 Elm Street",
+      "x": 24,
+      "y": 72,
+      "location": "house_elm",
+      "building": {
+        "width": 8,
+        "depth": 7,
+        "height": 5,
+        "color": "#f5efe0",
+        "roof": "gable",
+        "facing": 0,
+        "sign": "12 ELM ST",
+        "roofColor": "#7b4b3a"
+      }
+    },
+    {
+      "id": "j_hill",
+      "x": 68,
+      "y": 26
+    },
+    {
+      "id": "house_hill",
+      "name": "Hilltop Manor",
+      "x": 72,
+      "y": 18,
+      "location": "house_hill",
+      "building": {
+        "width": 12,
+        "depth": 10,
+        "height": 7,
+        "color": "#fdfdfd",
+        "roof": "hip",
+        "facing": 0,
+        "prop": "fountain",
+        "sign": "HILLTOP MANOR",
+        "roofColor": "#3d4a5c"
+      }
+    },
+    {
+      "id": "j_lake",
+      "x": 82,
+      "y": 70
+    },
+    {
+      "id": "house_lake",
+      "name": "Lakeside Cottage",
+      "x": 88,
+      "y": 78,
+      "location": "house_lake",
+      "building": {
+        "width": 8,
+        "depth": 7,
+        "height": 4,
+        "color": "#5fb3b3",
+        "roof": "gable",
+        "facing": 0,
+        "prop": "tree",
+        "sign": "LAKESIDE",
+        "roofColor": "#2e6b6b"
+      }
+    },
+    {
+      "id": "lookout",
+      "name": "Lookout Point",
+      "x": 12,
+      "y": 18,
+      "location": "lookout",
+      "building": {
+        "width": 2,
+        "depth": 2,
+        "height": 1,
+        "color": "#9e9e9e",
+        "roof": "none",
+        "facing": 0,
+        "prop": "tree",
+        "sign": "LOOKOUT POINT"
+      }
+    }
   ],
   "edges": [
-    { "a": "bus_depot", "b": "j_center", "minutes": 4, "kind": "street" },
-    { "a": "j_center", "b": "employment", "minutes": 6, "kind": "street" },
-    { "a": "j_center", "b": "bank", "minutes": 6, "kind": "street" },
-    { "a": "j_center", "b": "newsstand", "minutes": 4, "kind": "street" },
-    { "a": "newsstand", "b": "university", "minutes": 9, "kind": "street" },
-    { "a": "newsstand", "b": "clinic", "minutes": 9, "kind": "street" },
-    { "a": "bank", "b": "university", "minutes": 8, "kind": "street" },
-    { "a": "employment", "b": "clinic", "minutes": 8, "kind": "street" },
-    { "a": "bus_depot", "b": "monolith", "minutes": 7, "kind": "street" },
-    { "a": "bus_depot", "b": "cafe", "minutes": 6, "kind": "street" },
-
-    { "a": "j_center", "b": "j_east", "minutes": 15, "kind": "street" },
-    { "a": "bank", "b": "j_east", "minutes": 12, "kind": "street" },
-    { "a": "monolith", "b": "j_east", "minutes": 10, "kind": "street" },
-    { "a": "j_east", "b": "qt_clothing", "minutes": 5, "kind": "street" },
-    { "a": "j_east", "b": "socket_city", "minutes": 6, "kind": "street" },
-    { "a": "j_east", "b": "blacks_market", "minutes": 5, "kind": "street" },
-    { "a": "qt_clothing", "b": "zmart", "minutes": 7, "kind": "street" },
-    { "a": "socket_city", "b": "zmart", "minutes": 6, "kind": "street" },
-    { "a": "socket_city", "b": "pawn", "minutes": 7, "kind": "street" },
-    { "a": "blacks_market", "b": "pawn", "minutes": 8, "kind": "street" },
-    { "a": "socket_city", "b": "auto", "minutes": 9, "kind": "street" },
-
-    { "a": "j_center", "b": "j_west", "minutes": 15, "kind": "street" },
-    { "a": "employment", "b": "j_west", "minutes": 11, "kind": "street" },
-    { "a": "j_west", "b": "park", "minutes": 7, "kind": "path" },
-    { "a": "j_west", "b": "gym", "minutes": 7, "kind": "street" },
-    { "a": "cafe", "b": "cinema", "minutes": 6, "kind": "street" },
-    { "a": "gym", "b": "cinema", "minutes": 7, "kind": "street" },
-    { "a": "gym", "b": "gilded_fork", "minutes": 5, "kind": "street" },
-    { "a": "cinema", "b": "chez_cholesterol", "minutes": 6, "kind": "street" },
-    { "a": "gilded_fork", "b": "chez_cholesterol", "minutes": 8, "kind": "street" },
-    { "a": "park", "b": "gilded_fork", "minutes": 12, "kind": "path" },
-
-    { "a": "j_center", "b": "j_north", "minutes": 16, "kind": "street" },
-    { "a": "clinic", "b": "j_north", "minutes": 10, "kind": "street" },
-    { "a": "university", "b": "j_north", "minutes": 10, "kind": "street" },
-    { "a": "j_north", "b": "factory", "minutes": 10, "kind": "street" },
-    { "a": "j_north", "b": "shady_acres", "minutes": 9, "kind": "street" },
-    { "a": "j_north", "b": "lowcost", "minutes": 9, "kind": "street" },
-    { "a": "factory", "b": "shady_acres", "minutes": 12, "kind": "path" },
-
-    { "a": "monolith", "b": "j_south", "minutes": 8, "kind": "street" },
-    { "a": "blacks_market", "b": "j_south", "minutes": 13, "kind": "street" },
-    { "a": "j_south", "b": "security_apts", "minutes": 5, "kind": "street" },
-    { "a": "cinema", "b": "j_south", "minutes": 15, "kind": "street" },
-
-    { "a": "gilded_fork", "b": "j_elm", "minutes": 9, "kind": "street" },
-    { "a": "j_elm", "b": "house_elm", "minutes": 6, "kind": "street" },
-    { "a": "shady_acres", "b": "j_hill", "minutes": 10, "kind": "street" },
-    { "a": "j_hill", "b": "house_hill", "minutes": 9, "kind": "street" },
-    { "a": "zmart", "b": "j_hill", "minutes": 22, "kind": "street" },
-    { "a": "pawn", "b": "j_lake", "minutes": 18, "kind": "street" },
-    { "a": "security_apts", "b": "j_lake", "minutes": 26, "kind": "street" },
-    { "a": "j_lake", "b": "house_lake", "minutes": 10, "kind": "street" },
-    { "a": "park", "b": "lookout", "minutes": 45, "kind": "path" },
-    { "a": "lowcost", "b": "lookout", "minutes": 40, "kind": "path" },
-
-    { "a": "j_north", "b": "j_hill", "minutes": 20, "kind": "highway" },
-    { "a": "j_hill", "b": "auto", "minutes": 28, "kind": "highway" },
-    { "a": "auto", "b": "j_lake", "minutes": 24, "kind": "highway" },
-    { "a": "j_lake", "b": "j_south", "minutes": 30, "kind": "highway" },
-    { "a": "j_south", "b": "j_elm", "minutes": 32, "kind": "highway" },
-    { "a": "j_elm", "b": "j_west", "minutes": 22, "kind": "highway" },
-    { "a": "j_west", "b": "j_north", "minutes": 26, "kind": "highway" },
-
-    { "a": "bus_depot", "b": "j_east", "minutes": 18, "kind": "busline" },
-    { "a": "j_east", "b": "auto", "minutes": 14, "kind": "busline" },
-    { "a": "bus_depot", "b": "j_north", "minutes": 20, "kind": "busline" },
-    { "a": "j_north", "b": "factory", "minutes": 10, "kind": "busline" },
-    { "a": "bus_depot", "b": "j_west", "minutes": 18, "kind": "busline" },
-    { "a": "j_west", "b": "j_elm", "minutes": 22, "kind": "busline" },
-    { "a": "bus_depot", "b": "j_south", "minutes": 14, "kind": "busline" },
-    { "a": "j_south", "b": "j_lake", "minutes": 30, "kind": "busline" }
+    {
+      "a": "bus_depot",
+      "b": "j_center",
+      "minutes": 4,
+      "kind": "street"
+    },
+    {
+      "a": "j_center",
+      "b": "employment",
+      "minutes": 6,
+      "kind": "street"
+    },
+    {
+      "a": "j_center",
+      "b": "bank",
+      "minutes": 6,
+      "kind": "street"
+    },
+    {
+      "a": "j_center",
+      "b": "newsstand",
+      "minutes": 4,
+      "kind": "street"
+    },
+    {
+      "a": "newsstand",
+      "b": "university",
+      "minutes": 9,
+      "kind": "street"
+    },
+    {
+      "a": "newsstand",
+      "b": "clinic",
+      "minutes": 9,
+      "kind": "street"
+    },
+    {
+      "a": "bank",
+      "b": "university",
+      "minutes": 8,
+      "kind": "street"
+    },
+    {
+      "a": "employment",
+      "b": "clinic",
+      "minutes": 8,
+      "kind": "street"
+    },
+    {
+      "a": "bus_depot",
+      "b": "monolith",
+      "minutes": 7,
+      "kind": "street"
+    },
+    {
+      "a": "bus_depot",
+      "b": "cafe",
+      "minutes": 6,
+      "kind": "street"
+    },
+    {
+      "a": "j_center",
+      "b": "j_east",
+      "minutes": 15,
+      "kind": "street"
+    },
+    {
+      "a": "bank",
+      "b": "j_east",
+      "minutes": 12,
+      "kind": "street"
+    },
+    {
+      "a": "monolith",
+      "b": "j_east",
+      "minutes": 10,
+      "kind": "street"
+    },
+    {
+      "a": "j_east",
+      "b": "qt_clothing",
+      "minutes": 5,
+      "kind": "street"
+    },
+    {
+      "a": "j_east",
+      "b": "socket_city",
+      "minutes": 6,
+      "kind": "street"
+    },
+    {
+      "a": "j_east",
+      "b": "blacks_market",
+      "minutes": 5,
+      "kind": "street"
+    },
+    {
+      "a": "qt_clothing",
+      "b": "zmart",
+      "minutes": 7,
+      "kind": "street"
+    },
+    {
+      "a": "socket_city",
+      "b": "zmart",
+      "minutes": 6,
+      "kind": "street"
+    },
+    {
+      "a": "socket_city",
+      "b": "pawn",
+      "minutes": 7,
+      "kind": "street"
+    },
+    {
+      "a": "blacks_market",
+      "b": "pawn",
+      "minutes": 8,
+      "kind": "street"
+    },
+    {
+      "a": "socket_city",
+      "b": "auto",
+      "minutes": 9,
+      "kind": "street"
+    },
+    {
+      "a": "j_center",
+      "b": "j_west",
+      "minutes": 15,
+      "kind": "street"
+    },
+    {
+      "a": "employment",
+      "b": "j_west",
+      "minutes": 11,
+      "kind": "street"
+    },
+    {
+      "a": "j_west",
+      "b": "park",
+      "minutes": 7,
+      "kind": "path"
+    },
+    {
+      "a": "j_west",
+      "b": "gym",
+      "minutes": 7,
+      "kind": "street"
+    },
+    {
+      "a": "cafe",
+      "b": "cinema",
+      "minutes": 6,
+      "kind": "street"
+    },
+    {
+      "a": "gym",
+      "b": "cinema",
+      "minutes": 7,
+      "kind": "street"
+    },
+    {
+      "a": "gym",
+      "b": "gilded_fork",
+      "minutes": 5,
+      "kind": "street"
+    },
+    {
+      "a": "cinema",
+      "b": "chez_cholesterol",
+      "minutes": 6,
+      "kind": "street"
+    },
+    {
+      "a": "gilded_fork",
+      "b": "chez_cholesterol",
+      "minutes": 8,
+      "kind": "street"
+    },
+    {
+      "a": "park",
+      "b": "gilded_fork",
+      "minutes": 12,
+      "kind": "path"
+    },
+    {
+      "a": "j_center",
+      "b": "j_north",
+      "minutes": 16,
+      "kind": "street"
+    },
+    {
+      "a": "clinic",
+      "b": "j_north",
+      "minutes": 10,
+      "kind": "street"
+    },
+    {
+      "a": "university",
+      "b": "j_north",
+      "minutes": 10,
+      "kind": "street"
+    },
+    {
+      "a": "j_north",
+      "b": "factory",
+      "minutes": 10,
+      "kind": "street"
+    },
+    {
+      "a": "j_north",
+      "b": "shady_acres",
+      "minutes": 9,
+      "kind": "street"
+    },
+    {
+      "a": "j_north",
+      "b": "lowcost",
+      "minutes": 9,
+      "kind": "street"
+    },
+    {
+      "a": "factory",
+      "b": "shady_acres",
+      "minutes": 12,
+      "kind": "path"
+    },
+    {
+      "a": "monolith",
+      "b": "j_south",
+      "minutes": 8,
+      "kind": "street"
+    },
+    {
+      "a": "blacks_market",
+      "b": "j_south",
+      "minutes": 13,
+      "kind": "street"
+    },
+    {
+      "a": "j_south",
+      "b": "security_apts",
+      "minutes": 5,
+      "kind": "street"
+    },
+    {
+      "a": "cinema",
+      "b": "j_south",
+      "minutes": 15,
+      "kind": "street"
+    },
+    {
+      "a": "gilded_fork",
+      "b": "j_elm",
+      "minutes": 9,
+      "kind": "street"
+    },
+    {
+      "a": "j_elm",
+      "b": "house_elm",
+      "minutes": 6,
+      "kind": "street"
+    },
+    {
+      "a": "shady_acres",
+      "b": "j_hill",
+      "minutes": 10,
+      "kind": "street"
+    },
+    {
+      "a": "j_hill",
+      "b": "house_hill",
+      "minutes": 9,
+      "kind": "street"
+    },
+    {
+      "a": "zmart",
+      "b": "j_hill",
+      "minutes": 22,
+      "kind": "street"
+    },
+    {
+      "a": "pawn",
+      "b": "j_lake",
+      "minutes": 18,
+      "kind": "street"
+    },
+    {
+      "a": "security_apts",
+      "b": "j_lake",
+      "minutes": 26,
+      "kind": "street"
+    },
+    {
+      "a": "j_lake",
+      "b": "house_lake",
+      "minutes": 10,
+      "kind": "street"
+    },
+    {
+      "a": "park",
+      "b": "lookout",
+      "minutes": 45,
+      "kind": "path"
+    },
+    {
+      "a": "lowcost",
+      "b": "lookout",
+      "minutes": 40,
+      "kind": "path"
+    },
+    {
+      "a": "j_north",
+      "b": "j_hill",
+      "minutes": 20,
+      "kind": "highway"
+    },
+    {
+      "a": "j_hill",
+      "b": "auto",
+      "minutes": 28,
+      "kind": "highway"
+    },
+    {
+      "a": "auto",
+      "b": "j_lake",
+      "minutes": 24,
+      "kind": "highway"
+    },
+    {
+      "a": "j_lake",
+      "b": "j_south",
+      "minutes": 30,
+      "kind": "highway"
+    },
+    {
+      "a": "j_south",
+      "b": "j_elm",
+      "minutes": 32,
+      "kind": "highway"
+    },
+    {
+      "a": "j_elm",
+      "b": "j_west",
+      "minutes": 22,
+      "kind": "highway"
+    },
+    {
+      "a": "j_west",
+      "b": "j_north",
+      "minutes": 26,
+      "kind": "highway"
+    },
+    {
+      "a": "bus_depot",
+      "b": "j_east",
+      "minutes": 18,
+      "kind": "busline"
+    },
+    {
+      "a": "j_east",
+      "b": "auto",
+      "minutes": 14,
+      "kind": "busline"
+    },
+    {
+      "a": "bus_depot",
+      "b": "j_north",
+      "minutes": 20,
+      "kind": "busline"
+    },
+    {
+      "a": "j_north",
+      "b": "factory",
+      "minutes": 10,
+      "kind": "busline"
+    },
+    {
+      "a": "bus_depot",
+      "b": "j_west",
+      "minutes": 18,
+      "kind": "busline"
+    },
+    {
+      "a": "j_west",
+      "b": "j_elm",
+      "minutes": 22,
+      "kind": "busline"
+    },
+    {
+      "a": "bus_depot",
+      "b": "j_south",
+      "minutes": 14,
+      "kind": "busline"
+    },
+    {
+      "a": "j_south",
+      "b": "j_lake",
+      "minutes": 30,
+      "kind": "busline"
+    }
+  ],
+  "decor": [
+    {
+      "kind": "water",
+      "x": 14,
+      "y": 30,
+      "w": 8,
+      "h": 45
+    },
+    {
+      "kind": "water",
+      "x": 84,
+      "y": 74,
+      "w": 14,
+      "h": 14
+    },
+    {
+      "kind": "grass",
+      "x": 22,
+      "y": 44,
+      "w": 12,
+      "h": 14
+    },
+    {
+      "kind": "plaza",
+      "x": 46,
+      "y": 46,
+      "w": 8,
+      "h": 6
+    },
+    {
+      "kind": "tree",
+      "x": 25,
+      "y": 46
+    },
+    {
+      "kind": "tree",
+      "x": 31,
+      "y": 47
+    },
+    {
+      "kind": "tree",
+      "x": 26,
+      "y": 55
+    },
+    {
+      "kind": "tree",
+      "x": 30,
+      "y": 53
+    },
+    {
+      "kind": "tree",
+      "x": 20,
+      "y": 74
+    },
+    {
+      "kind": "tree",
+      "x": 27,
+      "y": 75
+    },
+    {
+      "kind": "tree",
+      "x": 75,
+      "y": 15
+    },
+    {
+      "kind": "tree",
+      "x": 90,
+      "y": 74
+    },
+    {
+      "kind": "tree",
+      "x": 10,
+      "y": 15
+    },
+    {
+      "kind": "tree",
+      "x": 15,
+      "y": 21
+    },
+    {
+      "kind": "tree",
+      "x": 44,
+      "y": 24
+    },
+    {
+      "kind": "tree",
+      "x": 56,
+      "y": 24
+    },
+    {
+      "kind": "lamp",
+      "x": 48,
+      "y": 50
+    },
+    {
+      "kind": "lamp",
+      "x": 52,
+      "y": 50
+    },
+    {
+      "kind": "lamp",
+      "x": 63,
+      "y": 50
+    },
+    {
+      "kind": "lamp",
+      "x": 37,
+      "y": 50
+    },
+    {
+      "kind": "bench",
+      "x": 27,
+      "y": 52
+    },
+    {
+      "kind": "bench",
+      "x": 47,
+      "y": 45
+    }
   ]
 }
