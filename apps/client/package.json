@@ -14,7 +14,8 @@
     "@jones2/town": "*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "three": "^0.170.0"
+    "three": "^0.170.0",
+    "@jones2/pixelart": "*"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",

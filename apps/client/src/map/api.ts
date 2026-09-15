@@ -1,14 +1,15 @@
 /**
  * CONTRACT: the town renderer's public surface. Everything outside `src/map/`
- * talks to the 3D scene only through this interface. Implemented in
+ * talks to the scene only through this interface. Implemented in
  * `src/map/TownScene.ts` and created with `createTownScene()`.
  *
  * Coordinate conventions
- * - Town units come from the town JSON: `x` runs east, `y` runs south.
- * - World space: town x -> three.js X, town y -> three.js Z, up is +Y.
- * - The camera is orthographic and isometric. `rotate()` turns it in quarter
- *   turns around the focus point. `zoom()` scales the view. `panTo()` moves
- *   the focus point in town units.
+ * - Town units come from the town JSON: `x` runs east, `y` runs south. Every
+ *   coordinate crossing this interface (`panTo`, `PickResult`) is in town units.
+ * - The renderer is 2D pixel art with a fixed top-down camera, so there is no
+ *   rotation: `rotate()` is accepted and ignored. `zoom()` steps through integer
+ *   zoom levels (factor < 1 zooms in, > 1 zooms out). `panTo()` centres the view
+ *   on a town point.
  */
 import type { NodeId, Town, TransportMode } from '@jones2/town';
 
@@ -68,6 +69,7 @@ export interface TownScene {
   setPoses(poses: Record<string, FigurePose>): void;
   /** Camera follows this figure until null is passed. */
   follow(figureId: string | null): void;
+  /** Accepted and ignored: the camera is fixed top-down. Kept so callers need not change. */
   rotate(quarterTurns: number): void;
   zoom(factor: number): void;
   panTo(x: number, y: number): void;

@@ -2,7 +2,11 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true,
-    "types": ["node"]
+    "types": ["node"],
+    // Pixel buffers are indexed on every line; `number | undefined` everywhere
+    // buys nothing here and costs legibility. Bounds are checked explicitly in
+    // src/surface.ts instead.
+    "noUncheckedIndexedAccess": false
   },
   "include": ["src", "test", "tools"]
 }

@@ -52,6 +52,13 @@ Then open http://localhost:5174 (play), /?replay, /?editor, /?map.
 - Screenshot harness lives outside the repo (scratchpad `shoot.cjs` using playwright-core + the installed Edge via `channel: 'msedge'`); worth turning into a project skill.
 - Bundle is one ~600 kB chunk (three.js); code-split later.
 
+## Milestone 2b — pixel art direction (IN PROGRESS, started 2026-09-14)
+Direction change after reviewing the original: 2D pixel art generated as code replaces three.js. Fixed top-down camera, integer zoom, curvy roads rasterised from edge control points.
+
+Phase A (DONE): `packages/pixelart` (DSL, 54-colour palette, 5×7 font, parts, 6 hero buildings, tiles, nature, walk cycles; 96 tests; `npm run sheet -w @jones2/pixelart` writes `art/sheets/`), and the 2D renderer in `apps/client/src/map` behind the unchanged contract (42 tests). Real art wired via `src/map/art.ts`; unknown locations fall back to a signed house.
+
+Phase B (NOT STARTED): remaining 21 buildings + props + UI sprites; clock HUD; Riverton re-authored at art scale with curvy roads and foliage; editor curve-point support.
+
 ## Milestone 3 — server + async multiplayer (NOT STARTED)
 ## Milestone 4 — art pass (NOT STARTED)
 ## Milestone 5 — sound + polish (NOT STARTED)

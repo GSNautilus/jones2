@@ -1,574 +1,549 @@
 /**
- * The town renderer. Implements the `TownScene` contract in `api.ts`.
+ * The 2D pixel-art town renderer. Implements `api.ts` (THE CONTRACT).
  *
- * Scene graph (all under `scene`):
- *   ground      one flat quad covering the town bounds plus a margin
- *   decor       scenery from `town.decor`
- *   areas       highlight discs and the current route ribbon
- *   buildings   one group per location node, positioned in world units
- *   handles     editor-only junction discs
- *   labels      camera-facing name sprites
- *   figures     player characters
+ * Two layers:
+ *  - a static native-resolution surface with the whole town (ground, roads,
+ *    shadows, scenery, buildings), rebuilt only on setTown/moveNode;
+ *  - a per-frame native-resolution surface the size of the visible window,
+ *    which starts as a copy of the static one and then takes highlights, the
+ *    route, figures, labels and editor handles.
  *
- * Picking uses a separate `pickRoot` group that is never added to the scene:
- * one invisible cylinder per node, raycast directly. Nothing invisible is ever
- * submitted to the renderer, and the pick shapes stay independent of the art.
+ * The frame surface is flattened to RGBA once, put into an offscreen canvas,
+ * and blown up onto the visible canvas with an INTEGER zoom and
+ * `imageSmoothingEnabled = false`. Nothing is ever drawn at a fractional scale,
+ * which is the whole point.
  */
-import * as THREE from 'three';
-import type { NodeId, Town, TownNode } from '@jones2/town';
+import type { NodeId, Town } from '@jones2/town';
 import type { CreateTownScene, FigurePose, FigureStyle, PickResult, TownScene, TownSceneOptions } from './api';
-import { IsoCamera, type TownBounds } from './camera';
-import { MaterialCache, PALETTE, disposeSubtree } from './palette';
-import { Roads, ribbon, type NodePos } from './roads';
-import { buildBuilding } from './buildings';
-import { buildDecor } from './decor';
-import { Figures } from './figures';
-import { makeLabel } from './labels';
+import { PX_PER_UNIT, getArt } from './art';
+import {
+  type View,
+  ZOOM_LEVELS,
+  centreOrigin,
+  clampOrigin,
+  createView,
+  fitZoom,
+  originAfterZoomAt,
+  screenToNative,
+  screenToTown,
+  stepZoom,
+} from './camera';
+import {
+  type FigureState,
+  type ResolvedFigure,
+  anyMoving,
+  drawFigure,
+  drawFigureLabel,
+  resolveFigure,
+} from './figures';
+import { type Ground, type Placement, buildGround, ditherEllipse, pickNode } from './ground';
+import { dashAlong, sampleEdge } from './roads';
+import {
+  RenderPalette,
+  type Surface,
+  blitAnchored,
+  copyWindow,
+  createSurface,
+  fillRect,
+  put,
+  strokeEllipse,
+  strokeRect,
+  text,
+  toRGBA,
+} from './surface';
 
-const HOVER_INTERVAL_MS = 33;
-const DRAG_SLOP_PX = 4;
-/** Above this frustum half-height, name labels are hidden as clutter. */
-const LABEL_MAX_VIEW = 70;
-const GROUND_MARGIN = 40;
+/** Shown outside the town layer. */
+const BACKDROP = '#20241d';
 
-interface NodeVisual {
-  node: TownNode;
-  group: THREE.Object3D | null;
-  label: THREE.Sprite | null;
-  pick: THREE.Mesh;
-  handle: THREE.Mesh | null;
-  topY: number;
-}
+const EMPTY_TOWN: Town = { id: 'empty', name: 'empty', startNode: '', nodes: [], edges: [] };
 
-class TownSceneImpl implements TownScene {
-  private readonly scene = new THREE.Scene();
-  private readonly iso = new IsoCamera();
-  private readonly mats = new MaterialCache();
-  private readonly roads: Roads;
-  private readonly figures: Figures;
+class PixelTownScene implements TownScene {
+  private readonly options: TownSceneOptions;
+  private readonly art = getArt();
+  private readonly pal = new RenderPalette(this.art.palette);
 
-  private readonly groundGroup = new THREE.Group();
-  private readonly decorGroup = new THREE.Group();
-  private readonly highlightGroup = new THREE.Group();
-  private readonly routeGroup = new THREE.Group();
-  private readonly buildingsGroup = new THREE.Group();
-  private readonly handlesGroup = new THREE.Group();
-  private readonly labelsGroup = new THREE.Group();
-  /** Never added to the scene: raycast targets only. */
-  private readonly pickRoot = new THREE.Group();
-  private readonly pickMaterial = new THREE.MeshBasicMaterial({ visible: false });
-
-  private renderer: THREE.WebGLRenderer | null = null;
   private canvas: HTMLCanvasElement | null = null;
-  private raf = 0;
-  private dirty = true;
-  private lastFrame = 0;
+  private ctx: CanvasRenderingContext2D | null = null;
+  /** Native-resolution scratch canvas the frame surface is put into. */
+  private native: HTMLCanvasElement | null = null;
+  private nativeCtx: CanvasRenderingContext2D | null = null;
+  private frame: Surface | null = null;
+  /** Reused every frame; `toRGBA` writes straight into `image.data`. */
+  private image: ImageData | null = null;
 
-  private town: Town | null = null;
-  private readonly nodePos = new Map<NodeId, NodePos>();
-  private readonly visuals = new Map<NodeId, NodeVisual>();
-  private bounds: TownBounds = { minX: 0, maxX: 100, minY: 0, maxY: 100, maxHeight: 10 };
-  private fitted = false;
+  private sourceTown: Town = EMPTY_TOWN;
+  private town: Town = EMPTY_TOWN;
+  private readonly moved = new Map<NodeId, { x: number; y: number }>();
+  private ground: Ground | null = null;
 
-  private highlighted: NodeId[] = [];
+  private readonly figures = new Map<string, FigureState>();
+  private highlight: NodeId[] = [];
   private route: NodeId[] | null = null;
-  private lastPoses: Record<string, FigurePose> = {};
   private followId: string | null = null;
 
-  private readonly raycaster = new THREE.Raycaster();
-  private readonly ndc = new THREE.Vector2();
-  private readonly groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-  private readonly scratch = new THREE.Vector3();
-  private readonly dragAnchor = new THREE.Vector3();
-  private dragging = false;
-  private dragPointer = -1;
-  private dragMoved = 0;
-  private nodeDragging = false;
-  private downX = 0;
-  private downY = 0;
+  private readonly view: View = createView();
+  private framed = false;
+
+  private raf = 0;
+  private dirty = true;
   private lastHover = 0;
+  private lastHoverNode: NodeId | null | undefined;
 
-  constructor(private readonly options: TownSceneOptions) {
-    this.scene.background = new THREE.Color('#dfe4d8');
-    this.roads = new Roads(this.mats);
-    this.figures = new Figures(this.mats, (id) => this.nodePos.get(id));
+  private drag: 'none' | 'pan' | 'node' = 'none';
+  private pointerId: number | null = null;
+  private startX = 0;
+  private startY = 0;
+  private movedFar = false;
 
-    const hemi = new THREE.HemisphereLight(0xffffff, 0x6d7a5e, 1.8);
-    const sun = new THREE.DirectionalLight(0xfff4e2, 1.7);
-    sun.position.set(60, 120, 40);
-    this.scene.add(hemi, sun);
-
-    this.labelsGroup.renderOrder = 20;
-    this.scene.add(
-      this.groundGroup,
-      this.decorGroup,
-      this.roads.group,
-      this.highlightGroup,
-      this.routeGroup,
-      this.buildingsGroup,
-      this.handlesGroup,
-      this.labelsGroup,
-      this.figures.group,
-    );
+  constructor(options: TownSceneOptions = {}) {
+    this.options = options;
   }
 
-  // ---------------------------------------------------------------- lifecycle
+  /* ------------------------------------------------------------ lifecycle */
 
   mount(canvas: HTMLCanvasElement): void {
-    if (this.canvas === canvas && this.renderer) return;
-    if (this.renderer) this.teardownRenderer();
-
+    if (this.canvas === canvas) return;
+    if (this.canvas) this.unmount();
     this.canvas = canvas;
-    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
-    this.renderer.setPixelRatio(Math.min(typeof window === 'undefined' ? 1 : window.devicePixelRatio || 1, 2));
-    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
-
+    this.ctx = canvas.getContext('2d', { alpha: false });
+    canvas.style.imageRendering = 'pixelated';
+    canvas.style.touchAction = 'none';
     canvas.addEventListener('pointerdown', this.onPointerDown);
     canvas.addEventListener('pointermove', this.onPointerMove);
     canvas.addEventListener('pointerup', this.onPointerUp);
     canvas.addEventListener('pointercancel', this.onPointerUp);
+    canvas.addEventListener('pointerleave', this.onPointerLeave);
     canvas.addEventListener('wheel', this.onWheel, { passive: false });
-    canvas.addEventListener('contextmenu', this.onContextMenu);
-    window.addEventListener('keydown', this.onKeyDown);
-
+    if (!this.ground && this.sourceTown !== EMPTY_TOWN) this.rebuild();
     this.resize();
     this.dirty = true;
-    this.lastFrame = 0;
-    if (this.raf === 0) this.raf = requestAnimationFrame(this.tick);
+    this.loop();
   }
 
   unmount(): void {
-    if (this.raf !== 0) {
-      cancelAnimationFrame(this.raf);
-      this.raf = 0;
-    }
-    this.teardownRenderer();
-  }
-
-  dispose(): void {
-    this.unmount();
-    this.clearTownVisuals();
-    this.figures.dispose();
-    disposeSubtree(this.highlightGroup);
-    disposeSubtree(this.routeGroup);
-    this.mats.dispose();
-    // `pickMaterial` is never rendered, so it holds no GPU resources; keeping
-    // it means a disposed scene can be mounted again (React StrictMode does
-    // exactly that) without any half-initialised state.
-  }
-
-  private teardownRenderer(): void {
     const canvas = this.canvas;
     if (canvas) {
       canvas.removeEventListener('pointerdown', this.onPointerDown);
       canvas.removeEventListener('pointermove', this.onPointerMove);
       canvas.removeEventListener('pointerup', this.onPointerUp);
       canvas.removeEventListener('pointercancel', this.onPointerUp);
+      canvas.removeEventListener('pointerleave', this.onPointerLeave);
       canvas.removeEventListener('wheel', this.onWheel);
-      canvas.removeEventListener('contextmenu', this.onContextMenu);
-      window.removeEventListener('keydown', this.onKeyDown);
     }
-    if (this.renderer) {
-      this.renderer.dispose();
-      this.renderer = null;
-    }
+    if (this.raf) cancelAnimationFrame(this.raf);
+    this.raf = 0;
     this.canvas = null;
+    this.ctx = null;
+    this.drag = 'none';
+    this.pointerId = null;
   }
 
-  resize(): void {
-    const canvas = this.canvas;
-    if (!canvas || !this.renderer) return;
-    const w = Math.max(1, canvas.clientWidth || canvas.width);
-    const h = Math.max(1, canvas.clientHeight || canvas.height);
-    this.renderer.setSize(w, h, false);
-    this.iso.setViewport(w, h);
-    this.dirty = true;
+  /**
+   * Free the heavy buffers. The scene stays usable: a later `mount()` rebuilds
+   * the static layer from the town it still holds, which is what React
+   * StrictMode's mount/unmount/mount needs.
+   */
+  dispose(): void {
+    this.unmount();
+    this.ground = null;
+    this.native = null;
+    this.nativeCtx = null;
+    this.frame = null;
+    this.image = null;
   }
 
-  // -------------------------------------------------------------------- town
+  /* ------------------------------------------------------------ town state */
 
   setTown(town: Town): void {
-    this.clearTownVisuals();
-    this.town = town;
-
-    for (const node of town.nodes) this.nodePos.set(node.id, { x: node.x, y: node.y });
-
-    this.bounds = computeBounds(town);
-    this.buildGround();
-    this.decorGroup.add(buildDecor(town.decor, this.mats));
-    this.roads.build(town, this.nodePos);
-
-    for (const node of town.nodes) this.addNode(node);
-
-    // Re-apply the transient layers on top of the new geometry.
-    this.applyHighlight();
-    this.applyRoute();
-    this.figures.setPoses(this.lastPoses);
-
-    if (!this.fitted) {
-      this.fitted = true;
-      this.fitAll();
-    }
+    this.sourceTown = town;
+    this.moved.clear();
+    this.rebuild();
+    if (!this.framed) this.fitAll();
     this.dirty = true;
-  }
-
-  private clearTownVisuals(): void {
-    disposeSubtree(this.groundGroup);
-    disposeSubtree(this.decorGroup);
-    disposeSubtree(this.buildingsGroup);
-    disposeSubtree(this.handlesGroup);
-    disposeSubtree(this.labelsGroup);
-    disposeSubtree(this.pickRoot);
-    this.roads.clear();
-    this.visuals.clear();
-    this.nodePos.clear();
-    this.town = null;
-  }
-
-  private buildGround(): void {
-    const w = this.bounds.maxX - this.bounds.minX + GROUND_MARGIN * 2;
-    const h = this.bounds.maxY - this.bounds.minY + GROUND_MARGIN * 2;
-    const geom = new THREE.PlaneGeometry(w, h);
-    geom.rotateX(-Math.PI / 2);
-    const mesh = new THREE.Mesh(geom, this.mats.unlit(PALETTE.ground));
-    mesh.position.set((this.bounds.minX + this.bounds.maxX) / 2, 0, (this.bounds.minY + this.bounds.maxY) / 2);
-    this.groundGroup.add(mesh);
-  }
-
-  private addNode(node: TownNode): void {
-    let group: THREE.Object3D | null = null;
-    let label: THREE.Sprite | null = null;
-    let handle: THREE.Mesh | null = null;
-    let topY = 0;
-
-    if (node.building) {
-      const built = buildBuilding(node.building, this.mats, node.name ?? node.id);
-      built.group.position.set(node.x, 0, node.y);
-      this.buildingsGroup.add(built.group);
-      group = built.group;
-      topY = built.topY;
-
-      if (node.name) {
-        label = makeLabel(node.name, 1.6);
-        label.position.set(node.x, topY + 2, node.y);
-        this.labelsGroup.add(label);
-      }
-    } else if (this.options.editable) {
-      const geom = new THREE.CircleGeometry(1.5, 16);
-      geom.rotateX(-Math.PI / 2);
-      handle = new THREE.Mesh(geom, this.mats.unlit(PALETTE.junction, { opacity: 0.9, depthWrite: false }));
-      handle.position.set(node.x, 0.16, node.y);
-      handle.renderOrder = 4;
-      this.handlesGroup.add(handle);
-    }
-
-    const pickH = node.building ? topY + 2 : 1.2;
-    const pick = new THREE.Mesh(new THREE.CylinderGeometry(2.5, 2.5, pickH, 8), this.pickMaterial);
-    pick.position.set(node.x, pickH / 2, node.y);
-    pick.userData.nodeId = node.id;
-    this.pickRoot.add(pick);
-
-    this.visuals.set(node.id, { node, group, label, pick, handle, topY });
   }
 
   moveNode(id: NodeId, x: number, y: number): void {
-    const pos = this.nodePos.get(id);
-    const vis = this.visuals.get(id);
-    if (!pos || !vis) return;
-    pos.x = x;
-    pos.y = y;
-
-    if (vis.group) vis.group.position.set(x, 0, y);
-    if (vis.label) vis.label.position.set(x, vis.topY + 2, y);
-    if (vis.handle) vis.handle.position.set(x, 0.16, y);
-    vis.pick.position.set(x, vis.pick.position.y, y);
-    this.pickRoot.updateMatrixWorld(true);
-
-    this.roads.updateNode(id);
-    this.applyHighlight();
-    this.applyRoute();
-    this.figures.setPoses(this.lastPoses);
+    if (!this.sourceTown.nodes.some((n) => n.id === id)) return;
+    this.moved.set(id, { x, y });
+    this.rebuild();
     this.dirty = true;
   }
 
-  // ------------------------------------------------------------ overlay layers
+  private rebuild(): void {
+    this.town =
+      this.moved.size === 0
+        ? this.sourceTown
+        : {
+            ...this.sourceTown,
+            nodes: this.sourceTown.nodes.map((n) => {
+              const p = this.moved.get(n.id);
+              return p ? { ...n, x: p.x, y: p.y } : n;
+            }),
+          };
+    this.ground = buildGround(this.town, this.art, this.pal);
+  }
 
   setHighlight(nodeIds: NodeId[]): void {
-    this.highlighted = [...nodeIds];
-    this.applyHighlight();
+    this.highlight = nodeIds.slice();
     this.dirty = true;
-  }
-
-  private applyHighlight(): void {
-    disposeSubtree(this.highlightGroup);
-    const mat = this.mats.unlit(PALETTE.highlight, { opacity: 0.32, depthWrite: false });
-    for (const id of this.highlighted) {
-      const p = this.nodePos.get(id);
-      if (!p) continue;
-      const geom = new THREE.CircleGeometry(4, 24);
-      geom.rotateX(-Math.PI / 2);
-      const disc = new THREE.Mesh(geom, mat);
-      disc.position.set(p.x, 0.15, p.y);
-      disc.renderOrder = 2;
-      this.highlightGroup.add(disc);
-    }
   }
 
   setRoute(path: NodeId[] | null): void {
-    this.route = path && path.length > 1 ? [...path] : null;
-    this.applyRoute();
+    this.route = path && path.length > 1 ? path.slice() : null;
     this.dirty = true;
   }
 
-  private applyRoute(): void {
-    disposeSubtree(this.routeGroup);
-    const path = this.route;
-    if (!path) return;
-    const mat = this.mats.unlit(PALETTE.route, { opacity: 0.95, depthWrite: false });
-    const width = 1.8;
-    for (let i = 0; i + 1 < path.length; i++) {
-      const aId = path[i];
-      const bId = path[i + 1];
-      if (aId === undefined || bId === undefined) continue;
-      const a = this.nodePos.get(aId);
-      const b = this.nodePos.get(bId);
-      if (!a || !b) continue;
-      const seg = ribbon(a.x, a.y, b.x, b.y, width, 0.2, mat);
-      seg.renderOrder = 3;
-      this.routeGroup.add(seg);
-    }
-    for (const id of path) {
-      const p = this.nodePos.get(id);
-      if (!p) continue;
-      const geom = new THREE.CircleGeometry(width / 2, 12);
-      geom.rotateX(-Math.PI / 2);
-      const cap = new THREE.Mesh(geom, mat);
-      cap.position.set(p.x, 0.2, p.y);
-      cap.renderOrder = 3;
-      this.routeGroup.add(cap);
-    }
-  }
-
-  // ----------------------------------------------------------------- figures
-
   setFigures(figures: Record<string, FigureStyle>): void {
-    this.figures.setStyles(figures);
-    this.figures.setPoses(this.lastPoses);
+    for (const id of [...this.figures.keys()]) {
+      if (!(id in figures)) this.figures.delete(id);
+    }
+    for (const [id, style] of Object.entries(figures)) {
+      const existing = this.figures.get(id);
+      if (existing) existing.style = style;
+      else this.figures.set(id, { id, style, pose: { kind: 'at', node: this.town.startNode } });
+    }
     this.dirty = true;
   }
 
   setPoses(poses: Record<string, FigurePose>): void {
-    this.lastPoses = { ...this.lastPoses, ...poses };
-    this.figures.setPoses(poses);
+    for (const [id, pose] of Object.entries(poses)) {
+      const fig = this.figures.get(id);
+      if (fig) fig.pose = pose;
+    }
     this.dirty = true;
   }
+
+  /* ---------------------------------------------------------------- camera */
 
   follow(figureId: string | null): void {
     this.followId = figureId;
     this.dirty = true;
   }
 
-  // ------------------------------------------------------------------ camera
-
-  rotate(quarterTurns: number): void {
-    this.iso.rotate(quarterTurns, now());
-    this.dirty = true;
+  /** No-op: the camera is fixed top-down. Kept so the contract does not change. */
+  rotate(_quarterTurns: number): void {
+    /* intentionally empty */
   }
 
   zoom(factor: number): void {
-    this.iso.zoom(factor);
-    this.dirty = true;
+    if (factor === 1) return;
+    this.setZoomAt(stepZoom(this.view.zoom, factor < 1 ? -1 : 1), this.view.width / 2, this.view.height / 2);
   }
 
   panTo(x: number, y: number): void {
-    this.followId = null;
-    this.iso.panTo(x, y);
+    const o = centreOrigin(x, y, this.view);
+    this.view.originX = Math.round(o.x);
+    this.view.originY = Math.round(o.y);
+    this.clamp();
+    this.framed = true;
     this.dirty = true;
   }
 
   fitAll(): void {
-    this.followId = null;
-    this.iso.fit(this.bounds);
-    this.dirty = true;
+    const g = this.ground;
+    if (!g || this.view.width <= 1) return;
+    this.view.zoom = fitZoom(g.width, g.height, this.view.width, this.view.height, ZOOM_LEVELS);
+    const cx = (g.offsetX + g.width / 2) / PX_PER_UNIT;
+    const cy = (g.offsetY + g.height / 2) / PX_PER_UNIT;
+    this.panTo(cx, cy);
+    this.framed = true;
   }
 
-  // ------------------------------------------------------------------- input
-
-  private readonly onContextMenu = (e: Event): void => {
-    e.preventDefault();
-  };
-
-  private readonly onPointerDown = (e: PointerEvent): void => {
-    if (e.button !== 0) return;
+  resize(): void {
     const canvas = this.canvas;
     if (!canvas) return;
-    canvas.setPointerCapture?.(e.pointerId);
-    this.dragPointer = e.pointerId;
-    this.dragMoved = 0;
-    this.downX = e.clientX;
-    this.downY = e.clientY;
-    // Editor: a drag starting on a node moves the node instead of the camera.
-    if (this.options.editable && this.options.onDragStart) {
-      const hit = this.pick(e.clientX, e.clientY);
-      if (hit?.node) {
-        this.nodeDragging = true;
-        this.options.onDragStart(hit);
-        return;
-      }
+    const w = Math.max(1, Math.round(canvas.clientWidth || canvas.width || 1));
+    const h = Math.max(1, Math.round(canvas.clientHeight || canvas.height || 1));
+    if (canvas.width !== w) canvas.width = w;
+    if (canvas.height !== h) canvas.height = h;
+    this.view.width = w;
+    this.view.height = h;
+    if (!this.framed) this.fitAll();
+    this.clamp();
+    this.dirty = true;
+  }
+
+  private setZoomAt(next: number, sx: number, sy: number): void {
+    if (next === this.view.zoom) return;
+    const town = screenToTown(sx, sy, this.view);
+    this.view.zoom = next;
+    const o = originAfterZoomAt(sx, sy, town, next);
+    this.view.originX = Math.round(o.x);
+    this.view.originY = Math.round(o.y);
+    this.clamp();
+    this.framed = true;
+    this.dirty = true;
+  }
+
+  private clamp(): void {
+    const g = this.ground;
+    if (!g) return;
+    const before = { x: this.view.originX, y: this.view.originY };
+    const shifted: View = { ...this.view, originX: this.view.originX - g.offsetX, originY: this.view.originY - g.offsetY };
+    clampOrigin(shifted, g.width, g.height);
+    this.view.originX = Math.round(shifted.originX + g.offsetX);
+    this.view.originY = Math.round(shifted.originY + g.offsetY);
+    if (before.x !== this.view.originX || before.y !== this.view.originY) this.dirty = true;
+  }
+
+  /* ----------------------------------------------------------------- input */
+
+  private hitAt(ev: PointerEvent): PickResult {
+    const canvas = this.canvas!;
+    const rect = canvas.getBoundingClientRect();
+    const sx = ev.clientX - rect.left;
+    const sy = ev.clientY - rect.top;
+    const t = screenToTown(sx, sy, this.view);
+    const n = screenToNative(sx, sy, this.view);
+    const node = this.ground ? pickNode(this.town, this.ground.picks, n.x, n.y) : null;
+    return { node, x: t.x, y: t.y };
+  }
+
+  private readonly onPointerDown = (ev: PointerEvent): void => {
+    if (!this.canvas || ev.button !== 0) return;
+    this.canvas.setPointerCapture?.(ev.pointerId);
+    this.pointerId = ev.pointerId;
+    this.startX = ev.clientX;
+    this.startY = ev.clientY;
+    this.movedFar = false;
+    const hit = this.hitAt(ev);
+    if (this.options.editable && this.options.onDragStart && hit.node) {
+      this.drag = 'node';
+      this.options.onDragStart(hit);
+    } else {
+      this.drag = 'pan';
     }
-    this.dragging = true;
-    const p = this.groundAt(e.clientX, e.clientY);
-    if (p) this.dragAnchor.copy(p);
   };
 
-  private readonly onPointerMove = (e: PointerEvent): void => {
-    if (this.nodeDragging && e.pointerId === this.dragPointer) {
-      this.dragMoved = Math.max(this.dragMoved, Math.hypot(e.clientX - this.downX, e.clientY - this.downY));
-      if (this.dragMoved > DRAG_SLOP_PX) {
-        const hit = this.pick(e.clientX, e.clientY);
-        if (hit) this.options.onDrag?.(hit);
-      }
+  private readonly onPointerMove = (ev: PointerEvent): void => {
+    if (!this.canvas) return;
+    if (this.drag === 'none') {
+      const now = Date.now();
+      if (!this.options.onHover) return;
+      const hit = this.hitAt(ev);
+      if (now - this.lastHover < 30 && hit.node === this.lastHoverNode) return;
+      this.lastHover = now;
+      this.lastHoverNode = hit.node;
+      this.options.onHover(hit);
       return;
     }
-    if (this.dragging && e.pointerId === this.dragPointer) {
-      this.dragMoved = Math.max(this.dragMoved, Math.hypot(e.clientX - this.downX, e.clientY - this.downY));
-      const p = this.groundAt(e.clientX, e.clientY);
-      if (p) {
-        this.followId = null;
-        this.iso.focus.x += this.dragAnchor.x - p.x;
-        this.iso.focus.z += this.dragAnchor.z - p.z;
-        this.iso.apply();
-        this.dirty = true;
-      }
+    if (this.pointerId !== null && ev.pointerId !== this.pointerId) return;
+    const dx = ev.clientX - this.startX;
+    const dy = ev.clientY - this.startY;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) this.movedFar = true;
+    if (this.drag === 'node') {
+      this.options.onDrag?.(this.hitAt(ev));
       return;
     }
-    const onHover = this.options.onHover;
-    if (!onHover) return;
-    const t = now();
-    if (t - this.lastHover < HOVER_INTERVAL_MS) return;
-    this.lastHover = t;
-    const hit = this.pick(e.clientX, e.clientY);
-    if (hit) onHover(hit);
-  };
-
-  private readonly onPointerUp = (e: PointerEvent): void => {
-    if (e.pointerId !== this.dragPointer) return;
-    this.canvas?.releasePointerCapture?.(e.pointerId);
-    const wasDrag = this.dragMoved > DRAG_SLOP_PX;
-    this.dragging = false;
-    this.dragPointer = -1;
-    if (this.nodeDragging) {
-      this.nodeDragging = false;
-      this.options.onDragEnd?.();
-    }
-    if (wasDrag) return;
-    const onPick = this.options.onPick;
-    if (!onPick) return;
-    const hit = this.pick(e.clientX, e.clientY);
-    if (hit) onPick(hit);
-  };
-
-  private readonly onWheel = (e: WheelEvent): void => {
-    e.preventDefault();
-    const dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY;
-    this.iso.zoom(Math.exp(THREE.MathUtils.clamp(dy, -400, 400) * 0.0014));
+    this.startX = ev.clientX;
+    this.startY = ev.clientY;
+    this.view.originX = Math.round(this.view.originX - dx / this.view.zoom);
+    this.view.originY = Math.round(this.view.originY - dy / this.view.zoom);
+    this.framed = true;
+    this.clamp();
     this.dirty = true;
   };
 
-  private readonly onKeyDown = (e: KeyboardEvent): void => {
-    const target = e.target as HTMLElement | null;
-    const tag = target?.tagName;
-    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target?.isContentEditable) return;
-    if (e.key === 'q' || e.key === 'Q') this.rotate(-1);
-    else if (e.key === 'e' || e.key === 'E') this.rotate(1);
+  private readonly onPointerUp = (ev: PointerEvent): void => {
+    if (this.drag === 'none' || !this.canvas) return;
+    const wasNode = this.drag === 'node';
+    this.drag = 'none';
+    this.canvas?.releasePointerCapture?.(ev.pointerId);
+    this.pointerId = null;
+    if (!this.movedFar) this.options.onPick?.(this.hitAt(ev));
+    if (wasNode) this.options.onDragEnd?.();
   };
 
-  /** Ray from the pointer to the ground plane, in world space. */
-  private groundAt(clientX: number, clientY: number): THREE.Vector3 | null {
-    const canvas = this.canvas;
-    if (!canvas) return null;
-    const rect = canvas.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) return null;
-    this.ndc.set(((clientX - rect.left) / rect.width) * 2 - 1, -(((clientY - rect.top) / rect.height) * 2 - 1));
-    this.raycaster.setFromCamera(this.ndc, this.iso.camera);
-    return this.raycaster.ray.intersectPlane(this.groundPlane, this.scratch) ? this.scratch : null;
+  private readonly onPointerLeave = (): void => {
+    this.lastHoverNode = undefined;
+  };
+
+  private readonly onWheel = (ev: WheelEvent): void => {
+    if (!this.canvas) return;
+    ev.preventDefault();
+    const rect = this.canvas.getBoundingClientRect();
+    this.setZoomAt(
+      stepZoom(this.view.zoom, ev.deltaY < 0 ? -1 : 1),
+      ev.clientX - rect.left,
+      ev.clientY - rect.top,
+    );
+  };
+
+  /* ---------------------------------------------------------------- render */
+
+  private readonly loop = (): void => {
+    this.raf = requestAnimationFrame(this.loop);
+    const figures = [...this.figures.values()];
+    const animating = anyMoving(figures) || (this.followId !== null && this.figures.has(this.followId));
+    if (!this.dirty && !animating) return;
+    this.dirty = false;
+    this.render();
+  };
+
+  private ensureBuffers(): boolean {
+    const ctx = this.ctx;
+    if (!ctx) return false;
+    const fw = Math.ceil(this.view.width / this.view.zoom) + 1;
+    const fh = Math.ceil(this.view.height / this.view.zoom) + 1;
+    if (!this.frame || this.frame.width !== fw || this.frame.height !== fh || !this.nativeCtx) {
+      this.frame = createSurface(fw, fh);
+      this.native = document.createElement('canvas');
+      this.native.width = fw;
+      this.native.height = fh;
+      this.nativeCtx = this.native.getContext('2d');
+      this.image = this.nativeCtx ? this.nativeCtx.createImageData(fw, fh) : null;
+    }
+    return this.nativeCtx !== null && this.image !== null;
   }
 
-  private pick(clientX: number, clientY: number): PickResult | null {
-    const ground = this.groundAt(clientX, clientY);
-    if (!ground) return null;
-    const x = ground.x;
-    const y = ground.z;
-    this.pickRoot.updateMatrixWorld(true);
-    const hits = this.raycaster.intersectObjects(this.pickRoot.children, false);
-    const first = hits[0];
-    const node = first ? ((first.object.userData.nodeId as NodeId | undefined) ?? null) : null;
-    return { node, x, y };
-  }
-
-  // -------------------------------------------------------------- render loop
-
-  private readonly tick = (time: number): void => {
-    this.raf = requestAnimationFrame(this.tick);
-    const renderer = this.renderer;
-    if (!renderer) return;
-
-    const dt = this.lastFrame === 0 ? 0 : Math.min(0.1, (time - this.lastFrame) / 1000);
-    this.lastFrame = time;
-
-    let active = this.iso.update(time);
-    if (this.figures.step(dt)) active = true;
+  private render(): void {
+    const ctx = this.ctx;
+    const g = this.ground;
+    if (!ctx) return;
 
     if (this.followId) {
-      const p = this.figures.positionOf(this.followId);
-      if (p && (Math.abs(p.x - this.iso.focus.x) > 0.001 || Math.abs(p.z - this.iso.focus.z) > 0.001)) {
-        this.iso.focus.set(p.x, 0, p.z);
-        this.iso.apply();
-        active = true;
+      const fig = this.figures.get(this.followId);
+      const r = fig && g ? resolveFigure(this.town, fig, Date.now()) : null;
+      if (r) {
+        const o = centreOrigin(r.nx / PX_PER_UNIT, r.ny / PX_PER_UNIT, this.view);
+        this.view.originX = Math.round(o.x);
+        this.view.originY = Math.round(o.y);
+        this.clamp();
       }
     }
 
-    const showLabels = this.iso.viewSize <= LABEL_MAX_VIEW;
-    if (this.labelsGroup.visible !== showLabels) {
-      this.labelsGroup.visible = showLabels;
-      this.dirty = true;
+    ctx.imageSmoothingEnabled = false;
+    ctx.fillStyle = BACKDROP;
+    ctx.fillRect(0, 0, this.view.width, this.view.height);
+    if (!g || !this.ensureBuffers()) return;
+
+    const frame = this.frame!;
+    const ox = this.view.originX;
+    const oy = this.view.originY;
+    copyWindow(frame, g.surface, ox - g.offsetX, oy - g.offsetY);
+
+    this.drawHighlights(frame, ox, oy);
+    this.drawRoute(frame, ox, oy);
+    this.drawFigures(frame, ox, oy);
+    if (this.options.editable) this.drawEditorHandles(frame, ox, oy);
+
+    const image = this.image!;
+    toRGBA(frame, this.pal.colors, image.data);
+    this.nativeCtx!.putImageData(image, 0, 0);
+    ctx.drawImage(
+      this.native!,
+      0,
+      0,
+      frame.width,
+      frame.height,
+      0,
+      0,
+      frame.width * this.view.zoom,
+      frame.height * this.view.zoom,
+    );
+  }
+
+  private drawHighlights(frame: Surface, ox: number, oy: number): void {
+    if (this.highlight.length === 0) return;
+    const accent = this.pal.index('highlight', [63, 143, 232]);
+    const redraw: Placement[] = [];
+    for (const id of this.highlight) {
+      const n = this.town.nodes.find((x) => x.id === id);
+      if (!n) continue;
+      const placement = this.ground?.placements.find((p) => p.id === id);
+      const rx = (placement ? placement.sprite.footprintW / 2 : 6) + 4;
+      const ry = (placement ? placement.sprite.footprintH / 2 : 4) + 3;
+      const cx = n.x * PX_PER_UNIT - ox;
+      const cy = n.y * PX_PER_UNIT - oy;
+      ditherEllipse(frame, cx, cy, rx, ry, accent);
+      strokeEllipse(frame, cx, cy, rx, ry, accent);
+      if (placement) redraw.push(placement);
+    }
+    // The ring belongs UNDER the building, so put the building back on top.
+    for (const p of redraw) blitAnchored(frame, p.sprite, p.nx - ox, p.ny - oy);
+  }
+
+  private drawRoute(frame: Surface, ox: number, oy: number): void {
+    const path = this.route;
+    if (!path) return;
+    const colour = this.pal.index('route', [255, 210, 74]);
+    for (let i = 1; i < path.length; i++) {
+      const from = path[i - 1]!;
+      const to = path[i]!;
+      const edge = this.town.edges.find(
+        (e) => (e.a === from && e.b === to) || (e.a === to && e.b === from),
+      );
+      if (!edge) continue;
+      let pts = sampleEdge(this.town, edge).map((p) => ({
+        x: p.x * PX_PER_UNIT - ox,
+        y: p.y * PX_PER_UNIT - oy,
+      }));
+      if (edge.a !== from) pts = pts.reverse();
+      dashAlong(frame, pts, 2, 4, 0, (x, y) => {
+        put(frame, x, y, colour);
+        put(frame, x + 1, y, colour);
+        put(frame, x, y + 1, colour);
+        put(frame, x + 1, y + 1, colour);
+      });
+    }
+  }
+
+  private drawFigures(frame: Surface, ox: number, oy: number): void {
+    const g = this.ground!;
+    const now = Date.now();
+    const resolved: ResolvedFigure[] = [];
+    for (const fig of this.figures.values()) {
+      const r = resolveFigure(this.town, fig, now);
+      if (r) resolved.push(r);
+    }
+    if (resolved.length === 0) return;
+    resolved.sort((a, b) => a.ny - b.ny || a.nx - b.nx);
+
+    for (const f of resolved) drawFigure(frame, this.art, this.pal, f, ox, oy);
+
+    // Occlusion: re-blit any building standing in front of a figure (larger
+    // anchor y) whose sprite overlaps it. Cheap, and visually identical to
+    // compositing the whole band.
+    const minY = resolved[0]!.ny;
+    for (const p of g.placements) {
+      if (!p.id || p.ny <= minY) continue;
+      const left = p.nx - p.sprite.anchorX;
+      const top = p.ny - p.sprite.anchorY;
+      const right = left + p.sprite.width;
+      const bottom = top + p.sprite.height;
+      if (right < ox || left > ox + frame.width || bottom < oy || top > oy + frame.height) continue;
+      const hides = resolved.some(
+        (f) => f.ny < p.ny && f.nx > left - 12 && f.nx < right + 12 && f.ny > top - 24 && f.ny < bottom + 24,
+      );
+      if (hides) blitAnchored(frame, p.sprite, p.nx - ox, p.ny - oy);
     }
 
-    if (!this.dirty && !active) return;
-    this.dirty = false;
-    renderer.render(this.scene, this.iso.camera);
-  };
-}
-
-function now(): number {
-  return typeof performance !== 'undefined' ? performance.now() : Date.now();
-}
-
-function computeBounds(town: Town): TownBounds {
-  let minX = Infinity;
-  let maxX = -Infinity;
-  let minY = Infinity;
-  let maxY = -Infinity;
-  let maxHeight = 6;
-  for (const node of town.nodes) {
-    minX = Math.min(minX, node.x);
-    maxX = Math.max(maxX, node.x);
-    minY = Math.min(minY, node.y);
-    maxY = Math.max(maxY, node.y);
-    if (node.building) maxHeight = Math.max(maxHeight, node.building.height + 4);
+    for (const f of resolved) {
+      const sprite = this.art.character(f.dir, f.frame, 1);
+      drawFigureLabel(frame, this.pal, f, sprite.height, ox, oy);
+    }
   }
-  for (const d of town.decor ?? []) {
-    const hw = (d.w ?? 2) / 2;
-    const hh = (d.h ?? 2) / 2;
-    minX = Math.min(minX, d.x - hw);
-    maxX = Math.max(maxX, d.x + hw);
-    minY = Math.min(minY, d.y - hh);
-    maxY = Math.max(maxY, d.y + hh);
+
+  private drawEditorHandles(frame: Surface, ox: number, oy: number): void {
+    const ink = this.pal.index('ink', [29, 26, 36]);
+    const handle = this.pal.index('junction', [240, 140, 34]);
+    const white = this.pal.index('white', [242, 242, 238]);
+    const panel = this.pal.index('panel', [36, 31, 43]);
+    for (const n of this.town.nodes) {
+      const x = Math.round(n.x * PX_PER_UNIT - ox);
+      const y = Math.round(n.y * PX_PER_UNIT - oy);
+      if (x < -20 || y < -20 || x > frame.width + 20 || y > frame.height + 20) continue;
+      if (!n.building) {
+        fillRect(frame, x - 2, y - 2, 5, 5, handle);
+        strokeRect(frame, x - 3, y - 3, 7, 7, ink);
+      }
+      const label = n.id;
+      const w = label.length * 4 + 1;
+      fillRect(frame, x - Math.floor(w / 2), y + 5, w, 7, panel);
+      text(frame, label, x - Math.floor(w / 2) + 1, y + 6, white);
+    }
   }
-  if (!Number.isFinite(minX)) return { minX: 0, maxX: 100, minY: 0, maxY: 100, maxHeight };
-  // A little air around the outermost buildings and their signs.
-  const pad = 8;
-  return { minX: minX - pad, maxX: maxX + pad, minY: minY - pad, maxY: maxY + pad, maxHeight };
 }
 
-export const createTownScene: CreateTownScene = (options = {}) => new TownSceneImpl(options);
+export const createTownScene: CreateTownScene = (options?: TownSceneOptions) =>
+  new PixelTownScene(options);

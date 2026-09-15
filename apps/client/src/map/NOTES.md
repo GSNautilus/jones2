@@ -1,43 +1,45 @@
-# src/map — town renderer
+# src/map — 2D pixel-art town renderer
 
 `api.ts` is the contract; everything else here is implementation detail.
+No three.js: the camera is fixed top-down and `rotate()` is a no-op.
 
-## Modules
-- `TownScene.ts` — `createTownScene()`. Owns the renderer, the scene graph, input
-  handling, the dirty-flag render loop, and all the contract methods.
-- `camera.ts` — `IsoCamera`: orthographic camera at 35° elevation, azimuth in
-  quarter turns with a 250 ms ease, `fit()` frames a bounds box by projecting its
-  corners into camera space.
-- `roads.ts` — per-edge flat ribbons (street 3 / highway 5 / path 1.6 units) plus
-  a joint disc per node. Bus lines and highway centre lines are `LineSegments`
-  with `LineDashedMaterial` (`computeLineDistances()` after every rebuild).
-- `buildings.ts` — box + roof (flat cap / gable prism / 4-sided hip cone / none
-  pad), door and sign on the facing side, one landmark prop.
-- `decor.ts`, `figures.ts`, `labels.ts` (canvas textures), `palette.ts`
-  (shared-material cache, `disposeSubtree`).
-- `MapCanvas.tsx` — `<MapCanvas scene>` + `useTownScene()`. `index.ts` re-exports.
-- `demo.tsx` — `MapDemo`, a self-contained exercise of every feature.
+## Architecture
+Three coordinate spaces: **town units** (the contract), **native px** (town ×
+`PX_PER_UNIT`, what everything is drawn at), **screen px** (native × integer
+zoom). `camera.ts` holds the pure conversions — `screenToTown`, `fitZoom`,
+`stepZoom` — and is unit-tested.
 
-## Conventions worth knowing
-- `zoom(f)` multiplies the **frustum size**, so `f > 1` zooms *out*. The demo's
-  "zoom in" button passes `0.8`.
-- Layer heights: decor areas 0.01–0.02, roads 0.04–0.07, bus dashes 0.12,
-  highlight 0.15, route 0.2. Nothing else shares a plane, so no z-fighting.
-- Picking raycasts `pickRoot`, a group of invisible cylinders (r 2.5) that is
-  never added to the scene, so it costs nothing to draw and stays independent of
-  the art. Ground coordinates come from a mathematical plane, not a mesh.
-- Rendering is gated by a `dirty` flag plus "is anything animating"
-  (rotation tween, figure easing, camera follow).
-- `dispose()` leaves the object re-mountable — React StrictMode mounts, disposes
-  and mounts again, and that has to work.
+Drawing is palette-indexed, never RGBA: a `Surface` (`surface.ts`) is a
+`Uint8Array` of indices, identical in shape to a `Sprite`, so art-package
+sprites blit straight in and nothing is ever anti-aliased.
 
-## Known limitations
-- `setTown()` re-renders one canvas texture per sign (~35 for Riverton), which is
-  the bulk of its cost — expect ~10–20 ms, not "a few". Use `moveNode()` for
-  node drags in the editor; it only rebuilds the touched ribbons.
-- Dashed lines are 1 px wide: `linewidth` is not supported by WebGL.
-- No shadows, no anti-aliased line joins, no LOD. Labels simply hide above a
-  frustum half-height of 70 units.
-- Signs are single-sided, so they vanish when the camera rotates behind them.
-- Never opened in a browser during implementation; API usage was checked against
-  three r170 but the visual result is unverified.
+- `ground.ts` — the **static layer**: one native surface with grass tiles,
+  decor areas, roads, dithered shadows, scenery and buildings depth-sorted by
+  anchor y. Rebuilt only on `setTown`/`moveNode`. Also emits the pick boxes.
+- `roads.ts` — `sampleEdge` (Catmull-Rom through `edge.curve`, ~2px samples),
+  `pointAlongEdge`/`poseAlongEdge` (by **arc length**, direction-aware), and the
+  rasteriser: borders, fills, junction discs, dashed centre lines, bus overlay.
+- `figures.ts` — pose → position/facing/walk frame, plus the 3x5 name plate.
+- `TownScene.ts` — per frame: copy the visible window out of the static layer,
+  add highlights, route, figures (buildings in front are re-blitted so they
+  occlude), labels, editor handles; flatten to one `ImageData`; `drawImage` at
+  integer zoom with `imageSmoothingEnabled = false`. Renders only when dirty or
+  animating.
+
+## Swapping in the real art — one file
+`art.ts` is the only place that knows where sprites come from. Replace the body
+of `getArt()` with the real `@jones2/pixelart` generators (the docblock has the
+shape) and delete `art.placeholder.ts`. Sizes, anchors and footprints all come
+off the `Sprite`; `RenderPalette` reads the art palette live and allocates its
+own chrome colours from index 255 downwards, so indices never collide.
+`pixelart.ts` mirrors the sprite types locally only so a work-in-progress art
+package cannot fail the client typecheck — swap it for a re-export when it is
+clean.
+
+## Limitations
+- `PX_PER_UNIT` is **3**, not 1: Riverton's coordinates predate the pixel-art
+  scale (152×120 units, buildings 2–16 wide). Set it to 1 when the town JSON is
+  re-authored with 64–96-unit buildings. It must stay an integer.
+- Occlusion is per-sprite re-blit, not a true depth band; a figure exactly
+  straddling two overlapping buildings can pop.
+- Never opened in a browser. Verified by rendering the layers to PNG in Node.
