@@ -39,11 +39,21 @@ export interface TownSceneOptions {
   onHover?: (hit: PickResult) => void;
   /** Editor mode: draw junctions as visible handles and show edge midpoints. */
   editable?: boolean;
+  /**
+   * Editor mode only. A left-drag that starts on a node becomes a node drag
+   * instead of a camera pan: onDragStart(hit on the node), onDrag(ground hit)
+   * per move, onDragEnd() on release. A click without movement still fires onPick.
+   */
+  onDragStart?: (hit: PickResult) => void;
+  onDrag?: (hit: PickResult) => void;
+  onDragEnd?: () => void;
 }
 
 export interface TownScene {
   /** Attach to a canvas and start the render loop. Idempotent. */
   mount(canvas: HTMLCanvasElement): void;
+  /** Detach from the canvas and stop the loop, keeping the town, figures, and camera so a later mount() resumes. */
+  unmount(): void;
   /** Stop rendering and free GPU resources. */
   dispose(): void;
   /** Replace the town. Rebuilds roads, buildings, decor. Cheap enough to call from an editor on every change. */
