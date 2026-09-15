@@ -7,3 +7,4 @@ dist/
 Thumbs.db
 apps/balance/out/
 .claude/settings.local.json
+*.stackdump
