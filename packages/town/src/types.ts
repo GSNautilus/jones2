@@ -61,6 +61,12 @@ export interface TownEdge {
   /** Base travel time in minutes on foot. Modes scale this. */
   minutes: number;
   kind: RoadKind;
+  /**
+   * Optional control points between a and b, in order, in town units. The
+   * road is drawn as a smooth curve through a, these points, and b; figures
+   * follow the same curve. Travel time is still `minutes`, not curve length.
+   */
+  curve?: { x: number; y: number }[];
 }
 
 export interface Town {
