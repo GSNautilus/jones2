@@ -7,8 +7,8 @@ const g = new TownGraph(town);
 
 const LOCATION_IDS = Object.keys(LOCATIONS);
 
-const CANVAS_W = 1280;
-const CANVAS_H = 768;
+const CANVAS_W = town.canvas!.w;
+const CANVAS_H = town.canvas!.h;
 const MARGIN = 16;
 
 const nodeById = new Map(town.nodes.map((n) => [n.id, n]));
@@ -32,7 +32,7 @@ describe('riverton — sim location coverage', () => {
       list.push(n.id);
       owners.set(n.location, list);
     }
-    expect(owners.size, 'expected all 27 sim locations on the map').toBe(27);
+    expect(owners.size, 'expected all 28 sim locations on the map').toBe(28);
     for (const id of LOCATION_IDS) {
       expect(owners.get(id), `location "${id}" is missing a node`).toBeDefined();
       expect(owners.get(id)!.length, `location "${id}" used by more than one node`).toBe(1);
@@ -185,7 +185,8 @@ describe('riverton — streets', () => {
 });
 
 describe('riverton — geometry', () => {
-  it('every node sits within the 1280x768 canvas, with margin', () => {
+  it('declares its canvas and keeps every node inside it, with margin', () => {
+    expect(town.canvas).toEqual({ w: 1920, h: 1152 });
     for (const n of town.nodes) {
       expect(n.x, `${n.id}.x`).toBeGreaterThanOrEqual(MARGIN);
       expect(n.x, `${n.id}.x`).toBeLessThanOrEqual(CANVAS_W - MARGIN);
@@ -228,32 +229,39 @@ describe('riverton — geometry', () => {
 });
 
 describe('riverton — travel times', () => {
-  /** The downtown box: main street and the blocks either side of it. */
-  const DOWNTOWN = { x0: 300, y0: 380, x1: 980, y1: 640 };
-  const inDowntown = (id: string): boolean => {
+  /** The centre wedge: the crossroads at the town bridge and the blocks round it. */
+  const CENTRE = { x0: 1140, y0: 300, x1: 1480, y1: 660 };
+  const inCentre = (id: string): boolean => {
     const p = pos(id);
-    return p.x >= DOWNTOWN.x0 && p.x <= DOWNTOWN.x1 && p.y >= DOWNTOWN.y0 && p.y <= DOWNTOWN.y1;
+    return p.x >= CENTRE.x0 && p.x <= CENTRE.x1 && p.y >= CENTRE.y0 && p.y <= CENTRE.y1;
   };
 
-  it('a typical downtown hop is 4 to 12 minutes on foot', () => {
-    const hops = DRAWN.filter((e) => inDowntown(e.a) && inDowntown(e.b))
+  it('puts the whole centre wedge round one crossroads', () => {
+    for (const id of ['j_center', 'bus_depot', 'employment', 'monolith', 'rent_office']) {
+      expect(inCentre(id), `${id} should stand in the centre wedge`).toBe(true);
+    }
+  });
+
+  it('a hop along the high street is 4 to 18 minutes on foot', () => {
+    const hops = DRAWN.filter((e) => e.street === 'main_st')
       .map((e) => e.minutes)
       .sort((a, b) => a - b);
-    expect(hops.length, 'expected a good number of downtown hops').toBeGreaterThanOrEqual(12);
+    expect(hops.length, 'expected a good number of high-street hops').toBeGreaterThanOrEqual(10);
     const median = hops[Math.floor(hops.length / 2)]!;
-    expect(median, `downtown hops: ${hops.join(',')}`).toBeGreaterThanOrEqual(4);
-    expect(median, `downtown hops: ${hops.join(',')}`).toBeLessThanOrEqual(12);
+    expect(median, `high street hops: ${hops.join(',')}`).toBeGreaterThanOrEqual(4);
+    expect(median, `high street hops: ${hops.join(',')}`).toBeLessThanOrEqual(18);
   });
 
   it('the lookout is a serious walk from the depot', () => {
+    // Across the town bridge, out along the poor bank and over the footbridge.
     const r = g.route('bus_depot', 'lookout', 'walk')!;
     expect(r).not.toBeNull();
-    expect(r.minutes).toBeGreaterThanOrEqual(45);
+    expect(r.minutes).toBeGreaterThanOrEqual(120);
   });
 
-  it('the far corners cost much more than a downtown errand', () => {
-    const near = g.route('bus_depot', 'newsstand', 'walk')!.minutes;
-    for (const far of ['lookout', 'house_lake', 'house_hill', 'zmart']) {
+  it('the far corners cost much more than a centre errand', () => {
+    const near = g.route('bus_depot', 'clinic', 'walk')!.minutes;
+    for (const far of ['lookout', 'house_elm', 'pawn', 'lowcost']) {
       const r = g.route('bus_depot', far, 'walk')!;
       expect(r.minutes, `${far} should be far from the depot`).toBeGreaterThan(near * 2.5);
     }
@@ -271,7 +279,19 @@ describe('riverton — decor', () => {
 
   it('has woods, hedgerows, street furniture, water and bridges', () => {
     const kinds = new Set((town.decor ?? []).map((d) => d.kind));
-    for (const kind of ['tree_pine', 'bush', 'lamp', 'bench', 'water', 'bridge', 'dock', 'signpost', 'bus']) {
+    for (const kind of [
+      'tree_pine',
+      'bush',
+      'lamp',
+      'bench',
+      'water',
+      'bridge',
+      'viaduct',
+      'underpass',
+      'dock',
+      'signpost',
+      'bus',
+    ]) {
       expect(kinds.has(kind), `no ${kind} decor`).toBe(true);
     }
   });
@@ -283,6 +303,35 @@ describe('riverton — decor', () => {
  * the client). The client's own test suite runs the real `validate` against
  * this same JSON — see `apps/client/test`.
  */
+describe('riverton — water', () => {
+  it('authors the river and the lake as curves inside the canvas', () => {
+    const water = town.water ?? [];
+    expect(water.length, 'expected at least the river and the lake').toBeGreaterThanOrEqual(2);
+    for (const w of water) {
+      expect(w.points.length, `${w.id} needs waypoints`).toBeGreaterThanOrEqual(2);
+      expect(w.width, `${w.id} needs a width`).toBeGreaterThan(0);
+      for (const p of w.points) {
+        expect(p.x, `${w.id}.x`).toBeGreaterThanOrEqual(0);
+        expect(p.x, `${w.id}.x`).toBeLessThanOrEqual(CANVAS_W);
+        expect(p.y, `${w.id}.y`).toBeGreaterThanOrEqual(0);
+        expect(p.y, `${w.id}.y`).toBeLessThanOrEqual(CANVAS_H);
+      }
+    }
+  });
+
+  it('marks every crossing of a road and the water', () => {
+    // Three road bridges plus the highway's own span; nothing else may get wet.
+    const bridges = (town.decor ?? []).filter((d) => d.kind === 'bridge');
+    const viaducts = (town.decor ?? []).filter((d) => d.kind === 'viaduct');
+    expect(bridges).toHaveLength(3);
+    expect(viaducts.length).toBeGreaterThanOrEqual(1);
+    for (const d of [...bridges, ...viaducts]) {
+      expect(d.dir, `${d.kind} at ${d.x},${d.y} needs a direction`).toBeDefined();
+      expect(Math.hypot(d.dir!.x, d.dir!.y)).toBeCloseTo(1, 2);
+    }
+  });
+});
+
 describe('riverton — passes the editor validation rules', () => {
   it('has no duplicate node ids, no dangling edges, a valid startNode, known locations, and full foot reachability', () => {
     const problems: string[] = [];

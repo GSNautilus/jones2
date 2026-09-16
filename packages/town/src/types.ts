@@ -39,6 +39,16 @@ export interface Decor {
    * Anything else is a sprite from the pixelart NATURE or PROPS catalogues
    * (tree_round, tree_pine, tree_oak, bush, flowers, rock, lamp, bench, car,
    * bus, signpost, hydrant, mailbox, ...). 'tree' is an alias for tree_round.
+   *
+   * Two kinds mark road crossings and are placed by the generator, one per
+   * crossing, at the crossing's midpoint:
+   * - 'bridge': a road crosses a water course. The renderer draws the deck
+   *   along the road, so the road stays walkable over the water.
+   * - 'viaduct': the highway's own span over a water course. Drawn like a
+   *   bridge, but kept a separate kind so 'bridge' stays the count of the
+   *   crossings a walker can actually use.
+   * - 'underpass': a street passes under the highway. There is deliberately
+   *   no junction node there; walkers cannot get onto the highway.
    */
   kind: string;
   x: number;
@@ -46,6 +56,27 @@ export interface Decor {
   /** Size for area decor (water, grass, plaza). */
   w?: number;
   h?: number;
+  /**
+   * Unit tangent of the road at a crossing (bridge, underpass), so the
+   * renderer can lay the deck or the tunnel mouth along the road rather than
+   * axis-aligned. Absent for ordinary props.
+   */
+  dir?: { x: number; y: number };
+}
+
+/**
+ * A river or lake authored the way a street is: a smooth curve through
+ * `points` (in order) with a drawn `width` in town units. The renderer
+ * rasterises it like a road and outlines the water mask to get the
+ * shoreline, so the water meanders instead of stair-stepping. Roads that
+ * cross it need a 'bridge' decor; the generator finds those crossings.
+ */
+export interface WaterCourse {
+  id: string;
+  /** Waypoints the curve passes through, at least two. */
+  points: { x: number; y: number }[];
+  /** Drawn width in town units. May vary along the course later; one value for now. */
+  width: number;
 }
 
 export interface TownNode {
@@ -93,8 +124,16 @@ export interface Town {
   name: string;
   /** Node every player starts the game at. */
   startNode: NodeId;
+  /**
+   * Size of the authored canvas in town units. Tools (preview, overlap
+   * checker, tests) read it from here instead of hardcoding it. The renderer
+   * still derives its bounds from the content.
+   */
+  canvas?: { w: number; h: number };
   nodes: TownNode[];
   edges: TownEdge[];
+  /** Rivers and lakes as curves. Rectangle 'water' decor still works for small ponds. */
+  water?: WaterCourse[];
   /** Visual-only scenery. */
   decor?: Decor[];
 }

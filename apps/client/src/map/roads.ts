@@ -158,8 +158,13 @@ export const ROAD_STYLE: Record<RoadKind, RoadStyle> = {
   busline: { width: 0, centreLine: false },
 };
 
-/** Widest to narrowest: wider roads are laid down first. */
-const PAINT_ORDER: RoadKind[] = ['highway', 'street', 'path'];
+/**
+ * Streets first, then paths, then the HIGHWAY LAST. The highway never shares a
+ * node with a walkable road — it is a barrier, crossed only at underpasses —
+ * so painting it on top is exactly the grade separation the map means: the
+ * street disappears under it and comes out the other side.
+ */
+const PAINT_ORDER: RoadKind[] = ['street', 'path', 'highway'];
 
 /** Mask values. The mask is only ever read for its outline and its kind. */
 const MASK: Record<RoadKind, number> = { path: 1, street: 2, highway: 3, busline: 0 };

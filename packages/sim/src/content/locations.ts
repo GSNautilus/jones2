@@ -16,7 +16,8 @@ export type LocationFeature =
   | 'activity'
   | 'employer'
   | 'housing'
-  | 'lottery';
+  | 'lottery'
+  | 'rent';
 
 export interface Location {
   id: LocationId;
@@ -49,6 +50,7 @@ export const LOCATIONS: Record<LocationId, Location> = {
   shady_acres: { id: 'shady_acres', name: 'Shady Acres', tagline: 'Roommates included. Locks not.', features: ['housing'] },
   lowcost: { id: 'lowcost', name: 'Low-Cost Housing', tagline: 'It has a kitchen. Technically.', features: ['housing'] },
   security_apts: { id: 'security_apts', name: 'Security Apartments', tagline: 'Deadbolts on every door.', features: ['housing'] },
+  rent_office: { id: 'rent_office', name: 'Rent Office', tagline: 'Rent is due on the first. Every first.', features: ['rent', 'employer'] },
   house_elm: { id: 'house_elm', name: '12 Elm Street', tagline: 'A starter home with a garage.', features: ['housing'] },
   house_hill: { id: 'house_hill', name: 'Hilltop Manor', tagline: 'Look down on everyone.', features: ['housing'] },
   house_lake: { id: 'house_lake', name: 'Lakeside Cottage', tagline: 'Far from everything. Worth it.', features: ['housing'] },

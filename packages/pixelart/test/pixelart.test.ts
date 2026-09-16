@@ -134,6 +134,7 @@ describe('palette', () => {
 const SIM_LOCATION_IDS = [
   'bus_depot',
   'employment',
+  'rent_office',
   'bank',
   'newsstand',
   'university',

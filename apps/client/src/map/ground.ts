@@ -12,13 +12,14 @@ import type { Sprite } from './pixelart';
 import type { Decor, NodeId, Town, TownNode } from '@jones2/town';
 import { type ArtSet, PX_PER_UNIT, TILE, pixelRef } from './art';
 import { hash2 } from './art.placeholder';
+import { CROSSING_KINDS, drawCrossings } from './crossings';
 import { drawRoads } from './roads';
+import { courseSamples, drawWater } from './water';
 import {
   type RenderPalette,
   type Surface,
   blitAnchored,
   createSurface,
-  fillRect,
   put,
   tileRect,
 } from './surface';
@@ -69,6 +70,8 @@ export function sortByDepth<T extends { nx: number; ny: number; order: number }>
 }
 
 const AREA_KINDS = new Set<Decor['kind']>(['water', 'grass', 'plaza']);
+/** Area kinds drawn by `drawWater` rather than by the plain tile fill. */
+const WET_KINDS = new Set<Decor['kind']>(['water']);
 
 function tileKindFor(kind: Decor['kind']): 'water' | 'grass' | 'plaza' {
   return kind === 'water' ? 'water' : kind === 'plaza' ? 'plaza' : 'grass';
@@ -106,6 +109,18 @@ export function townBounds(town: Town, art: ArtSet): { x: number; y: number; w: 
   }
   for (const e of town.edges) {
     for (const c of e.curve ?? []) grow(c.x * PX_PER_UNIT, c.y * PX_PER_UNIT);
+  }
+  for (const course of town.water ?? []) {
+    const r = (course.width * PX_PER_UNIT) / 2 + 2;
+    for (const p of courseSamples(course)) {
+      grow(p.x - r, p.y - r);
+      grow(p.x + r, p.y + r);
+    }
+  }
+  // The authored canvas, so open ground at the rim is still part of the town.
+  if (town.canvas) {
+    grow(0, 0);
+    grow(town.canvas.w * PX_PER_UNIT, town.canvas.h * PX_PER_UNIT);
   }
   if (!Number.isFinite(minX)) return { x: 0, y: 0, w: TILE, h: TILE };
   return {
@@ -146,9 +161,9 @@ export function buildGround(town: Town, art: ArtSet, pal: RenderPalette): Ground
     tileAt('grass', tx + Math.floor(offsetX / TILE), ty + Math.floor(offsetY / TILE)),
   );
 
-  // 2. Decor areas as tile fills.
+  // 2. Dry decor areas as tile fills.
   for (const d of town.decor ?? []) {
-    if (!AREA_KINDS.has(d.kind)) continue;
+    if (!AREA_KINDS.has(d.kind) || WET_KINDS.has(d.kind)) continue;
     const kind = tileKindFor(d.kind);
     const x = d.x * PX_PER_UNIT - offsetX;
     const y = d.y * PX_PER_UNIT - offsetY;
@@ -157,24 +172,23 @@ export function buildGround(town: Town, art: ArtSet, pal: RenderPalette): Ground
     tileRect(surface, TILE, TILE, x, y, w, h, (tx, ty) =>
       tileAt(kind, tx + Math.floor(offsetX / TILE), ty + Math.floor(offsetY / TILE)),
     );
-    if (kind === 'water') {
-      // A one-pixel bank so water does not just stop mid-tile.
-      const edge = pal.index('waterDark', [47, 86, 136]);
-      fillRect(surface, x, y, w, 1, edge);
-      fillRect(surface, x, y + h - 1, w, 1, edge);
-      fillRect(surface, x, y, 1, h, edge);
-      fillRect(surface, x + w - 1, y, 1, h, edge);
-    }
   }
 
-  // 3. Roads, always under the buildings.
-  drawRoads(surface, town, pal, offsetX, offsetY);
+  // 3. Water: the authored courses and the ponds, with a shoreline traced off
+  //    the water mask the way kerbs come off the asphalt mask.
+  drawWater(surface, town, pal, offsetX, offsetY, (tx, ty) => tileAt('water', tx, ty));
 
-  // 4. Scenery props and buildings in one depth-sorted pass.
+  // 4. Roads, always under the buildings, then the props that mark where a road
+  //    crosses something: bridge decks over the water, tunnel mouths under the
+  //    highway.
+  drawRoads(surface, town, pal, offsetX, offsetY);
+  drawCrossings(surface, town, pal, offsetX, offsetY);
+
+  // 5. Scenery props and buildings in one depth-sorted pass.
   const placements: Placement[] = [];
   let order = 0;
   for (const d of town.decor ?? []) {
-    if (AREA_KINDS.has(d.kind)) continue;
+    if (AREA_KINDS.has(d.kind) || CROSSING_KINDS.has(d.kind)) continue;
     placements.push({
       sprite: art.nature(d.kind),
       nx: d.x * PX_PER_UNIT,

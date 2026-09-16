@@ -2,112 +2,136 @@
   "id": "riverton",
   "name": "Riverton",
   "startNode": "bus_depot",
+  "canvas": {
+    "w": 1920,
+    "h": 1152
+  },
   "nodes": [
-    {
-      "id": "bank",
-      "name": "First Jones Bank",
-      "x": 394,
-      "y": 518,
-      "location": "bank",
-      "pixel": {
-        "kind": "bank"
-      }
-    },
-    {
-      "id": "bus_depot",
-      "name": "Bus Depot",
-      "x": 501,
-      "y": 480,
-      "location": "bus_depot",
-      "pixel": {
-        "kind": "bus_depot"
-      }
-    },
     {
       "id": "employment",
       "name": "Employment Office",
-      "x": 539,
-      "y": 600,
+      "x": 1202,
+      "y": 598,
       "location": "employment",
       "pixel": {
         "kind": "employment"
       }
     },
     {
-      "id": "newsstand",
-      "name": "Corner Newsstand",
-      "x": 641,
-      "y": 452,
-      "location": "newsstand",
+      "id": "bus_depot",
+      "name": "Bus Depot",
+      "x": 1234,
+      "y": 376,
+      "location": "bus_depot",
       "pixel": {
-        "kind": "newsstand"
+        "kind": "bus_depot"
       }
     },
     {
       "id": "monolith",
       "name": "Monolith Burgers",
-      "x": 758,
-      "y": 553,
+      "x": 1382,
+      "y": 417,
       "location": "monolith",
       "pixel": {
         "kind": "monolith"
       }
     },
     {
-      "id": "clinic",
-      "name": "Doc's Walk-In Clinic",
-      "x": 822,
-      "y": 432,
-      "location": "clinic",
+      "id": "rent_office",
+      "name": "Rent Office",
+      "x": 1330,
+      "y": 331,
+      "location": "rent_office",
       "pixel": {
-        "kind": "clinic"
+        "kind": "rent_office"
+      }
+    },
+    {
+      "id": "cinema",
+      "name": "Bijou Cinema",
+      "x": 826,
+      "y": 485,
+      "location": "cinema",
+      "pixel": {
+        "kind": "cinema"
+      }
+    },
+    {
+      "id": "gym",
+      "name": "Flex Factory Gym",
+      "x": 895,
+      "y": 362,
+      "location": "gym",
+      "pixel": {
+        "kind": "gym"
+      }
+    },
+    {
+      "id": "newsstand",
+      "name": "Corner Newsstand",
+      "x": 989,
+      "y": 495,
+      "location": "newsstand",
+      "pixel": {
+        "kind": "newsstand"
       }
     },
     {
       "id": "cafe",
       "name": "Java Hut",
-      "x": 891,
-      "y": 590,
+      "x": 1606,
+      "y": 301,
       "location": "cafe",
       "pixel": {
         "kind": "cafe"
       }
     },
     {
-      "id": "university",
-      "name": "Hi-Tech University",
-      "x": 688,
-      "y": 363,
-      "location": "university",
+      "id": "clinic",
+      "name": "Doc's Walk-In Clinic",
+      "x": 1476,
+      "y": 403,
+      "location": "clinic",
       "pixel": {
-        "kind": "university"
+        "kind": "clinic"
       }
     },
     {
-      "id": "lowcost",
-      "name": "Low-Cost Housing",
-      "x": 533,
-      "y": 318,
-      "location": "lowcost",
+      "id": "bank",
+      "name": "First Jones Bank",
+      "x": 1079,
+      "y": 393,
+      "location": "bank",
       "pixel": {
-        "kind": "lowcost"
+        "kind": "bank"
       }
     },
     {
-      "id": "factory",
-      "name": "Consolidated Widgets",
-      "x": 500,
-      "y": 193,
-      "location": "factory",
+      "id": "qt_clothing",
+      "name": "QT Clothing",
+      "x": 1179,
+      "y": 277,
+      "location": "qt_clothing",
       "pixel": {
-        "kind": "factory"
+        "kind": "qt_clothing"
+      }
+    },
+    {
+      "id": "socket_city",
+      "name": "Socket City",
+      "x": 1010,
+      "y": 303,
+      "location": "socket_city",
+      "pixel": {
+        "kind": "socket_city"
       }
     },
     {
       "id": "shady_acres",
       "name": "Shady Acres",
-      "x": 716,
-      "y": 234,
+      "x": 1140,
+      "y": 100,
       "location": "shady_acres",
       "pixel": {
         "kind": "shady_acres"
@@ -116,8 +140,8 @@
     {
       "id": "house_hill",
       "name": "Hilltop Manor",
-      "x": 853,
-      "y": 191,
+      "x": 1278,
+      "y": 256,
       "location": "house_hill",
       "pixel": {
         "kind": "house",
@@ -130,154 +154,40 @@
       }
     },
     {
-      "id": "qt_clothing",
-      "name": "QT Clothing",
-      "x": 1082,
-      "y": 253,
-      "location": "qt_clothing",
+      "id": "university",
+      "name": "Hi-Tech University",
+      "x": 1492,
+      "y": 734,
+      "location": "university",
       "pixel": {
-        "kind": "qt_clothing"
-      }
-    },
-    {
-      "id": "socket_city",
-      "name": "Socket City",
-      "x": 991,
-      "y": 368,
-      "location": "socket_city",
-      "pixel": {
-        "kind": "socket_city"
-      }
-    },
-    {
-      "id": "zmart",
-      "name": "Z-Mart",
-      "x": 1155,
-      "y": 387,
-      "location": "zmart",
-      "pixel": {
-        "kind": "zmart"
-      }
-    },
-    {
-      "id": "auto",
-      "name": "Honest Al's Autos",
-      "x": 1167,
-      "y": 548,
-      "location": "auto",
-      "pixel": {
-        "kind": "auto"
-      }
-    },
-    {
-      "id": "blacks_market",
-      "name": "Black's Market",
-      "x": 1028,
-      "y": 523,
-      "location": "blacks_market",
-      "pixel": {
-        "kind": "blacks_market"
-      }
-    },
-    {
-      "id": "pawn",
-      "name": "Pawn Shop",
-      "x": 1139,
-      "y": 623,
-      "location": "pawn",
-      "pixel": {
-        "kind": "pawn"
-      }
-    },
-    {
-      "id": "cinema",
-      "name": "Bijou Cinema",
-      "x": 440,
-      "y": 670,
-      "location": "cinema",
-      "pixel": {
-        "kind": "cinema"
-      }
-    },
-    {
-      "id": "gym",
-      "name": "Flex Factory Gym",
-      "x": 548,
-      "y": 711,
-      "location": "gym",
-      "pixel": {
-        "kind": "gym"
-      }
-    },
-    {
-      "id": "gilded_fork",
-      "name": "The Gilded Fork",
-      "x": 653,
-      "y": 710,
-      "location": "gilded_fork",
-      "pixel": {
-        "kind": "gilded_fork"
-      }
-    },
-    {
-      "id": "chez_cholesterol",
-      "name": "Chez Cholesterol",
-      "x": 750,
-      "y": 683,
-      "location": "chez_cholesterol",
-      "pixel": {
-        "kind": "chez_cholesterol"
-      }
-    },
-    {
-      "id": "house_elm",
-      "name": "12 Elm Street",
-      "x": 92,
-      "y": 686,
-      "location": "house_elm",
-      "pixel": {
-        "kind": "house",
-        "params": {
-          "wall": "cream",
-          "roof": "brick"
-        }
-      }
-    },
-    {
-      "id": "park",
-      "name": "Riverside Park",
-      "x": 100,
-      "y": 574,
-      "location": "park",
-      "pixel": {
-        "kind": "park"
-      }
-    },
-    {
-      "id": "lookout",
-      "name": "Lookout Point",
-      "x": 74,
-      "y": 298,
-      "location": "lookout",
-      "pixel": {
-        "kind": "lookout"
+        "kind": "university"
       }
     },
     {
       "id": "security_apts",
       "name": "Security Apartments",
-      "x": 871,
-      "y": 699,
+      "x": 1591,
+      "y": 774,
       "location": "security_apts",
       "pixel": {
         "kind": "security_apts"
       }
     },
     {
+      "id": "gilded_fork",
+      "name": "The Gilded Fork",
+      "x": 1717,
+      "y": 689,
+      "location": "gilded_fork",
+      "pixel": {
+        "kind": "gilded_fork"
+      }
+    },
+    {
       "id": "house_lake",
       "name": "Lakeside Cottage",
-      "x": 1166,
-      "y": 682,
+      "x": 1614,
+      "y": 944,
       "location": "house_lake",
       "pixel": {
         "kind": "house",
@@ -289,334 +199,523 @@
       }
     },
     {
+      "id": "factory",
+      "name": "Consolidated Widgets",
+      "x": 676,
+      "y": 890,
+      "location": "factory",
+      "pixel": {
+        "kind": "factory"
+      }
+    },
+    {
+      "id": "lowcost",
+      "name": "Low-Cost Housing",
+      "x": 542,
+      "y": 895,
+      "location": "lowcost",
+      "pixel": {
+        "kind": "lowcost"
+      }
+    },
+    {
+      "id": "park",
+      "name": "Riverside Park",
+      "x": 716,
+      "y": 682,
+      "location": "park",
+      "pixel": {
+        "kind": "park"
+      }
+    },
+    {
+      "id": "lookout",
+      "name": "Lookout Point",
+      "x": 303,
+      "y": 282,
+      "location": "lookout",
+      "pixel": {
+        "kind": "lookout"
+      }
+    },
+    {
+      "id": "auto",
+      "name": "Honest Al's Autos",
+      "x": 708,
+      "y": 1006,
+      "location": "auto",
+      "pixel": {
+        "kind": "auto"
+      }
+    },
+    {
+      "id": "house_elm",
+      "name": "12 Elm Street",
+      "x": 421,
+      "y": 662,
+      "location": "house_elm",
+      "pixel": {
+        "kind": "house",
+        "params": {
+          "wall": "cream",
+          "roof": "brick"
+        }
+      }
+    },
+    {
+      "id": "zmart",
+      "name": "Z-Mart",
+      "x": 1096,
+      "y": 1009,
+      "location": "zmart",
+      "pixel": {
+        "kind": "zmart"
+      }
+    },
+    {
+      "id": "blacks_market",
+      "name": "Black's Market",
+      "x": 1016,
+      "y": 1136,
+      "location": "blacks_market",
+      "pixel": {
+        "kind": "blacks_market"
+      }
+    },
+    {
+      "id": "pawn",
+      "name": "Pawn Shop",
+      "x": 1203,
+      "y": 1092,
+      "location": "pawn",
+      "pixel": {
+        "kind": "pawn"
+      }
+    },
+    {
+      "id": "chez_cholesterol",
+      "name": "Chez Cholesterol",
+      "x": 1271,
+      "y": 1017,
+      "location": "chez_cholesterol",
+      "pixel": {
+        "kind": "chez_cholesterol"
+      }
+    },
+    {
       "id": "highway_w",
-      "x": 300,
-      "y": 26
+      "x": 158,
+      "y": 1132
     },
     {
       "id": "highway_e",
-      "x": 1214,
-      "y": 664
-    },
-    {
-      "id": "strip_rd_w",
-      "x": 982,
-      "y": 206
-    },
-    {
-      "id": "strip_rd_e",
-      "x": 1016,
-      "y": 600
+      "x": 1898,
+      "y": 250
     },
     {
       "id": "main_st_w",
-      "x": 268,
-      "y": 604
+      "x": 480,
+      "y": 250
     },
     {
-      "id": "j_east",
-      "x": 1099,
-      "y": 423
+      "id": "main_st_e",
+      "x": 1740,
+      "y": 250
     },
     {
-      "id": "j_center",
-      "x": 510,
-      "y": 508
+      "id": "j_uptown",
+      "x": 1142,
+      "y": 473
     },
     {
-      "id": "j_west",
-      "x": 323,
-      "y": 581
-    },
-    {
-      "id": "river_ln_e",
-      "x": 800,
-      "y": 698
-    },
-    {
-      "id": "j_elm",
-      "x": 358,
-      "y": 653
-    },
-    {
-      "id": "elm_ln_e",
-      "x": 110,
-      "y": 612
-    },
-    {
-      "id": "j_park",
-      "x": 232,
-      "y": 676
-    },
-    {
-      "id": "park_path_e",
-      "x": 128,
-      "y": 452
-    },
-    {
-      "id": "j_bluff",
-      "x": 140,
-      "y": 479
-    },
-    {
-      "id": "lookout_path_e",
-      "x": 118,
-      "y": 228
-    },
-    {
-      "id": "j_mill",
-      "x": 596,
-      "y": 482
-    },
-    {
-      "id": "j_hwy_mill",
-      "x": 550,
-      "y": 20
-    },
-    {
-      "id": "j_campus",
-      "x": 714,
-      "y": 460
-    },
-    {
-      "id": "campus_ln_e",
-      "x": 748,
-      "y": 372
+      "id": "uptown_rd_e",
+      "x": 910,
+      "y": 146
     },
     {
       "id": "j_hill",
-      "x": 599,
-      "y": 275
+      "x": 1030,
+      "y": 196
     },
     {
-      "id": "j_strip_n",
-      "x": 999,
-      "y": 226
+      "id": "hill_rd_e",
+      "x": 1380,
+      "y": 236
     },
     {
-      "id": "j_manor",
-      "x": 796,
-      "y": 263
+      "id": "j_campus",
+      "x": 1335,
+      "y": 517
     },
     {
-      "id": "manor_dr_e",
+      "id": "campus_rd_e",
+      "x": 1800,
+      "y": 772
+    },
+    {
+      "id": "j_center",
+      "x": 1300,
+      "y": 520
+    },
+    {
+      "id": "mill_rd_e",
+      "x": 340,
+      "y": 724
+    },
+    {
+      "id": "j_strip",
+      "x": 966,
+      "y": 796
+    },
+    {
+      "id": "strip_rd_e",
+      "x": 1420,
+      "y": 1104
+    },
+    {
+      "id": "j_park",
+      "x": 841,
+      "y": 801
+    },
+    {
+      "id": "park_ln_e",
+      "x": 755,
+      "y": 560
+    },
+    {
+      "id": "j_bluff",
       "x": 800,
-      "y": 156
+      "y": 700
     },
     {
-      "id": "j_hill_ramp",
-      "x": 919,
-      "y": 255
+      "id": "lookout_path_e",
+      "x": 330,
+      "y": 190
     },
     {
-      "id": "j_hwy_hill",
-      "x": 919,
-      "y": 43
+      "id": "j_works",
+      "x": 801,
+      "y": 801
     },
     {
-      "id": "j_lake_w",
-      "x": 932,
-      "y": 438
+      "id": "works_rd_e",
+      "x": 780,
+      "y": 1120
     },
     {
-      "id": "lake_rd_e",
-      "x": 1200,
-      "y": 706
+      "id": "j_elm",
+      "x": 503,
+      "y": 772
     },
     {
-      "id": "a_bank",
-      "x": 406,
-      "y": 546
-    },
-    {
-      "id": "a_newsstand",
-      "x": 644,
-      "y": 471
-    },
-    {
-      "id": "a_monolith",
-      "x": 748,
-      "y": 456
-    },
-    {
-      "id": "a_clinic",
-      "x": 823,
-      "y": 451
-    },
-    {
-      "id": "a_cafe",
-      "x": 873,
-      "y": 446
-    },
-    {
-      "id": "a_university",
-      "x": 712,
-      "y": 388
-    },
-    {
-      "id": "a_lowcost",
-      "x": 611,
-      "y": 365
-    },
-    {
-      "id": "a_factory",
-      "x": 587,
-      "y": 173
-    },
-    {
-      "id": "a_shady_acres",
-      "x": 712,
-      "y": 255
-    },
-    {
-      "id": "a_house_hill",
-      "x": 795,
-      "y": 180
-    },
-    {
-      "id": "a_qt_clothing",
-      "x": 1041,
-      "y": 280
-    },
-    {
-      "id": "a_socket_city",
-      "x": 1069,
-      "y": 328
-    },
-    {
-      "id": "a_zmart",
-      "x": 1095,
-      "y": 400
-    },
-    {
-      "id": "a_auto",
-      "x": 1089,
-      "y": 519
-    },
-    {
-      "id": "a_blacks_market",
-      "x": 1076,
-      "y": 548
-    },
-    {
-      "id": "a_cinema",
-      "x": 427,
-      "y": 705
-    },
-    {
-      "id": "a_gym",
-      "x": 546,
-      "y": 731
-    },
-    {
-      "id": "a_gilded_fork",
-      "x": 655,
-      "y": 731
-    },
-    {
-      "id": "a_chez_cholesterol",
-      "x": 758,
-      "y": 711
-    },
-    {
-      "id": "a_house_elm",
-      "x": 133,
-      "y": 628
-    },
-    {
-      "id": "a_park",
-      "x": 168,
-      "y": 543
-    },
-    {
-      "id": "a_lookout",
-      "x": 131,
-      "y": 281
-    },
-    {
-      "id": "a_security_apts",
-      "x": 994,
-      "y": 625
-    },
-    {
-      "id": "a_house_lake",
-      "x": 1167,
-      "y": 707
-    },
-    {
-      "id": "w_highway_0_1",
-      "x": 425,
-      "y": 22
-    },
-    {
-      "id": "w_highway_1_1",
-      "x": 673,
-      "y": 21
-    },
-    {
-      "id": "w_highway_1_2",
-      "x": 796,
-      "y": 28
-    },
-    {
-      "id": "w_highway_2_1",
-      "x": 1044,
-      "y": 80
-    },
-    {
-      "id": "w_highway_2_2",
-      "x": 1142,
-      "y": 165
-    },
-    {
-      "id": "w_highway_2_3",
-      "x": 1205,
-      "y": 279
-    },
-    {
-      "id": "w_highway_2_4",
-      "x": 1238,
-      "y": 406
-    },
-    {
-      "id": "w_highway_2_5",
-      "x": 1241,
-      "y": 537
-    },
-    {
-      "id": "w_main_st_10_1",
-      "x": 1016,
-      "y": 433
-    },
-    {
-      "id": "w_park_path_0_1",
-      "x": 221,
-      "y": 606
-    },
-    {
-      "id": "w_lookout_path_0_1",
-      "x": 180,
-      "y": 389
-    },
-    {
-      "id": "w_mill_rd_3_1",
-      "x": 553,
-      "y": 100
-    },
-    {
-      "id": "w_hwy_hill_ramp_0_1",
-      "x": 929,
-      "y": 152
-    },
-    {
-      "id": "w_lake_rd_0_1",
-      "x": 951,
+      "id": "elm_ln_e",
+      "x": 410,
       "y": 535
     },
     {
-      "id": "w_lake_rd_1_1",
-      "x": 1069,
-      "y": 688
+      "id": "j_ridge",
+      "x": 1648,
+      "y": 799
+    },
+    {
+      "id": "j_fork",
+      "x": 1551,
+      "y": 395
+    },
+    {
+      "id": "j_lake",
+      "x": 1700,
+      "y": 798
+    },
+    {
+      "id": "lake_ln_e",
+      "x": 1712,
+      "y": 1000
+    },
+    {
+      "id": "a_cinema",
+      "x": 858,
+      "y": 381
+    },
+    {
+      "id": "a_gym",
+      "x": 887,
+      "y": 389
+    },
+    {
+      "id": "a_newsstand",
+      "x": 1010,
+      "y": 429
+    },
+    {
+      "id": "a_cafe",
+      "x": 1630,
+      "y": 333
+    },
+    {
+      "id": "a_clinic",
+      "x": 1499,
+      "y": 435
+    },
+    {
+      "id": "a_bank",
+      "x": 1164,
+      "y": 361
+    },
+    {
+      "id": "a_qt_clothing",
+      "x": 1135,
+      "y": 303
+    },
+    {
+      "id": "a_socket_city",
+      "x": 1075,
+      "y": 230
+    },
+    {
+      "id": "a_shady_acres",
+      "x": 1140,
+      "y": 119
+    },
+    {
+      "id": "a_house_hill",
+      "x": 1334,
+      "y": 192
+    },
+    {
+      "id": "a_university",
+      "x": 1471,
+      "y": 774
+    },
+    {
+      "id": "a_security_apts",
+      "x": 1589,
+      "y": 795
+    },
+    {
+      "id": "a_gilded_fork",
+      "x": 1658,
+      "y": 680
+    },
+    {
+      "id": "a_house_lake",
+      "x": 1705,
+      "y": 948
+    },
+    {
+      "id": "a_factory",
+      "x": 681,
+      "y": 797
+    },
+    {
+      "id": "a_lowcost",
+      "x": 562,
+      "y": 784
+    },
+    {
+      "id": "a_park",
+      "x": 784,
+      "y": 661
+    },
+    {
+      "id": "a_lookout",
+      "x": 364,
+      "y": 249
+    },
+    {
+      "id": "a_auto",
+      "x": 775,
+      "y": 1015
+    },
+    {
+      "id": "a_house_elm",
+      "x": 477,
+      "y": 626
+    },
+    {
+      "id": "a_zmart",
+      "x": 1062,
+      "y": 1045
+    },
+    {
+      "id": "a_pawn",
+      "x": 1198,
+      "y": 1114
+    },
+    {
+      "id": "a_chez_cholesterol",
+      "x": 1268,
+      "y": 1122
+    },
+    {
+      "id": "w_highway_0_1",
+      "x": 301,
+      "y": 1115
+    },
+    {
+      "id": "w_highway_0_2",
+      "x": 443,
+      "y": 1096
+    },
+    {
+      "id": "w_highway_0_3",
+      "x": 585,
+      "y": 1073
+    },
+    {
+      "id": "w_highway_0_4",
+      "x": 724,
+      "y": 1037
+    },
+    {
+      "id": "w_highway_0_5",
+      "x": 861,
+      "y": 993
+    },
+    {
+      "id": "w_highway_0_6",
+      "x": 997,
+      "y": 945
+    },
+    {
+      "id": "w_highway_0_7",
+      "x": 1127,
+      "y": 884
+    },
+    {
+      "id": "w_highway_0_8",
+      "x": 1248,
+      "y": 807
+    },
+    {
+      "id": "w_highway_0_9",
+      "x": 1348,
+      "y": 705
+    },
+    {
+      "id": "w_highway_0_10",
+      "x": 1444,
+      "y": 598
+    },
+    {
+      "id": "w_highway_0_11",
+      "x": 1558,
+      "y": 510
+    },
+    {
+      "id": "w_highway_0_12",
+      "x": 1682,
+      "y": 438
+    },
+    {
+      "id": "w_highway_0_13",
+      "x": 1796,
+      "y": 351
+    },
+    {
+      "id": "w_main_st_0_1",
+      "x": 605,
+      "y": 296
+    },
+    {
+      "id": "w_main_st_0_2",
+      "x": 731,
+      "y": 340
+    },
+    {
+      "id": "w_main_st_4_1",
+      "x": 1219,
+      "y": 503
+    },
+    {
+      "id": "w_main_st_6_1",
+      "x": 1420,
+      "y": 482
+    },
+    {
+      "id": "w_hill_rd_1_1",
+      "x": 1243,
+      "y": 139
+    },
+    {
+      "id": "w_campus_rd_0_1",
+      "x": 1379,
+      "y": 658
+    },
+    {
+      "id": "w_mill_rd_0_1",
+      "x": 1283,
+      "y": 640
+    },
+    {
+      "id": "w_mill_rd_0_2",
+      "x": 1175,
+      "y": 749
+    },
+    {
+      "id": "w_mill_rd_0_3",
+      "x": 1088,
+      "y": 778
+    },
+    {
+      "id": "w_mill_rd_6_1",
+      "x": 421,
+      "y": 751
+    },
+    {
+      "id": "w_strip_rd_0_1",
+      "x": 987,
+      "y": 931
+    },
+    {
+      "id": "w_strip_rd_1_1",
+      "x": 1126,
+      "y": 1089
+    },
+    {
+      "id": "w_strip_rd_3_1",
+      "x": 1344,
+      "y": 1118
+    },
+    {
+      "id": "w_lookout_path_0_1",
+      "x": 672,
+      "y": 724
+    },
+    {
+      "id": "w_lookout_path_0_2",
+      "x": 547,
+      "y": 648
+    },
+    {
+      "id": "w_lookout_path_0_3",
+      "x": 463,
+      "y": 527
+    },
+    {
+      "id": "w_lookout_path_0_4",
+      "x": 417,
+      "y": 395
+    },
+    {
+      "id": "w_works_rd_0_1",
+      "x": 796,
+      "y": 909
+    },
+    {
+      "id": "w_elm_ln_0_1",
+      "x": 516,
+      "y": 696
+    },
+    {
+      "id": "w_ridge_path_1_1",
+      "x": 1654,
+      "y": 576
+    },
+    {
+      "id": "w_ridge_path_1_2",
+      "x": 1611,
+      "y": 480
     }
   ],
   "edges": [
@@ -628,1694 +727,2191 @@
       "street": "highway",
       "curve": [
         {
-          "x": 319,
-          "y": 25
+          "x": 175,
+          "y": 1130
         },
         {
-          "x": 334,
-          "y": 25
+          "x": 192,
+          "y": 1128
         },
         {
-          "x": 355,
-          "y": 24
+          "x": 207,
+          "y": 1126
         },
         {
-          "x": 374,
-          "y": 24
+          "x": 229,
+          "y": 1123
         },
         {
-          "x": 399,
-          "y": 23
+          "x": 248,
+          "y": 1121
+        },
+        {
+          "x": 273,
+          "y": 1118
         }
       ]
     },
     {
       "a": "w_highway_0_1",
-      "b": "j_hwy_mill",
+      "b": "w_highway_0_2",
       "minutes": 10,
       "kind": "highway",
       "street": "highway",
       "curve": [
         {
-          "x": 447,
-          "y": 21
+          "x": 321,
+          "y": 1112
         },
         {
-          "x": 470,
-          "y": 21
+          "x": 343,
+          "y": 1110
         },
         {
-          "x": 488,
-          "y": 21
+          "x": 360,
+          "y": 1107
         },
         {
-          "x": 506,
-          "y": 20
+          "x": 382,
+          "y": 1105
         },
         {
-          "x": 527,
-          "y": 20
+          "x": 399,
+          "y": 1102
+        },
+        {
+          "x": 422,
+          "y": 1099
         }
       ]
     },
     {
-      "a": "j_hwy_mill",
-      "b": "w_highway_1_1",
+      "a": "w_highway_0_2",
+      "b": "w_highway_0_3",
       "minutes": 10,
       "kind": "highway",
       "street": "highway",
       "curve": [
         {
-          "x": 576,
-          "y": 20
+          "x": 471,
+          "y": 1093
         },
         {
-          "x": 591,
-          "y": 20
+          "x": 492,
+          "y": 1089
         },
         {
-          "x": 611,
-          "y": 20
+          "x": 511,
+          "y": 1086
         },
         {
-          "x": 631,
-          "y": 21
+          "x": 530,
+          "y": 1083
         },
         {
-          "x": 647,
-          "y": 21
+          "x": 548,
+          "y": 1080
+        },
+        {
+          "x": 564,
+          "y": 1077
         }
       ]
     },
     {
-      "a": "w_highway_1_1",
-      "b": "w_highway_1_2",
+      "a": "w_highway_0_3",
+      "b": "w_highway_0_4",
       "minutes": 10,
       "kind": "highway",
       "street": "highway",
       "curve": [
         {
-          "x": 699,
-          "y": 22
+          "x": 612,
+          "y": 1067
         },
         {
-          "x": 719,
-          "y": 23
+          "x": 632,
+          "y": 1062
         },
         {
-          "x": 738,
-          "y": 24
+          "x": 652,
+          "y": 1058
         },
         {
-          "x": 754,
-          "y": 24
+          "x": 667,
+          "y": 1053
         },
         {
-          "x": 773,
-          "y": 26
+          "x": 685,
+          "y": 1048
+        },
+        {
+          "x": 703,
+          "y": 1043
         }
       ]
     },
     {
-      "a": "w_highway_1_2",
-      "b": "j_hwy_hill",
+      "a": "w_highway_0_4",
+      "b": "w_highway_0_5",
       "minutes": 10,
       "kind": "highway",
       "street": "highway",
       "curve": [
         {
-          "x": 820,
-          "y": 30
+          "x": 746,
+          "y": 1030
         },
         {
-          "x": 841,
-          "y": 32
+          "x": 765,
+          "y": 1024
         },
         {
-          "x": 859,
-          "y": 34
+          "x": 782,
+          "y": 1018
         },
         {
-          "x": 876,
-          "y": 37
+          "x": 799,
+          "y": 1013
         },
         {
-          "x": 896,
-          "y": 39
+          "x": 817,
+          "y": 1007
+        },
+        {
+          "x": 838,
+          "y": 1000
         }
       ]
     },
     {
-      "a": "j_hwy_hill",
-      "b": "w_highway_2_1",
-      "minutes": 11,
+      "a": "w_highway_0_5",
+      "b": "w_highway_0_6",
+      "minutes": 10,
       "kind": "highway",
       "street": "highway",
       "curve": [
         {
-          "x": 945,
-          "y": 48
+          "x": 882,
+          "y": 986
         },
         {
-          "x": 964,
-          "y": 52
+          "x": 903,
+          "y": 979
         },
         {
-          "x": 985,
-          "y": 57
+          "x": 920,
+          "y": 973
         },
         {
-          "x": 1005,
-          "y": 63
+          "x": 937,
+          "y": 968
         },
         {
-          "x": 1022,
-          "y": 69
+          "x": 955,
+          "y": 961
+        },
+        {
+          "x": 974,
+          "y": 954
         }
       ]
     },
     {
-      "a": "w_highway_2_1",
-      "b": "w_highway_2_2",
-      "minutes": 11,
+      "a": "w_highway_0_6",
+      "b": "w_highway_0_7",
+      "minutes": 10,
       "kind": "highway",
       "street": "highway",
       "curve": [
         {
-          "x": 1065,
-          "y": 92
+          "x": 1019,
+          "y": 936
         },
         {
-          "x": 1082,
-          "y": 104
+          "x": 1036,
+          "y": 929
         },
         {
-          "x": 1098,
-          "y": 117
+          "x": 1055,
+          "y": 921
         },
         {
-          "x": 1113,
-          "y": 131
+          "x": 1071,
+          "y": 913
         },
         {
-          "x": 1127,
-          "y": 146
+          "x": 1089,
+          "y": 904
+        },
+        {
+          "x": 1105,
+          "y": 895
         }
       ]
     },
     {
-      "a": "w_highway_2_2",
-      "b": "w_highway_2_3",
-      "minutes": 11,
+      "a": "w_highway_0_7",
+      "b": "w_highway_0_8",
+      "minutes": 10,
       "kind": "highway",
       "street": "highway",
       "curve": [
         {
-          "x": 1155,
-          "y": 183
+          "x": 1150,
+          "y": 871
         },
         {
           "x": 1166,
-          "y": 199
+          "y": 862
         },
         {
-          "x": 1177,
-          "y": 219
+          "x": 1183,
+          "y": 851
         },
         {
-          "x": 1186,
-          "y": 237
+          "x": 1198,
+          "y": 842
         },
         {
-          "x": 1195,
-          "y": 256
-        }
-      ]
-    },
-    {
-      "a": "w_highway_2_3",
-      "b": "w_highway_2_4",
-      "minutes": 11,
-      "kind": "highway",
-      "street": "highway",
-      "curve": [
-        {
-          "x": 1213,
-          "y": 304
-        },
-        {
-          "x": 1220,
-          "y": 324
-        },
-        {
-          "x": 1225,
-          "y": 344
-        },
-        {
-          "x": 1229,
-          "y": 361
-        },
-        {
-          "x": 1234,
-          "y": 380
-        }
-      ]
-    },
-    {
-      "a": "w_highway_2_4",
-      "b": "w_highway_2_5",
-      "minutes": 11,
-      "kind": "highway",
-      "street": "highway",
-      "curve": [
-        {
-          "x": 1240,
-          "y": 430
-        },
-        {
-          "x": 1241,
-          "y": 451
-        },
-        {
-          "x": 1242,
-          "y": 472
-        },
-        {
-          "x": 1242,
-          "y": 493
-        },
-        {
-          "x": 1242,
-          "y": 513
-        }
-      ]
-    },
-    {
-      "a": "w_highway_2_5",
-      "b": "highway_e",
-      "minutes": 11,
-      "kind": "highway",
-      "street": "highway",
-      "curve": [
-        {
-          "x": 1239,
-          "y": 569
-        },
-        {
-          "x": 1236,
-          "y": 593
+          "x": 1215,
+          "y": 831
         },
         {
           "x": 1230,
-          "y": 615
-        },
-        {
-          "x": 1225,
-          "y": 632
-        },
-        {
-          "x": 1219,
-          "y": 648
+          "y": 821
         }
       ]
     },
     {
-      "a": "strip_rd_w",
-      "b": "j_strip_n",
-      "minutes": 3,
-      "kind": "street",
-      "street": "strip_rd",
-      "curve": [
-        {
-          "x": 991,
-          "y": 217
-        }
-      ]
-    },
-    {
-      "a": "j_strip_n",
-      "b": "a_qt_clothing",
-      "minutes": 9,
-      "kind": "street",
-      "street": "strip_rd",
-      "curve": [
-        {
-          "x": 1010,
-          "y": 240
-        },
-        {
-          "x": 1020,
-          "y": 252
-        },
-        {
-          "x": 1029,
-          "y": 264
-        }
-      ]
-    },
-    {
-      "a": "a_qt_clothing",
-      "b": "a_socket_city",
-      "minutes": 7,
-      "kind": "street",
-      "street": "strip_rd",
-      "curve": [
-        {
-          "x": 1051,
-          "y": 296
-        },
-        {
-          "x": 1060,
-          "y": 311
-        }
-      ]
-    },
-    {
-      "a": "a_socket_city",
-      "b": "a_zmart",
+      "a": "w_highway_0_8",
+      "b": "w_highway_0_9",
       "minutes": 10,
-      "kind": "street",
-      "street": "strip_rd",
+      "kind": "highway",
+      "street": "highway",
       "curve": [
         {
-          "x": 1078,
-          "y": 347
+          "x": 1268,
+          "y": 792
         },
         {
-          "x": 1085,
-          "y": 365
+          "x": 1283,
+          "y": 779
         },
         {
-          "x": 1090,
-          "y": 380
+          "x": 1296,
+          "y": 766
+        },
+        {
+          "x": 1308,
+          "y": 754
+        },
+        {
+          "x": 1321,
+          "y": 739
+        },
+        {
+          "x": 1333,
+          "y": 724
         }
       ]
     },
     {
-      "a": "a_zmart",
-      "b": "j_east",
-      "minutes": 3,
-      "kind": "street",
-      "street": "strip_rd",
-      "curve": [
-        {
-          "x": 1097,
-          "y": 411
-        }
-      ]
-    },
-    {
-      "a": "j_east",
-      "b": "a_auto",
-      "minutes": 12,
-      "kind": "street",
-      "street": "strip_rd",
-      "curve": [
-        {
-          "x": 1101,
-          "y": 446
-        },
-        {
-          "x": 1101,
-          "y": 464
-        },
-        {
-          "x": 1100,
-          "y": 479
-        },
-        {
-          "x": 1096,
-          "y": 497
-        }
-      ]
-    },
-    {
-      "a": "a_auto",
-      "b": "a_blacks_market",
-      "minutes": 4,
-      "kind": "street",
-      "street": "strip_rd",
-      "curve": [
-        {
-          "x": 1083,
-          "y": 535
-        }
-      ]
-    },
-    {
-      "a": "a_blacks_market",
-      "b": "strip_rd_e",
+      "a": "w_highway_0_9",
+      "b": "w_highway_0_10",
       "minutes": 10,
-      "kind": "street",
-      "street": "strip_rd",
+      "kind": "highway",
+      "street": "highway",
       "curve": [
         {
-          "x": 1064,
-          "y": 568
+          "x": 1363,
+          "y": 685
         },
         {
-          "x": 1047,
+          "x": 1376,
+          "y": 669
+        },
+        {
+          "x": 1388,
+          "y": 654
+        },
+        {
+          "x": 1400,
+          "y": 640
+        },
+        {
+          "x": 1413,
+          "y": 627
+        },
+        {
+          "x": 1427,
+          "y": 613
+        }
+      ]
+    },
+    {
+      "a": "w_highway_0_10",
+      "b": "w_highway_0_11",
+      "minutes": 10,
+      "kind": "highway",
+      "street": "highway",
+      "curve": [
+        {
+          "x": 1463,
           "y": 582
         },
         {
-          "x": 1031,
-          "y": 591
+          "x": 1478,
+          "y": 569
+        },
+        {
+          "x": 1494,
+          "y": 557
+        },
+        {
+          "x": 1509,
+          "y": 546
+        },
+        {
+          "x": 1524,
+          "y": 534
+        },
+        {
+          "x": 1540,
+          "y": 523
+        }
+      ]
+    },
+    {
+      "a": "w_highway_0_11",
+      "b": "w_highway_0_12",
+      "minutes": 10,
+      "kind": "highway",
+      "street": "highway",
+      "curve": [
+        {
+          "x": 1578,
+          "y": 496
+        },
+        {
+          "x": 1593,
+          "y": 486
+        },
+        {
+          "x": 1611,
+          "y": 476
+        },
+        {
+          "x": 1628,
+          "y": 466
+        },
+        {
+          "x": 1645,
+          "y": 457
+        },
+        {
+          "x": 1660,
+          "y": 449
+        }
+      ]
+    },
+    {
+      "a": "w_highway_0_12",
+      "b": "w_highway_0_13",
+      "minutes": 10,
+      "kind": "highway",
+      "street": "highway",
+      "curve": [
+        {
+          "x": 1700,
+          "y": 427
+        },
+        {
+          "x": 1713,
+          "y": 419
+        },
+        {
+          "x": 1729,
+          "y": 408
+        },
+        {
+          "x": 1744,
+          "y": 397
+        },
+        {
+          "x": 1760,
+          "y": 384
+        },
+        {
+          "x": 1775,
+          "y": 371
+        }
+      ]
+    },
+    {
+      "a": "w_highway_0_13",
+      "b": "highway_e",
+      "minutes": 10,
+      "kind": "highway",
+      "street": "highway",
+      "curve": [
+        {
+          "x": 1816,
+          "y": 332
+        },
+        {
+          "x": 1831,
+          "y": 317
+        },
+        {
+          "x": 1847,
+          "y": 301
+        },
+        {
+          "x": 1861,
+          "y": 287
+        },
+        {
+          "x": 1875,
+          "y": 273
+        },
+        {
+          "x": 1885,
+          "y": 263
         }
       ]
     },
     {
       "a": "main_st_w",
-      "b": "j_west",
-      "minutes": 8,
+      "b": "w_main_st_0_1",
+      "minutes": 15,
       "kind": "street",
       "street": "main_st",
       "curve": [
         {
-          "x": 280,
-          "y": 599
+          "x": 496,
+          "y": 256
         },
         {
-          "x": 293,
-          "y": 594
+          "x": 512,
+          "y": 262
         },
         {
-          "x": 305,
-          "y": 589
-        }
-      ]
-    },
-    {
-      "a": "j_west",
-      "b": "a_bank",
-      "minutes": 11,
-      "kind": "street",
-      "street": "main_st",
-      "curve": [
-        {
-          "x": 345,
-          "y": 572
+          "x": 534,
+          "y": 270
         },
         {
-          "x": 360,
-          "y": 566
-        },
-        {
-          "x": 374,
-          "y": 560
-        },
-        {
-          "x": 389,
-          "y": 554
-        }
-      ]
-    },
-    {
-      "a": "a_bank",
-      "b": "j_center",
-      "minutes": 14,
-      "kind": "street",
-      "street": "main_st",
-      "curve": [
-        {
-          "x": 426,
-          "y": 538
-        },
-        {
-          "x": 443,
-          "y": 531
-        },
-        {
-          "x": 458,
-          "y": 526
-        },
-        {
-          "x": 473,
-          "y": 520
-        },
-        {
-          "x": 491,
-          "y": 514
-        }
-      ]
-    },
-    {
-      "a": "j_center",
-      "b": "j_mill",
-      "minutes": 11,
-      "kind": "street",
-      "street": "main_st",
-      "curve": [
-        {
-          "x": 530,
-          "y": 502
-        },
-        {
-          "x": 545,
-          "y": 497
-        },
-        {
-          "x": 560,
-          "y": 492
+          "x": 554,
+          "y": 278
         },
         {
           "x": 576,
-          "y": 488
+          "y": 286
         }
       ]
     },
     {
-      "a": "j_mill",
-      "b": "a_newsstand",
-      "minutes": 6,
+      "a": "w_main_st_0_1",
+      "b": "w_main_st_0_2",
+      "minutes": 15,
       "kind": "street",
       "street": "main_st",
       "curve": [
         {
-          "x": 613,
-          "y": 478
+          "x": 630,
+          "y": 305
         },
         {
-          "x": 626,
-          "y": 475
+          "x": 653,
+          "y": 314
+        },
+        {
+          "x": 672,
+          "y": 320
+        },
+        {
+          "x": 690,
+          "y": 326
+        },
+        {
+          "x": 710,
+          "y": 333
         }
       ]
     },
     {
-      "a": "a_newsstand",
-      "b": "j_campus",
-      "minutes": 9,
-      "kind": "street",
-      "street": "main_st",
-      "curve": [
-        {
-          "x": 664,
-          "y": 467
-        },
-        {
-          "x": 680,
-          "y": 465
-        },
-        {
-          "x": 693,
-          "y": 463
-        }
-      ]
-    },
-    {
-      "a": "j_campus",
-      "b": "a_monolith",
-      "minutes": 4,
-      "kind": "street",
-      "street": "main_st",
-      "curve": [
-        {
-          "x": 732,
-          "y": 458
-        }
-      ]
-    },
-    {
-      "a": "a_monolith",
-      "b": "a_clinic",
-      "minutes": 9,
-      "kind": "street",
-      "street": "main_st",
-      "curve": [
-        {
-          "x": 768,
-          "y": 454
-        },
-        {
-          "x": 785,
-          "y": 453
-        },
-        {
-          "x": 801,
-          "y": 452
-        }
-      ]
-    },
-    {
-      "a": "a_clinic",
-      "b": "a_cafe",
-      "minutes": 6,
-      "kind": "street",
-      "street": "main_st",
-      "curve": [
-        {
-          "x": 840,
-          "y": 449
-        },
-        {
-          "x": 856,
-          "y": 448
-        }
-      ]
-    },
-    {
-      "a": "a_cafe",
-      "b": "j_lake_w",
-      "minutes": 8,
-      "kind": "street",
-      "street": "main_st",
-      "curve": [
-        {
-          "x": 892,
-          "y": 443
-        },
-        {
-          "x": 903,
-          "y": 442
-        },
-        {
-          "x": 917,
-          "y": 440
-        }
-      ]
-    },
-    {
-      "a": "j_lake_w",
-      "b": "w_main_st_10_1",
-      "minutes": 10,
-      "kind": "street",
-      "street": "main_st",
-      "curve": [
-        {
-          "x": 956,
-          "y": 435
-        },
-        {
-          "x": 976,
-          "y": 434
-        },
-        {
-          "x": 992,
-          "y": 434
-        }
-      ]
-    },
-    {
-      "a": "w_main_st_10_1",
-      "b": "j_east",
-      "minutes": 10,
-      "kind": "street",
-      "street": "main_st",
-      "curve": [
-        {
-          "x": 1041,
-          "y": 431
-        },
-        {
-          "x": 1063,
-          "y": 428
-        },
-        {
-          "x": 1080,
-          "y": 426
-        }
-      ]
-    },
-    {
-      "a": "j_west",
-      "b": "j_elm",
-      "minutes": 10,
-      "kind": "street",
-      "street": "river_ln",
-      "curve": [
-        {
-          "x": 329,
-          "y": 598
-        },
-        {
-          "x": 336,
-          "y": 617
-        },
-        {
-          "x": 345,
-          "y": 635
-        }
-      ]
-    },
-    {
-      "a": "j_elm",
+      "a": "w_main_st_0_2",
       "b": "a_cinema",
-      "minutes": 11,
+      "minutes": 15,
       "kind": "street",
-      "street": "river_ln",
+      "street": "main_st",
       "curve": [
         {
-          "x": 369,
-          "y": 667
+          "x": 758,
+          "y": 349
         },
         {
-          "x": 380,
-          "y": 678
+          "x": 775,
+          "y": 355
         },
         {
-          "x": 391,
-          "y": 686
+          "x": 795,
+          "y": 361
         },
         {
-          "x": 405,
-          "y": 695
+          "x": 816,
+          "y": 367
+        },
+        {
+          "x": 833,
+          "y": 373
         }
       ]
     },
     {
       "a": "a_cinema",
       "b": "a_gym",
-      "minutes": 15,
+      "minutes": 3,
       "kind": "street",
-      "street": "river_ln",
+      "street": "main_st",
       "curve": [
         {
-          "x": 448,
-          "y": 712
-        },
-        {
-          "x": 468,
-          "y": 718
-        },
-        {
-          "x": 486,
-          "y": 722
-        },
-        {
-          "x": 503,
-          "y": 725
-        },
-        {
-          "x": 524,
-          "y": 729
+          "x": 873,
+          "y": 385
         }
       ]
     },
     {
       "a": "a_gym",
-      "b": "a_gilded_fork",
+      "b": "a_newsstand",
       "minutes": 14,
       "kind": "street",
-      "street": "river_ln",
+      "street": "main_st",
       "curve": [
         {
-          "x": 568,
-          "y": 733
+          "x": 914,
+          "y": 398
         },
         {
-          "x": 582,
-          "y": 734
+          "x": 932,
+          "y": 404
         },
         {
-          "x": 600,
-          "y": 734
+          "x": 952,
+          "y": 410
         },
         {
-          "x": 619,
-          "y": 734
+          "x": 971,
+          "y": 417
         },
         {
-          "x": 633,
-          "y": 733
+          "x": 988,
+          "y": 422
         }
       ]
     },
     {
-      "a": "a_gilded_fork",
-      "b": "a_chez_cholesterol",
-      "minutes": 13,
+      "a": "a_newsstand",
+      "b": "j_uptown",
+      "minutes": 15,
       "kind": "street",
-      "street": "river_ln",
+      "street": "main_st",
       "curve": [
         {
-          "x": 677,
-          "y": 728
+          "x": 1035,
+          "y": 437
         },
         {
-          "x": 699,
-          "y": 724
+          "x": 1053,
+          "y": 443
         },
         {
-          "x": 715,
-          "y": 721
+          "x": 1075,
+          "y": 450
         },
         {
-          "x": 736,
-          "y": 717
+          "x": 1094,
+          "y": 456
+        },
+        {
+          "x": 1118,
+          "y": 464
         }
       ]
     },
     {
-      "a": "a_chez_cholesterol",
-      "b": "river_ln_e",
-      "minutes": 5,
+      "a": "j_uptown",
+      "b": "w_main_st_4_1",
+      "minutes": 9,
       "kind": "street",
-      "street": "river_ln",
+      "street": "main_st",
       "curve": [
         {
-          "x": 775,
-          "y": 706
+          "x": 1164,
+          "y": 482
         },
         {
-          "x": 788,
-          "y": 701
+          "x": 1179,
+          "y": 488
+        },
+        {
+          "x": 1198,
+          "y": 495
         }
       ]
     },
     {
-      "a": "j_elm",
-      "b": "j_park",
-      "minutes": 18,
+      "a": "w_main_st_4_1",
+      "b": "j_center",
+      "minutes": 9,
       "kind": "street",
-      "street": "elm_ln",
+      "street": "main_st",
       "curve": [
         {
-          "x": 344,
-          "y": 666
+          "x": 1242,
+          "y": 510
         },
         {
-          "x": 329,
-          "y": 679
+          "x": 1260,
+          "y": 515
         },
         {
-          "x": 314,
-          "y": 687
-        },
-        {
-          "x": 298,
-          "y": 689
-        },
-        {
-          "x": 279,
-          "y": 687
-        },
-        {
-          "x": 256,
-          "y": 682
+          "x": 1278,
+          "y": 518
         }
       ]
     },
     {
-      "a": "j_park",
-      "b": "a_house_elm",
-      "minutes": 14,
-      "kind": "street",
-      "street": "elm_ln",
-      "curve": [
-        {
-          "x": 211,
-          "y": 669
-        },
-        {
-          "x": 195,
-          "y": 663
-        },
-        {
-          "x": 180,
-          "y": 656
-        },
-        {
-          "x": 165,
-          "y": 649
-        },
-        {
-          "x": 150,
-          "y": 640
-        }
-      ]
-    },
-    {
-      "a": "a_house_elm",
-      "b": "elm_ln_e",
+      "a": "j_center",
+      "b": "j_campus",
       "minutes": 4,
       "kind": "street",
-      "street": "elm_ln",
+      "street": "main_st",
       "curve": [
         {
-          "x": 121,
-          "y": 619
-        }
-      ]
-    },
-    {
-      "a": "j_park",
-      "b": "w_park_path_0_1",
-      "minutes": 14,
-      "kind": "path",
-      "street": "park_path",
-      "curve": [
-        {
-          "x": 240,
-          "y": 660
-        },
-        {
-          "x": 245,
-          "y": 649
-        },
-        {
-          "x": 247,
-          "y": 634
-        },
-        {
-          "x": 241,
-          "y": 623
-        }
-      ]
-    },
-    {
-      "a": "w_park_path_0_1",
-      "b": "a_park",
-      "minutes": 14,
-      "kind": "path",
-      "street": "park_path",
-      "curve": [
-        {
-          "x": 202,
-          "y": 592
-        },
-        {
-          "x": 191,
-          "y": 582
-        },
-        {
-          "x": 184,
-          "y": 573
-        },
-        {
-          "x": 176,
-          "y": 560
-        }
-      ]
-    },
-    {
-      "a": "a_park",
-      "b": "j_bluff",
-      "minutes": 12,
-      "kind": "path",
-      "street": "park_path",
-      "curve": [
-        {
-          "x": 158,
-          "y": 521
-        },
-        {
-          "x": 153,
-          "y": 508
-        },
-        {
-          "x": 146,
-          "y": 494
-        }
-      ]
-    },
-    {
-      "a": "j_bluff",
-      "b": "park_path_e",
-      "minutes": 5,
-      "kind": "path",
-      "street": "park_path",
-      "curve": [
-        {
-          "x": 133,
-          "y": 463
-        }
-      ]
-    },
-    {
-      "a": "j_bluff",
-      "b": "w_lookout_path_0_1",
-      "minutes": 20,
-      "kind": "path",
-      "street": "lookout_path",
-      "curve": [
-        {
-          "x": 157,
-          "y": 476
-        },
-        {
-          "x": 170,
-          "y": 473
-        },
-        {
-          "x": 181,
-          "y": 463
-        },
-        {
-          "x": 184,
-          "y": 446
-        },
-        {
-          "x": 184,
-          "y": 420
-        }
-      ]
-    },
-    {
-      "a": "w_lookout_path_0_1",
-      "b": "a_lookout",
-      "minutes": 20,
-      "kind": "path",
-      "street": "lookout_path",
-      "curve": [
-        {
-          "x": 174,
-          "y": 365
-        },
-        {
-          "x": 165,
-          "y": 347
-        },
-        {
-          "x": 156,
-          "y": 332
-        },
-        {
-          "x": 147,
-          "y": 318
-        },
-        {
-          "x": 138,
-          "y": 300
-        }
-      ]
-    },
-    {
-      "a": "a_lookout",
-      "b": "lookout_path_e",
-      "minutes": 9,
-      "kind": "path",
-      "street": "lookout_path",
-      "curve": [
-        {
-          "x": 126,
-          "y": 260
-        },
-        {
-          "x": 122,
-          "y": 244
-        }
-      ]
-    },
-    {
-      "a": "j_mill",
-      "b": "a_lowcost",
-      "minutes": 16,
-      "kind": "street",
-      "street": "mill_rd",
-      "curve": [
-        {
-          "x": 588,
-          "y": 464
-        },
-        {
-          "x": 581,
-          "y": 446
-        },
-        {
-          "x": 578,
-          "y": 427
-        },
-        {
-          "x": 582,
-          "y": 408
-        },
-        {
-          "x": 595,
-          "y": 388
-        }
-      ]
-    },
-    {
-      "a": "a_lowcost",
-      "b": "j_hill",
-      "minutes": 12,
-      "kind": "street",
-      "street": "mill_rd",
-      "curve": [
-        {
-          "x": 619,
-          "y": 346
-        },
-        {
-          "x": 620,
-          "y": 330
-        },
-        {
-          "x": 616,
-          "y": 314
-        },
-        {
-          "x": 609,
-          "y": 297
-        }
-      ]
-    },
-    {
-      "a": "j_hill",
-      "b": "a_factory",
-      "minutes": 13,
-      "kind": "street",
-      "street": "mill_rd",
-      "curve": [
-        {
-          "x": 590,
-          "y": 250
-        },
-        {
-          "x": 588,
-          "y": 232
-        },
-        {
-          "x": 588,
-          "y": 211
-        },
-        {
-          "x": 589,
-          "y": 193
-        }
-      ]
-    },
-    {
-      "a": "a_factory",
-      "b": "w_mill_rd_3_1",
-      "minutes": 10,
-      "kind": "street",
-      "street": "mill_rd",
-      "curve": [
-        {
-          "x": 579,
-          "y": 152
-        },
-        {
-          "x": 570,
-          "y": 134
-        },
-        {
-          "x": 562,
-          "y": 119
-        }
-      ]
-    },
-    {
-      "a": "w_mill_rd_3_1",
-      "b": "j_hwy_mill",
-      "minutes": 10,
-      "kind": "street",
-      "street": "mill_rd",
-      "curve": [
-        {
-          "x": 548,
-          "y": 75
-        },
-        {
-          "x": 547,
-          "y": 57
-        },
-        {
-          "x": 549,
-          "y": 38
+          "x": 1319,
+          "y": 519
         }
       ]
     },
     {
       "a": "j_campus",
-      "b": "a_university",
-      "minutes": 9,
+      "b": "w_main_st_6_1",
+      "minutes": 10,
       "kind": "street",
-      "street": "campus_ln",
+      "street": "main_st",
       "curve": [
         {
-          "x": 709,
-          "y": 440
+          "x": 1356,
+          "y": 511
         },
         {
-          "x": 706,
-          "y": 420
+          "x": 1371,
+          "y": 506
         },
         {
-          "x": 705,
-          "y": 405
+          "x": 1387,
+          "y": 499
+        },
+        {
+          "x": 1401,
+          "y": 493
         }
       ]
     },
     {
-      "a": "a_university",
-      "b": "campus_ln_e",
-      "minutes": 5,
+      "a": "w_main_st_6_1",
+      "b": "a_clinic",
+      "minutes": 10,
       "kind": "street",
-      "street": "campus_ln",
+      "street": "main_st",
       "curve": [
         {
-          "x": 728,
+          "x": 1439,
+          "y": 472
+        },
+        {
+          "x": 1453,
+          "y": 464
+        },
+        {
+          "x": 1465,
+          "y": 457
+        },
+        {
+          "x": 1480,
+          "y": 448
+        }
+      ]
+    },
+    {
+      "a": "a_clinic",
+      "b": "j_fork",
+      "minutes": 7,
+      "kind": "street",
+      "street": "main_st",
+      "curve": [
+        {
+          "x": 1515,
+          "y": 423
+        },
+        {
+          "x": 1525,
+          "y": 416
+        },
+        {
+          "x": 1537,
+          "y": 406
+        }
+      ]
+    },
+    {
+      "a": "j_fork",
+      "b": "a_cafe",
+      "minutes": 11,
+      "kind": "street",
+      "street": "main_st",
+      "curve": [
+        {
+          "x": 1570,
           "y": 380
         },
         {
-          "x": 736,
-          "y": 377
+          "x": 1584,
+          "y": 368
+        },
+        {
+          "x": 1600,
+          "y": 355
+        },
+        {
+          "x": 1614,
+          "y": 345
+        }
+      ]
+    },
+    {
+      "a": "a_cafe",
+      "b": "main_st_e",
+      "minutes": 15,
+      "kind": "street",
+      "street": "main_st",
+      "curve": [
+        {
+          "x": 1655,
+          "y": 314
+        },
+        {
+          "x": 1674,
+          "y": 300
+        },
+        {
+          "x": 1694,
+          "y": 285
+        },
+        {
+          "x": 1710,
+          "y": 272
+        },
+        {
+          "x": 1726,
+          "y": 260
+        }
+      ]
+    },
+    {
+      "a": "j_uptown",
+      "b": "a_bank",
+      "minutes": 13,
+      "kind": "street",
+      "street": "uptown_rd",
+      "curve": [
+        {
+          "x": 1151,
+          "y": 457
+        },
+        {
+          "x": 1159,
+          "y": 444
+        },
+        {
+          "x": 1167,
+          "y": 426
+        },
+        {
+          "x": 1172,
+          "y": 406
+        },
+        {
+          "x": 1172,
+          "y": 389
+        }
+      ]
+    },
+    {
+      "a": "a_bank",
+      "b": "a_qt_clothing",
+      "minutes": 7,
+      "kind": "street",
+      "street": "uptown_rd",
+      "curve": [
+        {
+          "x": 1157,
+          "y": 345
+        },
+        {
+          "x": 1152,
+          "y": 333
+        },
+        {
+          "x": 1145,
+          "y": 320
+        }
+      ]
+    },
+    {
+      "a": "a_qt_clothing",
+      "b": "a_socket_city",
+      "minutes": 11,
+      "kind": "street",
+      "street": "uptown_rd",
+      "curve": [
+        {
+          "x": 1124,
+          "y": 285
+        },
+        {
+          "x": 1112,
+          "y": 270
+        },
+        {
+          "x": 1102,
+          "y": 258
+        },
+        {
+          "x": 1089,
+          "y": 244
+        }
+      ]
+    },
+    {
+      "a": "a_socket_city",
+      "b": "j_hill",
+      "minutes": 6,
+      "kind": "street",
+      "street": "uptown_rd",
+      "curve": [
+        {
+          "x": 1059,
+          "y": 216
+        },
+        {
+          "x": 1046,
+          "y": 207
+        }
+      ]
+    },
+    {
+      "a": "j_hill",
+      "b": "uptown_rd_e",
+      "minutes": 14,
+      "kind": "street",
+      "street": "uptown_rd",
+      "curve": [
+        {
+          "x": 1009,
+          "y": 184
+        },
+        {
+          "x": 988,
+          "y": 175
+        },
+        {
+          "x": 966,
+          "y": 166
+        },
+        {
+          "x": 945,
+          "y": 159
+        },
+        {
+          "x": 927,
+          "y": 152
         }
       ]
     },
     {
       "a": "j_hill",
       "b": "a_shady_acres",
-      "minutes": 15,
+      "minutes": 17,
       "kind": "street",
       "street": "hill_rd",
       "curve": [
         {
-          "x": 611,
-          "y": 267
+          "x": 1037,
+          "y": 180
         },
         {
-          "x": 623,
-          "y": 260
+          "x": 1045,
+          "y": 161
         },
         {
-          "x": 641,
-          "y": 252
+          "x": 1054,
+          "y": 145
         },
         {
-          "x": 659,
-          "y": 249
+          "x": 1068,
+          "y": 131
         },
         {
-          "x": 681,
-          "y": 250
+          "x": 1086,
+          "y": 124
+        },
+        {
+          "x": 1111,
+          "y": 120
         }
       ]
     },
     {
       "a": "a_shady_acres",
-      "b": "j_manor",
-      "minutes": 11,
-      "kind": "street",
-      "street": "hill_rd",
-      "curve": [
-        {
-          "x": 730,
-          "y": 258
-        },
-        {
-          "x": 749,
-          "y": 261
-        },
-        {
-          "x": 763,
-          "y": 263
-        },
-        {
-          "x": 780,
-          "y": 264
-        }
-      ]
-    },
-    {
-      "a": "j_manor",
-      "b": "j_hill_ramp",
-      "minutes": 16,
-      "kind": "street",
-      "street": "hill_rd",
-      "curve": [
-        {
-          "x": 823,
-          "y": 259
-        },
-        {
-          "x": 848,
-          "y": 254
-        },
-        {
-          "x": 868,
-          "y": 250
-        },
-        {
-          "x": 886,
-          "y": 248
-        },
-        {
-          "x": 903,
-          "y": 249
-        }
-      ]
-    },
-    {
-      "a": "j_hill_ramp",
-      "b": "j_strip_n",
+      "b": "w_hill_rd_1_1",
       "minutes": 12,
       "kind": "street",
       "street": "hill_rd",
       "curve": [
         {
-          "x": 937,
-          "y": 264
+          "x": 1166,
+          "y": 121
         },
         {
-          "x": 951,
-          "y": 266
+          "x": 1183,
+          "y": 123
         },
         {
-          "x": 969,
-          "y": 256
+          "x": 1203,
+          "y": 127
         },
         {
-          "x": 984,
-          "y": 241
+          "x": 1220,
+          "y": 131
         }
       ]
     },
     {
-      "a": "j_manor",
+      "a": "w_hill_rd_1_1",
       "b": "a_house_hill",
-      "minutes": 11,
+      "minutes": 12,
       "kind": "street",
-      "street": "manor_dr",
+      "street": "hill_rd",
       "curve": [
         {
-          "x": 794,
-          "y": 245
+          "x": 1268,
+          "y": 149
         },
         {
-          "x": 792,
-          "y": 231
+          "x": 1283,
+          "y": 157
         },
         {
-          "x": 791,
-          "y": 214
+          "x": 1300,
+          "y": 166
         },
         {
-          "x": 792,
-          "y": 201
+          "x": 1314,
+          "y": 175
         }
       ]
     },
     {
       "a": "a_house_hill",
-      "b": "manor_dr_e",
-      "minutes": 3,
+      "b": "hill_rd_e",
+      "minutes": 7,
       "kind": "street",
-      "street": "manor_dr",
+      "street": "hill_rd",
       "curve": [
         {
-          "x": 798,
-          "y": 166
+          "x": 1353,
+          "y": 209
+        },
+        {
+          "x": 1368,
+          "y": 224
         }
       ]
     },
     {
-      "a": "j_hill_ramp",
-      "b": "w_hwy_hill_ramp_0_1",
-      "minutes": 10,
-      "kind": "highway",
-      "street": "hwy_hill_ramp",
-      "curve": [
-        {
-          "x": 929,
-          "y": 239
-        },
-        {
-          "x": 939,
-          "y": 223
-        },
-        {
-          "x": 947,
-          "y": 205
-        },
-        {
-          "x": 950,
-          "y": 188
-        },
-        {
-          "x": 944,
-          "y": 172
-        }
-      ]
-    },
-    {
-      "a": "w_hwy_hill_ramp_0_1",
-      "b": "j_hwy_hill",
-      "minutes": 10,
-      "kind": "highway",
-      "street": "hwy_hill_ramp",
-      "curve": [
-        {
-          "x": 913,
-          "y": 130
-        },
-        {
-          "x": 906,
-          "y": 113
-        },
-        {
-          "x": 907,
-          "y": 94
-        },
-        {
-          "x": 909,
-          "y": 78
-        },
-        {
-          "x": 914,
-          "y": 60
-        }
-      ]
-    },
-    {
-      "a": "j_lake_w",
-      "b": "w_lake_rd_0_1",
-      "minutes": 13,
+      "a": "j_campus",
+      "b": "w_campus_rd_0_1",
+      "minutes": 17,
       "kind": "street",
-      "street": "lake_rd",
+      "street": "campus_rd",
       "curve": [
         {
-          "x": 934,
-          "y": 455
+          "x": 1337,
+          "y": 530
         },
         {
-          "x": 935,
-          "y": 472
+          "x": 1337,
+          "y": 545
         },
         {
-          "x": 938,
-          "y": 493
+          "x": 1339,
+          "y": 560
         },
         {
-          "x": 943,
-          "y": 511
+          "x": 1343,
+          "y": 580
+        },
+        {
+          "x": 1350,
+          "y": 599
+        },
+        {
+          "x": 1362,
+          "y": 625
         }
       ]
     },
     {
-      "a": "w_lake_rd_0_1",
+      "a": "w_campus_rd_0_1",
+      "b": "a_university",
+      "minutes": 17,
+      "kind": "street",
+      "street": "campus_rd",
+      "curve": [
+        {
+          "x": 1395,
+          "y": 686
+        },
+        {
+          "x": 1405,
+          "y": 703
+        },
+        {
+          "x": 1418,
+          "y": 723
+        },
+        {
+          "x": 1429,
+          "y": 737
+        },
+        {
+          "x": 1442,
+          "y": 753
+        },
+        {
+          "x": 1453,
+          "y": 762
+        }
+      ]
+    },
+    {
+      "a": "a_university",
       "b": "a_security_apts",
       "minutes": 13,
       "kind": "street",
-      "street": "lake_rd",
+      "street": "campus_rd",
       "curve": [
         {
-          "x": 959,
-          "y": 556
+          "x": 1491,
+          "y": 782
         },
         {
-          "x": 967,
-          "y": 573
+          "x": 1511,
+          "y": 786
         },
         {
-          "x": 973,
-          "y": 587
+          "x": 1528,
+          "y": 788
         },
         {
-          "x": 982,
-          "y": 603
+          "x": 1546,
+          "y": 789
+        },
+        {
+          "x": 1567,
+          "y": 792
         }
       ]
     },
     {
       "a": "a_security_apts",
-      "b": "w_lake_rd_1_1",
-      "minutes": 13,
+      "b": "j_ridge",
+      "minutes": 7,
       "kind": "street",
-      "street": "lake_rd",
+      "street": "campus_rd",
       "curve": [
         {
-          "x": 1007,
-          "y": 644
+          "x": 1610,
+          "y": 797
         },
         {
-          "x": 1017,
-          "y": 656
-        },
-        {
-          "x": 1032,
-          "y": 668
-        },
-        {
-          "x": 1046,
-          "y": 677
+          "x": 1627,
+          "y": 798
         }
       ]
     },
     {
-      "a": "w_lake_rd_1_1",
-      "b": "a_house_lake",
-      "minutes": 13,
+      "a": "j_ridge",
+      "b": "j_lake",
+      "minutes": 6,
       "kind": "street",
-      "street": "lake_rd",
+      "street": "campus_rd",
       "curve": [
         {
-          "x": 1091,
-          "y": 696
+          "x": 1668,
+          "y": 799
         },
         {
-          "x": 1107,
-          "y": 701
+          "x": 1680,
+          "y": 799
+        }
+      ]
+    },
+    {
+      "a": "j_lake",
+      "b": "campus_rd_e",
+      "minutes": 12,
+      "kind": "street",
+      "street": "campus_rd",
+      "curve": [
+        {
+          "x": 1725,
+          "y": 794
         },
         {
-          "x": 1127,
+          "x": 1748,
+          "y": 789
+        },
+        {
+          "x": 1766,
+          "y": 783
+        },
+        {
+          "x": 1784,
+          "y": 777
+        }
+      ]
+    },
+    {
+      "a": "j_center",
+      "b": "w_mill_rd_0_1",
+      "minutes": 14,
+      "kind": "street",
+      "street": "mill_rd",
+      "curve": [
+        {
+          "x": 1301,
+          "y": 538
+        },
+        {
+          "x": 1303,
+          "y": 554
+        },
+        {
+          "x": 1303,
+          "y": 575
+        },
+        {
+          "x": 1301,
+          "y": 596
+        },
+        {
+          "x": 1295,
+          "y": 614
+        }
+      ]
+    },
+    {
+      "a": "w_mill_rd_0_1",
+      "b": "w_mill_rd_0_2",
+      "minutes": 17,
+      "kind": "street",
+      "street": "mill_rd",
+      "curve": [
+        {
+          "x": 1269,
+          "y": 664
+        },
+        {
+          "x": 1256,
+          "y": 682
+        },
+        {
+          "x": 1242,
+          "y": 698
+        },
+        {
+          "x": 1229,
+          "y": 711
+        },
+        {
+          "x": 1214,
+          "y": 724
+        },
+        {
+          "x": 1197,
+          "y": 735
+        }
+      ]
+    },
+    {
+      "a": "w_mill_rd_0_2",
+      "b": "w_mill_rd_0_3",
+      "minutes": 10,
+      "kind": "street",
+      "street": "mill_rd",
+      "curve": [
+        {
+          "x": 1155,
+          "y": 758
+        },
+        {
+          "x": 1142,
+          "y": 763
+        },
+        {
+          "x": 1125,
+          "y": 769
+        },
+        {
+          "x": 1110,
+          "y": 773
+        }
+      ]
+    },
+    {
+      "a": "w_mill_rd_0_3",
+      "b": "j_strip",
+      "minutes": 14,
+      "kind": "street",
+      "street": "mill_rd",
+      "curve": [
+        {
+          "x": 1066,
+          "y": 783
+        },
+        {
+          "x": 1046,
+          "y": 786
+        },
+        {
+          "x": 1026,
+          "y": 789
+        },
+        {
+          "x": 1010,
+          "y": 791
+        },
+        {
+          "x": 991,
+          "y": 794
+        }
+      ]
+    },
+    {
+      "a": "j_strip",
+      "b": "j_park",
+      "minutes": 14,
+      "kind": "street",
+      "street": "mill_rd",
+      "curve": [
+        {
+          "x": 941,
+          "y": 797
+        },
+        {
+          "x": 924,
+          "y": 798
+        },
+        {
+          "x": 903,
+          "y": 799
+        },
+        {
+          "x": 883,
+          "y": 800
+        },
+        {
+          "x": 867,
+          "y": 800
+        }
+      ]
+    },
+    {
+      "a": "j_park",
+      "b": "j_works",
+      "minutes": 4,
+      "kind": "street",
+      "street": "mill_rd",
+      "curve": [
+        {
+          "x": 827,
+          "y": 801
+        },
+        {
+          "x": 817,
+          "y": 801
+        }
+      ]
+    },
+    {
+      "a": "j_works",
+      "b": "a_factory",
+      "minutes": 13,
+      "kind": "street",
+      "street": "mill_rd",
+      "curve": [
+        {
+          "x": 777,
+          "y": 801
+        },
+        {
+          "x": 760,
+          "y": 801
+        },
+        {
+          "x": 740,
+          "y": 800
+        },
+        {
+          "x": 723,
+          "y": 799
+        },
+        {
+          "x": 703,
+          "y": 799
+        }
+      ]
+    },
+    {
+      "a": "a_factory",
+      "b": "a_lowcost",
+      "minutes": 13,
+      "kind": "street",
+      "street": "mill_rd",
+      "curve": [
+        {
+          "x": 657,
+          "y": 796
+        },
+        {
+          "x": 640,
+          "y": 794
+        },
+        {
+          "x": 620,
+          "y": 792
+        },
+        {
+          "x": 603,
+          "y": 790
+        },
+        {
+          "x": 583,
+          "y": 788
+        }
+      ]
+    },
+    {
+      "a": "a_lowcost",
+      "b": "j_elm",
+      "minutes": 7,
+      "kind": "street",
+      "street": "mill_rd",
+      "curve": [
+        {
+          "x": 539,
+          "y": 780
+        },
+        {
+          "x": 525,
+          "y": 777
+        }
+      ]
+    },
+    {
+      "a": "j_elm",
+      "b": "w_mill_rd_6_1",
+      "minutes": 9,
+      "kind": "street",
+      "street": "mill_rd",
+      "curve": [
+        {
+          "x": 479,
+          "y": 767
+        },
+        {
+          "x": 460,
+          "y": 762
+        },
+        {
+          "x": 444,
+          "y": 758
+        }
+      ]
+    },
+    {
+      "a": "w_mill_rd_6_1",
+      "b": "mill_rd_e",
+      "minutes": 9,
+      "kind": "street",
+      "street": "mill_rd",
+      "curve": [
+        {
+          "x": 394,
+          "y": 742
+        },
+        {
+          "x": 373,
+          "y": 735
+        },
+        {
+          "x": 357,
+          "y": 730
+        }
+      ]
+    },
+    {
+      "a": "j_strip",
+      "b": "w_strip_rd_0_1",
+      "minutes": 15,
+      "kind": "street",
+      "street": "strip_rd",
+      "curve": [
+        {
+          "x": 967,
+          "y": 816
+        },
+        {
+          "x": 967,
+          "y": 838
+        },
+        {
+          "x": 969,
+          "y": 864
+        },
+        {
+          "x": 973,
+          "y": 886
+        },
+        {
+          "x": 978,
+          "y": 907
+        }
+      ]
+    },
+    {
+      "a": "w_strip_rd_0_1",
+      "b": "a_zmart",
+      "minutes": 15,
+      "kind": "street",
+      "street": "strip_rd",
+      "curve": [
+        {
+          "x": 996,
+          "y": 955
+        },
+        {
+          "x": 1007,
+          "y": 975
+        },
+        {
+          "x": 1018,
+          "y": 992
+        },
+        {
+          "x": 1030,
+          "y": 1009
+        },
+        {
+          "x": 1045,
+          "y": 1027
+        }
+      ]
+    },
+    {
+      "a": "a_zmart",
+      "b": "w_strip_rd_1_1",
+      "minutes": 9,
+      "kind": "street",
+      "street": "strip_rd",
+      "curve": [
+        {
+          "x": 1080,
+          "y": 1060
+        },
+        {
+          "x": 1092,
+          "y": 1069
+        },
+        {
+          "x": 1108,
+          "y": 1079
+        }
+      ]
+    },
+    {
+      "a": "w_strip_rd_1_1",
+      "b": "a_pawn",
+      "minutes": 9,
+      "kind": "street",
+      "street": "strip_rd",
+      "curve": [
+        {
+          "x": 1144,
+          "y": 1097
+        },
+        {
+          "x": 1162,
+          "y": 1104
+        },
+        {
+          "x": 1177,
+          "y": 1109
+        }
+      ]
+    },
+    {
+      "a": "a_pawn",
+      "b": "a_chez_cholesterol",
+      "minutes": 8,
+      "kind": "street",
+      "street": "strip_rd",
+      "curve": [
+        {
+          "x": 1219,
+          "y": 1118
+        },
+        {
+          "x": 1232,
+          "y": 1120
+        },
+        {
+          "x": 1249,
+          "y": 1121
+        }
+      ]
+    },
+    {
+      "a": "a_chez_cholesterol",
+      "b": "w_strip_rd_3_1",
+      "minutes": 9,
+      "kind": "street",
+      "street": "strip_rd",
+      "curve": [
+        {
+          "x": 1290,
+          "y": 1122
+        },
+        {
+          "x": 1307,
+          "y": 1122
+        },
+        {
+          "x": 1321,
+          "y": 1121
+        }
+      ]
+    },
+    {
+      "a": "w_strip_rd_3_1",
+      "b": "strip_rd_e",
+      "minutes": 9,
+      "kind": "street",
+      "street": "strip_rd",
+      "curve": [
+        {
+          "x": 1368,
+          "y": 1114
+        },
+        {
+          "x": 1389,
+          "y": 1110
+        },
+        {
+          "x": 1404,
+          "y": 1107
+        }
+      ]
+    },
+    {
+      "a": "j_park",
+      "b": "j_bluff",
+      "minutes": 14,
+      "kind": "street",
+      "street": "park_ln",
+      "curve": [
+        {
+          "x": 842,
+          "y": 773
+        },
+        {
+          "x": 843,
+          "y": 744
+        },
+        {
+          "x": 840,
+          "y": 721
+        },
+        {
+          "x": 830,
+          "y": 712
+        },
+        {
+          "x": 816,
+          "y": 710
+        }
+      ]
+    },
+    {
+      "a": "j_bluff",
+      "b": "a_park",
+      "minutes": 5,
+      "kind": "street",
+      "street": "park_ln",
+      "curve": [
+        {
+          "x": 793,
+          "y": 686
+        },
+        {
+          "x": 789,
+          "y": 676
+        }
+      ]
+    },
+    {
+      "a": "a_park",
+      "b": "park_ln_e",
+      "minutes": 12,
+      "kind": "street",
+      "street": "park_ln",
+      "curve": [
+        {
+          "x": 776,
+          "y": 633
+        },
+        {
+          "x": 770,
+          "y": 614
+        },
+        {
+          "x": 764,
+          "y": 592
+        },
+        {
+          "x": 759,
+          "y": 576
+        }
+      ]
+    },
+    {
+      "a": "j_bluff",
+      "b": "w_lookout_path_0_1",
+      "minutes": 21,
+      "kind": "path",
+      "street": "lookout_path",
+      "curve": [
+        {
+          "x": 790,
+          "y": 712
+        },
+        {
+          "x": 780,
+          "y": 724
+        },
+        {
+          "x": 768,
+          "y": 736
+        },
+        {
+          "x": 752,
+          "y": 742
+        },
+        {
+          "x": 732,
+          "y": 742
+        },
+        {
+          "x": 706,
+          "y": 736
+        }
+      ]
+    },
+    {
+      "a": "w_lookout_path_0_1",
+      "b": "w_lookout_path_0_2",
+      "minutes": 21,
+      "kind": "path",
+      "street": "lookout_path",
+      "curve": [
+        {
+          "x": 646,
+          "y": 713
+        },
+        {
+          "x": 629,
           "y": 705
         },
         {
-          "x": 1144,
-          "y": 706
+          "x": 611,
+          "y": 695
+        },
+        {
+          "x": 597,
+          "y": 686
+        },
+        {
+          "x": 580,
+          "y": 675
+        },
+        {
+          "x": 567,
+          "y": 665
+        }
+      ]
+    },
+    {
+      "a": "w_lookout_path_0_2",
+      "b": "w_lookout_path_0_3",
+      "minutes": 21,
+      "kind": "path",
+      "street": "lookout_path",
+      "curve": [
+        {
+          "x": 531,
+          "y": 633
+        },
+        {
+          "x": 518,
+          "y": 617
+        },
+        {
+          "x": 507,
+          "y": 603
+        },
+        {
+          "x": 494,
+          "y": 585
+        },
+        {
+          "x": 485,
+          "y": 568
+        },
+        {
+          "x": 474,
+          "y": 549
+        }
+      ]
+    },
+    {
+      "a": "w_lookout_path_0_3",
+      "b": "w_lookout_path_0_4",
+      "minutes": 20,
+      "kind": "path",
+      "street": "lookout_path",
+      "curve": [
+        {
+          "x": 450,
+          "y": 500
+        },
+        {
+          "x": 441,
+          "y": 479
+        },
+        {
+          "x": 435,
+          "y": 459
+        },
+        {
+          "x": 429,
+          "y": 439
+        },
+        {
+          "x": 423,
+          "y": 419
+        }
+      ]
+    },
+    {
+      "a": "w_lookout_path_0_4",
+      "b": "a_lookout",
+      "minutes": 22,
+      "kind": "path",
+      "street": "lookout_path",
+      "curve": [
+        {
+          "x": 409,
+          "y": 369
+        },
+        {
+          "x": 403,
+          "y": 349
+        },
+        {
+          "x": 397,
+          "y": 328
+        },
+        {
+          "x": 391,
+          "y": 310
+        },
+        {
+          "x": 384,
+          "y": 291
+        },
+        {
+          "x": 376,
+          "y": 272
+        }
+      ]
+    },
+    {
+      "a": "a_lookout",
+      "b": "lookout_path_e",
+      "minutes": 10,
+      "kind": "path",
+      "street": "lookout_path",
+      "curve": [
+        {
+          "x": 353,
+          "y": 228
+        },
+        {
+          "x": 345,
+          "y": 216
+        },
+        {
+          "x": 338,
+          "y": 203
+        }
+      ]
+    },
+    {
+      "a": "j_works",
+      "b": "w_works_rd_0_1",
+      "minutes": 12,
+      "kind": "street",
+      "street": "works_rd",
+      "curve": [
+        {
+          "x": 802,
+          "y": 818
+        },
+        {
+          "x": 802,
+          "y": 840
+        },
+        {
+          "x": 802,
+          "y": 861
+        },
+        {
+          "x": 800,
+          "y": 885
+        }
+      ]
+    },
+    {
+      "a": "w_works_rd_0_1",
+      "b": "a_auto",
+      "minutes": 12,
+      "kind": "street",
+      "street": "works_rd",
+      "curve": [
+        {
+          "x": 791,
+          "y": 932
+        },
+        {
+          "x": 786,
+          "y": 951
+        },
+        {
+          "x": 781,
+          "y": 973
+        },
+        {
+          "x": 778,
+          "y": 991
+        }
+      ]
+    },
+    {
+      "a": "a_auto",
+      "b": "works_rd_e",
+      "minutes": 12,
+      "kind": "street",
+      "street": "works_rd",
+      "curve": [
+        {
+          "x": 771,
+          "y": 1047
+        },
+        {
+          "x": 770,
+          "y": 1070
+        },
+        {
+          "x": 772,
+          "y": 1089
+        },
+        {
+          "x": 776,
+          "y": 1105
+        }
+      ]
+    },
+    {
+      "a": "j_elm",
+      "b": "w_elm_ln_0_1",
+      "minutes": 9,
+      "kind": "street",
+      "street": "elm_ln",
+      "curve": [
+        {
+          "x": 510,
+          "y": 756
+        },
+        {
+          "x": 516,
+          "y": 740
+        },
+        {
+          "x": 520,
+          "y": 721
+        }
+      ]
+    },
+    {
+      "a": "w_elm_ln_0_1",
+      "b": "a_house_elm",
+      "minutes": 9,
+      "kind": "street",
+      "street": "elm_ln",
+      "curve": [
+        {
+          "x": 508,
+          "y": 678
+        },
+        {
+          "x": 498,
+          "y": 659
+        },
+        {
+          "x": 489,
+          "y": 644
+        }
+      ]
+    },
+    {
+      "a": "a_house_elm",
+      "b": "elm_ln_e",
+      "minutes": 13,
+      "kind": "street",
+      "street": "elm_ln",
+      "curve": [
+        {
+          "x": 460,
+          "y": 600
+        },
+        {
+          "x": 447,
+          "y": 581
+        },
+        {
+          "x": 433,
+          "y": 563
+        },
+        {
+          "x": 421,
+          "y": 548
+        }
+      ]
+    },
+    {
+      "a": "j_ridge",
+      "b": "a_gilded_fork",
+      "minutes": 17,
+      "kind": "path",
+      "street": "ridge_path",
+      "curve": [
+        {
+          "x": 1649,
+          "y": 785
+        },
+        {
+          "x": 1649,
+          "y": 770
+        },
+        {
+          "x": 1649,
+          "y": 752
+        },
+        {
+          "x": 1650,
+          "y": 735
+        },
+        {
+          "x": 1653,
+          "y": 711
+        }
+      ]
+    },
+    {
+      "a": "a_gilded_fork",
+      "b": "w_ridge_path_1_1",
+      "minutes": 15,
+      "kind": "path",
+      "street": "ridge_path",
+      "curve": [
+        {
+          "x": 1661,
+          "y": 655
+        },
+        {
+          "x": 1663,
+          "y": 635
+        },
+        {
+          "x": 1662,
+          "y": 620
+        },
+        {
+          "x": 1660,
+          "y": 600
+        }
+      ]
+    },
+    {
+      "a": "w_ridge_path_1_1",
+      "b": "w_ridge_path_1_2",
+      "minutes": 15,
+      "kind": "path",
+      "street": "ridge_path",
+      "curve": [
+        {
+          "x": 1645,
+          "y": 552
+        },
+        {
+          "x": 1637,
+          "y": 534
+        },
+        {
+          "x": 1631,
+          "y": 520
+        },
+        {
+          "x": 1622,
+          "y": 502
+        }
+      ]
+    },
+    {
+      "a": "w_ridge_path_1_2",
+      "b": "j_fork",
+      "minutes": 15,
+      "kind": "path",
+      "street": "ridge_path",
+      "curve": [
+        {
+          "x": 1595,
+          "y": 449
+        },
+        {
+          "x": 1583,
+          "y": 430
+        },
+        {
+          "x": 1571,
+          "y": 414
+        },
+        {
+          "x": 1561,
+          "y": 404
+        }
+      ]
+    },
+    {
+      "a": "j_lake",
+      "b": "a_house_lake",
+      "minutes": 17,
+      "kind": "street",
+      "street": "lake_ln",
+      "curve": [
+        {
+          "x": 1702,
+          "y": 819
+        },
+        {
+          "x": 1705,
+          "y": 845
+        },
+        {
+          "x": 1707,
+          "y": 868
+        },
+        {
+          "x": 1708,
+          "y": 891
+        },
+        {
+          "x": 1708,
+          "y": 909
+        },
+        {
+          "x": 1706,
+          "y": 929
         }
       ]
     },
     {
       "a": "a_house_lake",
-      "b": "lake_rd_e",
-      "minutes": 4,
+      "b": "lake_ln_e",
+      "minutes": 6,
       "kind": "street",
-      "street": "lake_rd",
+      "street": "lake_ln",
       "curve": [
         {
-          "x": 1187,
-          "y": 706
+          "x": 1706,
+          "y": 972
+        },
+        {
+          "x": 1709,
+          "y": 985
         }
       ]
     },
     {
-      "a": "a_bank",
-      "b": "bank",
-      "minutes": 4,
+      "a": "j_center",
+      "b": "employment",
+      "minutes": 5,
       "kind": "street",
-      "street": "dwy_bank"
+      "street": "dwy_employment"
     },
     {
       "a": "j_center",
       "b": "bus_depot",
-      "minutes": 4,
+      "minutes": 5,
       "kind": "street",
       "street": "dwy_bus_depot"
     },
     {
       "a": "j_center",
-      "b": "employment",
-      "minutes": 12,
-      "kind": "street",
-      "street": "dwy_employment"
-    },
-    {
-      "a": "a_newsstand",
-      "b": "newsstand",
-      "minutes": 2,
-      "kind": "street",
-      "street": "dwy_newsstand"
-    },
-    {
-      "a": "a_monolith",
       "b": "monolith",
-      "minutes": 12,
+      "minutes": 5,
       "kind": "street",
       "street": "dwy_monolith"
     },
     {
-      "a": "a_clinic",
-      "b": "clinic",
-      "minutes": 2,
+      "a": "j_center",
+      "b": "rent_office",
+      "minutes": 5,
       "kind": "street",
-      "street": "dwy_clinic"
-    },
-    {
-      "a": "a_cafe",
-      "b": "cafe",
-      "minutes": 18,
-      "kind": "street",
-      "street": "dwy_cafe"
-    },
-    {
-      "a": "a_university",
-      "b": "university",
-      "minutes": 4,
-      "kind": "street",
-      "street": "dwy_university"
-    },
-    {
-      "a": "a_lowcost",
-      "b": "lowcost",
-      "minutes": 11,
-      "kind": "street",
-      "street": "dwy_lowcost"
-    },
-    {
-      "a": "a_factory",
-      "b": "factory",
-      "minutes": 11,
-      "kind": "street",
-      "street": "dwy_factory"
-    },
-    {
-      "a": "a_shady_acres",
-      "b": "shady_acres",
-      "minutes": 3,
-      "kind": "street",
-      "street": "dwy_shady_acres"
-    },
-    {
-      "a": "a_house_hill",
-      "b": "house_hill",
-      "minutes": 7,
-      "kind": "street",
-      "street": "dwy_house_hill"
-    },
-    {
-      "a": "a_qt_clothing",
-      "b": "qt_clothing",
-      "minutes": 6,
-      "kind": "street",
-      "street": "dwy_qt_clothing"
-    },
-    {
-      "a": "a_socket_city",
-      "b": "socket_city",
-      "minutes": 11,
-      "kind": "street",
-      "street": "dwy_socket_city"
-    },
-    {
-      "a": "a_zmart",
-      "b": "zmart",
-      "minutes": 8,
-      "kind": "street",
-      "street": "dwy_zmart"
-    },
-    {
-      "a": "a_auto",
-      "b": "auto",
-      "minutes": 10,
-      "kind": "street",
-      "street": "dwy_auto"
-    },
-    {
-      "a": "a_blacks_market",
-      "b": "blacks_market",
-      "minutes": 7,
-      "kind": "street",
-      "street": "dwy_blacks_market"
-    },
-    {
-      "a": "a_blacks_market",
-      "b": "pawn",
-      "minutes": 12,
-      "kind": "street",
-      "street": "dwy_pawn"
+      "street": "dwy_rent_office"
     },
     {
       "a": "a_cinema",
@@ -2332,1924 +2928,4484 @@
       "street": "dwy_gym"
     },
     {
+      "a": "a_newsstand",
+      "b": "newsstand",
+      "minutes": 5,
+      "kind": "street",
+      "street": "dwy_newsstand"
+    },
+    {
+      "a": "a_cafe",
+      "b": "cafe",
+      "minutes": 4,
+      "kind": "street",
+      "street": "dwy_cafe"
+    },
+    {
+      "a": "a_clinic",
+      "b": "clinic",
+      "minutes": 4,
+      "kind": "street",
+      "street": "dwy_clinic"
+    },
+    {
+      "a": "a_bank",
+      "b": "bank",
+      "minutes": 5,
+      "kind": "street",
+      "street": "dwy_bank"
+    },
+    {
+      "a": "a_qt_clothing",
+      "b": "qt_clothing",
+      "minutes": 5,
+      "kind": "street",
+      "street": "dwy_qt_clothing"
+    },
+    {
+      "a": "a_socket_city",
+      "b": "socket_city",
+      "minutes": 5,
+      "kind": "street",
+      "street": "dwy_socket_city"
+    },
+    {
+      "a": "a_shady_acres",
+      "b": "shady_acres",
+      "minutes": 2,
+      "kind": "street",
+      "street": "dwy_shady_acres"
+    },
+    {
+      "a": "a_house_hill",
+      "b": "house_hill",
+      "minutes": 5,
+      "kind": "street",
+      "street": "dwy_house_hill"
+    },
+    {
+      "a": "a_university",
+      "b": "university",
+      "minutes": 5,
+      "kind": "street",
+      "street": "dwy_university"
+    },
+    {
+      "a": "a_security_apts",
+      "b": "security_apts",
+      "minutes": 2,
+      "kind": "street",
+      "street": "dwy_security_apts"
+    },
+    {
       "a": "a_gilded_fork",
       "b": "gilded_fork",
-      "minutes": 3,
-      "kind": "street",
+      "minutes": 5,
+      "kind": "path",
       "street": "dwy_gilded_fork"
     },
     {
-      "a": "a_chez_cholesterol",
-      "b": "chez_cholesterol",
-      "minutes": 4,
+      "a": "a_house_lake",
+      "b": "house_lake",
+      "minutes": 5,
       "kind": "street",
-      "street": "dwy_chez_cholesterol"
+      "street": "dwy_house_lake"
     },
     {
-      "a": "a_house_elm",
-      "b": "house_elm",
-      "minutes": 9,
+      "a": "a_factory",
+      "b": "factory",
+      "minutes": 5,
       "kind": "street",
-      "street": "dwy_house_elm"
+      "street": "dwy_factory"
+    },
+    {
+      "a": "a_lowcost",
+      "b": "lowcost",
+      "minutes": 5,
+      "kind": "street",
+      "street": "dwy_lowcost"
     },
     {
       "a": "a_park",
       "b": "park",
-      "minutes": 12,
-      "kind": "path",
+      "minutes": 5,
+      "kind": "street",
       "street": "dwy_park"
     },
     {
       "a": "a_lookout",
       "b": "lookout",
-      "minutes": 10,
+      "minutes": 5,
       "kind": "path",
       "street": "dwy_lookout"
     },
     {
-      "a": "a_security_apts",
-      "b": "security_apts",
-      "minutes": 18,
+      "a": "a_auto",
+      "b": "auto",
+      "minutes": 5,
       "kind": "street",
-      "street": "dwy_security_apts"
+      "street": "dwy_auto"
     },
     {
-      "a": "a_house_lake",
-      "b": "house_lake",
+      "a": "a_house_elm",
+      "b": "house_elm",
+      "minutes": 5,
+      "kind": "street",
+      "street": "dwy_house_elm"
+    },
+    {
+      "a": "a_zmart",
+      "b": "zmart",
+      "minutes": 5,
+      "kind": "street",
+      "street": "dwy_zmart"
+    },
+    {
+      "a": "a_zmart",
+      "b": "blacks_market",
+      "minutes": 5,
+      "kind": "street",
+      "street": "dwy_blacks_market"
+    },
+    {
+      "a": "a_pawn",
+      "b": "pawn",
       "minutes": 3,
       "kind": "street",
-      "street": "dwy_house_lake"
+      "street": "dwy_pawn"
+    },
+    {
+      "a": "a_chez_cholesterol",
+      "b": "chez_cholesterol",
+      "minutes": 5,
+      "kind": "street",
+      "street": "dwy_chez_cholesterol"
     },
     {
       "a": "j_center",
       "b": "bus_depot",
-      "minutes": 4,
+      "minutes": 5,
       "kind": "busline",
       "street": "bus_1"
     },
     {
-      "a": "j_center",
-      "b": "j_mill",
-      "minutes": 11,
+      "a": "w_main_st_4_1",
+      "b": "j_center",
+      "minutes": 9,
       "kind": "busline",
       "street": "bus_1",
       "curve": [
         {
-          "x": 530,
-          "y": 502
+          "x": 1242,
+          "y": 510
         },
         {
-          "x": 545,
-          "y": 497
+          "x": 1260,
+          "y": 515
         },
         {
-          "x": 560,
-          "y": 492
-        },
-        {
-          "x": 576,
-          "y": 488
+          "x": 1278,
+          "y": 518
         }
       ]
     },
     {
-      "a": "j_mill",
-      "b": "a_newsstand",
-      "minutes": 6,
+      "a": "j_uptown",
+      "b": "w_main_st_4_1",
+      "minutes": 9,
       "kind": "busline",
       "street": "bus_1",
       "curve": [
         {
-          "x": 613,
-          "y": 478
+          "x": 1164,
+          "y": 482
         },
         {
-          "x": 626,
-          "y": 475
+          "x": 1179,
+          "y": 488
+        },
+        {
+          "x": 1198,
+          "y": 495
         }
       ]
     },
     {
       "a": "a_newsstand",
-      "b": "j_campus",
-      "minutes": 9,
+      "b": "j_uptown",
+      "minutes": 15,
       "kind": "busline",
       "street": "bus_1",
       "curve": [
         {
-          "x": 664,
-          "y": 467
+          "x": 1035,
+          "y": 437
         },
         {
-          "x": 680,
-          "y": 465
+          "x": 1053,
+          "y": 443
         },
         {
-          "x": 693,
-          "y": 463
+          "x": 1075,
+          "y": 450
+        },
+        {
+          "x": 1094,
+          "y": 456
+        },
+        {
+          "x": 1118,
+          "y": 464
         }
       ]
     },
     {
-      "a": "j_campus",
-      "b": "a_monolith",
-      "minutes": 4,
-      "kind": "busline",
-      "street": "bus_1",
-      "curve": [
-        {
-          "x": 732,
-          "y": 458
-        }
-      ]
-    },
-    {
-      "a": "a_monolith",
-      "b": "a_clinic",
-      "minutes": 9,
-      "kind": "busline",
-      "street": "bus_1",
-      "curve": [
-        {
-          "x": 768,
-          "y": 454
-        },
-        {
-          "x": 785,
-          "y": 453
-        },
-        {
-          "x": 801,
-          "y": 452
-        }
-      ]
-    },
-    {
-      "a": "a_clinic",
-      "b": "a_cafe",
-      "minutes": 6,
-      "kind": "busline",
-      "street": "bus_1",
-      "curve": [
-        {
-          "x": 840,
-          "y": 449
-        },
-        {
-          "x": 856,
-          "y": 448
-        }
-      ]
-    },
-    {
-      "a": "a_cafe",
-      "b": "cafe",
-      "minutes": 18,
-      "kind": "busline",
-      "street": "bus_1"
-    },
-    {
-      "a": "a_bank",
-      "b": "j_center",
+      "a": "a_gym",
+      "b": "a_newsstand",
       "minutes": 14,
       "kind": "busline",
       "street": "bus_1",
       "curve": [
         {
-          "x": 426,
-          "y": 538
+          "x": 914,
+          "y": 398
         },
         {
-          "x": 443,
-          "y": 531
+          "x": 932,
+          "y": 404
         },
         {
-          "x": 458,
-          "y": 526
+          "x": 952,
+          "y": 410
         },
         {
-          "x": 473,
-          "y": 520
+          "x": 971,
+          "y": 417
         },
         {
-          "x": 491,
-          "y": 514
+          "x": 988,
+          "y": 422
         }
       ]
     },
     {
-      "a": "a_bank",
-      "b": "bank",
+      "a": "a_cinema",
+      "b": "a_gym",
+      "minutes": 3,
+      "kind": "busline",
+      "street": "bus_1",
+      "curve": [
+        {
+          "x": 873,
+          "y": 385
+        }
+      ]
+    },
+    {
+      "a": "a_cinema",
+      "b": "cinema",
+      "minutes": 5,
+      "kind": "busline",
+      "street": "bus_1"
+    },
+    {
+      "a": "j_center",
+      "b": "j_campus",
+      "minutes": 4,
+      "kind": "busline",
+      "street": "bus_1",
+      "curve": [
+        {
+          "x": 1319,
+          "y": 519
+        }
+      ]
+    },
+    {
+      "a": "j_campus",
+      "b": "w_main_st_6_1",
+      "minutes": 10,
+      "kind": "busline",
+      "street": "bus_1",
+      "curve": [
+        {
+          "x": 1356,
+          "y": 511
+        },
+        {
+          "x": 1371,
+          "y": 506
+        },
+        {
+          "x": 1387,
+          "y": 499
+        },
+        {
+          "x": 1401,
+          "y": 493
+        }
+      ]
+    },
+    {
+      "a": "w_main_st_6_1",
+      "b": "a_clinic",
+      "minutes": 10,
+      "kind": "busline",
+      "street": "bus_1",
+      "curve": [
+        {
+          "x": 1439,
+          "y": 472
+        },
+        {
+          "x": 1453,
+          "y": 464
+        },
+        {
+          "x": 1465,
+          "y": 457
+        },
+        {
+          "x": 1480,
+          "y": 448
+        }
+      ]
+    },
+    {
+      "a": "a_clinic",
+      "b": "clinic",
       "minutes": 4,
       "kind": "busline",
       "street": "bus_1"
     },
     {
-      "a": "j_mill",
-      "b": "a_lowcost",
-      "minutes": 16,
+      "a": "j_center",
+      "b": "w_mill_rd_0_1",
+      "minutes": 14,
       "kind": "busline",
       "street": "bus_2",
       "curve": [
         {
-          "x": 588,
-          "y": 464
+          "x": 1301,
+          "y": 538
         },
         {
-          "x": 581,
-          "y": 446
+          "x": 1303,
+          "y": 554
         },
         {
-          "x": 578,
-          "y": 427
+          "x": 1303,
+          "y": 575
         },
         {
-          "x": 582,
-          "y": 408
+          "x": 1301,
+          "y": 596
         },
         {
-          "x": 595,
-          "y": 388
+          "x": 1295,
+          "y": 614
         }
       ]
     },
     {
-      "a": "a_lowcost",
-      "b": "j_hill",
-      "minutes": 12,
+      "a": "w_mill_rd_0_1",
+      "b": "w_mill_rd_0_2",
+      "minutes": 17,
       "kind": "busline",
       "street": "bus_2",
       "curve": [
         {
-          "x": 619,
-          "y": 346
+          "x": 1269,
+          "y": 664
         },
         {
-          "x": 620,
-          "y": 330
+          "x": 1256,
+          "y": 682
         },
         {
-          "x": 616,
-          "y": 314
+          "x": 1242,
+          "y": 698
         },
         {
-          "x": 609,
-          "y": 297
+          "x": 1229,
+          "y": 711
+        },
+        {
+          "x": 1214,
+          "y": 724
+        },
+        {
+          "x": 1197,
+          "y": 735
         }
       ]
     },
     {
-      "a": "j_hill",
+      "a": "w_mill_rd_0_2",
+      "b": "w_mill_rd_0_3",
+      "minutes": 10,
+      "kind": "busline",
+      "street": "bus_2",
+      "curve": [
+        {
+          "x": 1155,
+          "y": 758
+        },
+        {
+          "x": 1142,
+          "y": 763
+        },
+        {
+          "x": 1125,
+          "y": 769
+        },
+        {
+          "x": 1110,
+          "y": 773
+        }
+      ]
+    },
+    {
+      "a": "w_mill_rd_0_3",
+      "b": "j_strip",
+      "minutes": 14,
+      "kind": "busline",
+      "street": "bus_2",
+      "curve": [
+        {
+          "x": 1066,
+          "y": 783
+        },
+        {
+          "x": 1046,
+          "y": 786
+        },
+        {
+          "x": 1026,
+          "y": 789
+        },
+        {
+          "x": 1010,
+          "y": 791
+        },
+        {
+          "x": 991,
+          "y": 794
+        }
+      ]
+    },
+    {
+      "a": "j_strip",
+      "b": "j_park",
+      "minutes": 14,
+      "kind": "busline",
+      "street": "bus_2",
+      "curve": [
+        {
+          "x": 941,
+          "y": 797
+        },
+        {
+          "x": 924,
+          "y": 798
+        },
+        {
+          "x": 903,
+          "y": 799
+        },
+        {
+          "x": 883,
+          "y": 800
+        },
+        {
+          "x": 867,
+          "y": 800
+        }
+      ]
+    },
+    {
+      "a": "j_park",
+      "b": "j_works",
+      "minutes": 4,
+      "kind": "busline",
+      "street": "bus_2",
+      "curve": [
+        {
+          "x": 827,
+          "y": 801
+        },
+        {
+          "x": 817,
+          "y": 801
+        }
+      ]
+    },
+    {
+      "a": "j_works",
       "b": "a_factory",
       "minutes": 13,
       "kind": "busline",
       "street": "bus_2",
       "curve": [
         {
-          "x": 590,
-          "y": 250
+          "x": 777,
+          "y": 801
         },
         {
-          "x": 588,
-          "y": 232
+          "x": 760,
+          "y": 801
         },
         {
-          "x": 588,
-          "y": 211
+          "x": 740,
+          "y": 800
         },
         {
-          "x": 589,
-          "y": 193
+          "x": 723,
+          "y": 799
+        },
+        {
+          "x": 703,
+          "y": 799
         }
       ]
     },
     {
       "a": "a_factory",
-      "b": "factory",
-      "minutes": 11,
+      "b": "a_lowcost",
+      "minutes": 13,
+      "kind": "busline",
+      "street": "bus_2",
+      "curve": [
+        {
+          "x": 657,
+          "y": 796
+        },
+        {
+          "x": 640,
+          "y": 794
+        },
+        {
+          "x": 620,
+          "y": 792
+        },
+        {
+          "x": 603,
+          "y": 790
+        },
+        {
+          "x": 583,
+          "y": 788
+        }
+      ]
+    },
+    {
+      "a": "a_lowcost",
+      "b": "lowcost",
+      "minutes": 5,
       "kind": "busline",
       "street": "bus_2"
     },
     {
-      "a": "a_cafe",
-      "b": "j_lake_w",
-      "minutes": 8,
+      "a": "j_works",
+      "b": "w_works_rd_0_1",
+      "minutes": 12,
       "kind": "busline",
-      "street": "bus_3",
+      "street": "bus_2",
       "curve": [
         {
-          "x": 892,
-          "y": 443
+          "x": 802,
+          "y": 818
         },
         {
-          "x": 903,
-          "y": 442
+          "x": 802,
+          "y": 840
         },
         {
-          "x": 917,
-          "y": 440
+          "x": 802,
+          "y": 861
+        },
+        {
+          "x": 800,
+          "y": 885
         }
       ]
     },
     {
-      "a": "j_lake_w",
-      "b": "w_main_st_10_1",
-      "minutes": 10,
-      "kind": "busline",
-      "street": "bus_3",
-      "curve": [
-        {
-          "x": 956,
-          "y": 435
-        },
-        {
-          "x": 976,
-          "y": 434
-        },
-        {
-          "x": 992,
-          "y": 434
-        }
-      ]
-    },
-    {
-      "a": "w_main_st_10_1",
-      "b": "j_east",
-      "minutes": 10,
-      "kind": "busline",
-      "street": "bus_3",
-      "curve": [
-        {
-          "x": 1041,
-          "y": 431
-        },
-        {
-          "x": 1063,
-          "y": 428
-        },
-        {
-          "x": 1080,
-          "y": 426
-        }
-      ]
-    },
-    {
-      "a": "j_east",
+      "a": "w_works_rd_0_1",
       "b": "a_auto",
       "minutes": 12,
       "kind": "busline",
-      "street": "bus_3",
+      "street": "bus_2",
       "curve": [
         {
-          "x": 1101,
-          "y": 446
+          "x": 791,
+          "y": 932
         },
         {
-          "x": 1101,
-          "y": 464
+          "x": 786,
+          "y": 951
         },
         {
-          "x": 1100,
-          "y": 479
+          "x": 781,
+          "y": 973
         },
         {
-          "x": 1096,
-          "y": 497
+          "x": 778,
+          "y": 991
         }
       ]
     },
     {
       "a": "a_auto",
-      "b": "a_blacks_market",
-      "minutes": 4,
+      "b": "auto",
+      "minutes": 5,
+      "kind": "busline",
+      "street": "bus_2"
+    },
+    {
+      "a": "j_strip",
+      "b": "w_strip_rd_0_1",
+      "minutes": 15,
       "kind": "busline",
       "street": "bus_3",
       "curve": [
         {
-          "x": 1083,
-          "y": 535
+          "x": 967,
+          "y": 816
+        },
+        {
+          "x": 967,
+          "y": 838
+        },
+        {
+          "x": 969,
+          "y": 864
+        },
+        {
+          "x": 973,
+          "y": 886
+        },
+        {
+          "x": 978,
+          "y": 907
         }
       ]
     },
     {
-      "a": "a_blacks_market",
-      "b": "pawn",
-      "minutes": 12,
+      "a": "w_strip_rd_0_1",
+      "b": "a_zmart",
+      "minutes": 15,
       "kind": "busline",
-      "street": "bus_3"
+      "street": "bus_3",
+      "curve": [
+        {
+          "x": 996,
+          "y": 955
+        },
+        {
+          "x": 1007,
+          "y": 975
+        },
+        {
+          "x": 1018,
+          "y": 992
+        },
+        {
+          "x": 1030,
+          "y": 1009
+        },
+        {
+          "x": 1045,
+          "y": 1027
+        }
+      ]
     },
     {
       "a": "a_zmart",
-      "b": "j_east",
-      "minutes": 3,
+      "b": "w_strip_rd_1_1",
+      "minutes": 9,
       "kind": "busline",
       "street": "bus_3",
       "curve": [
         {
-          "x": 1097,
-          "y": 411
+          "x": 1080,
+          "y": 1060
+        },
+        {
+          "x": 1092,
+          "y": 1069
+        },
+        {
+          "x": 1108,
+          "y": 1079
         }
       ]
     },
     {
-      "a": "a_socket_city",
-      "b": "a_zmart",
-      "minutes": 10,
+      "a": "w_strip_rd_1_1",
+      "b": "a_pawn",
+      "minutes": 9,
       "kind": "busline",
       "street": "bus_3",
       "curve": [
         {
-          "x": 1078,
-          "y": 347
+          "x": 1144,
+          "y": 1097
         },
         {
-          "x": 1085,
-          "y": 365
+          "x": 1162,
+          "y": 1104
         },
         {
-          "x": 1090,
-          "y": 380
+          "x": 1177,
+          "y": 1109
         }
       ]
     },
     {
-      "a": "a_qt_clothing",
-      "b": "a_socket_city",
-      "minutes": 7,
+      "a": "a_pawn",
+      "b": "a_chez_cholesterol",
+      "minutes": 8,
       "kind": "busline",
       "street": "bus_3",
       "curve": [
         {
-          "x": 1051,
-          "y": 296
+          "x": 1219,
+          "y": 1118
         },
         {
-          "x": 1060,
-          "y": 311
+          "x": 1232,
+          "y": 1120
+        },
+        {
+          "x": 1249,
+          "y": 1121
         }
       ]
     },
     {
-      "a": "a_qt_clothing",
-      "b": "qt_clothing",
-      "minutes": 6,
+      "a": "a_chez_cholesterol",
+      "b": "chez_cholesterol",
+      "minutes": 5,
       "kind": "busline",
       "street": "bus_3"
     },
     {
-      "a": "j_lake_w",
-      "b": "w_lake_rd_0_1",
-      "minutes": 13,
+      "a": "j_campus",
+      "b": "w_campus_rd_0_1",
+      "minutes": 17,
       "kind": "busline",
       "street": "bus_4",
       "curve": [
         {
-          "x": 934,
-          "y": 455
+          "x": 1337,
+          "y": 530
         },
         {
-          "x": 935,
-          "y": 472
+          "x": 1337,
+          "y": 545
         },
         {
-          "x": 938,
-          "y": 493
+          "x": 1339,
+          "y": 560
         },
         {
-          "x": 943,
-          "y": 511
+          "x": 1343,
+          "y": 580
+        },
+        {
+          "x": 1350,
+          "y": 599
+        },
+        {
+          "x": 1362,
+          "y": 625
         }
       ]
     },
     {
-      "a": "w_lake_rd_0_1",
+      "a": "w_campus_rd_0_1",
+      "b": "a_university",
+      "minutes": 17,
+      "kind": "busline",
+      "street": "bus_4",
+      "curve": [
+        {
+          "x": 1395,
+          "y": 686
+        },
+        {
+          "x": 1405,
+          "y": 703
+        },
+        {
+          "x": 1418,
+          "y": 723
+        },
+        {
+          "x": 1429,
+          "y": 737
+        },
+        {
+          "x": 1442,
+          "y": 753
+        },
+        {
+          "x": 1453,
+          "y": 762
+        }
+      ]
+    },
+    {
+      "a": "a_university",
       "b": "a_security_apts",
       "minutes": 13,
       "kind": "busline",
       "street": "bus_4",
       "curve": [
         {
-          "x": 959,
-          "y": 556
+          "x": 1491,
+          "y": 782
         },
         {
-          "x": 967,
-          "y": 573
+          "x": 1511,
+          "y": 786
         },
         {
-          "x": 973,
-          "y": 587
+          "x": 1528,
+          "y": 788
         },
         {
-          "x": 982,
-          "y": 603
+          "x": 1546,
+          "y": 789
+        },
+        {
+          "x": 1567,
+          "y": 792
         }
       ]
     },
     {
       "a": "a_security_apts",
-      "b": "w_lake_rd_1_1",
-      "minutes": 13,
+      "b": "j_ridge",
+      "minutes": 7,
       "kind": "busline",
       "street": "bus_4",
       "curve": [
         {
-          "x": 1007,
-          "y": 644
+          "x": 1610,
+          "y": 797
         },
         {
-          "x": 1017,
-          "y": 656
-        },
-        {
-          "x": 1032,
-          "y": 668
-        },
-        {
-          "x": 1046,
-          "y": 677
+          "x": 1627,
+          "y": 798
         }
       ]
     },
     {
-      "a": "w_lake_rd_1_1",
-      "b": "a_house_lake",
-      "minutes": 13,
+      "a": "j_ridge",
+      "b": "j_lake",
+      "minutes": 6,
       "kind": "busline",
       "street": "bus_4",
       "curve": [
         {
-          "x": 1091,
-          "y": 696
+          "x": 1668,
+          "y": 799
         },
         {
-          "x": 1107,
-          "y": 701
+          "x": 1680,
+          "y": 799
+        }
+      ]
+    },
+    {
+      "a": "j_lake",
+      "b": "a_house_lake",
+      "minutes": 17,
+      "kind": "busline",
+      "street": "bus_4",
+      "curve": [
+        {
+          "x": 1702,
+          "y": 819
         },
         {
-          "x": 1127,
-          "y": 705
+          "x": 1705,
+          "y": 845
         },
         {
-          "x": 1144,
-          "y": 706
+          "x": 1707,
+          "y": 868
+        },
+        {
+          "x": 1708,
+          "y": 891
+        },
+        {
+          "x": 1708,
+          "y": 909
+        },
+        {
+          "x": 1706,
+          "y": 929
         }
       ]
     },
     {
       "a": "a_house_lake",
       "b": "house_lake",
-      "minutes": 3,
+      "minutes": 5,
       "kind": "busline",
       "street": "bus_4"
     },
     {
+      "a": "j_uptown",
+      "b": "a_bank",
+      "minutes": 13,
+      "kind": "busline",
+      "street": "bus_5",
+      "curve": [
+        {
+          "x": 1151,
+          "y": 457
+        },
+        {
+          "x": 1159,
+          "y": 444
+        },
+        {
+          "x": 1167,
+          "y": 426
+        },
+        {
+          "x": 1172,
+          "y": 406
+        },
+        {
+          "x": 1172,
+          "y": 389
+        }
+      ]
+    },
+    {
+      "a": "a_bank",
+      "b": "a_qt_clothing",
+      "minutes": 7,
+      "kind": "busline",
+      "street": "bus_5",
+      "curve": [
+        {
+          "x": 1157,
+          "y": 345
+        },
+        {
+          "x": 1152,
+          "y": 333
+        },
+        {
+          "x": 1145,
+          "y": 320
+        }
+      ]
+    },
+    {
+      "a": "a_qt_clothing",
+      "b": "a_socket_city",
+      "minutes": 11,
+      "kind": "busline",
+      "street": "bus_5",
+      "curve": [
+        {
+          "x": 1124,
+          "y": 285
+        },
+        {
+          "x": 1112,
+          "y": 270
+        },
+        {
+          "x": 1102,
+          "y": 258
+        },
+        {
+          "x": 1089,
+          "y": 244
+        }
+      ]
+    },
+    {
+      "a": "a_socket_city",
+      "b": "j_hill",
+      "minutes": 6,
+      "kind": "busline",
+      "street": "bus_5",
+      "curve": [
+        {
+          "x": 1059,
+          "y": 216
+        },
+        {
+          "x": 1046,
+          "y": 207
+        }
+      ]
+    },
+    {
+      "a": "j_hill",
+      "b": "a_shady_acres",
+      "minutes": 17,
+      "kind": "busline",
+      "street": "bus_5",
+      "curve": [
+        {
+          "x": 1037,
+          "y": 180
+        },
+        {
+          "x": 1045,
+          "y": 161
+        },
+        {
+          "x": 1054,
+          "y": 145
+        },
+        {
+          "x": 1068,
+          "y": 131
+        },
+        {
+          "x": 1086,
+          "y": 124
+        },
+        {
+          "x": 1111,
+          "y": 120
+        }
+      ]
+    },
+    {
+      "a": "a_shady_acres",
+      "b": "w_hill_rd_1_1",
+      "minutes": 12,
+      "kind": "busline",
+      "street": "bus_5",
+      "curve": [
+        {
+          "x": 1166,
+          "y": 121
+        },
+        {
+          "x": 1183,
+          "y": 123
+        },
+        {
+          "x": 1203,
+          "y": 127
+        },
+        {
+          "x": 1220,
+          "y": 131
+        }
+      ]
+    },
+    {
+      "a": "w_hill_rd_1_1",
+      "b": "a_house_hill",
+      "minutes": 12,
+      "kind": "busline",
+      "street": "bus_5",
+      "curve": [
+        {
+          "x": 1268,
+          "y": 149
+        },
+        {
+          "x": 1283,
+          "y": 157
+        },
+        {
+          "x": 1300,
+          "y": 166
+        },
+        {
+          "x": 1314,
+          "y": 175
+        }
+      ]
+    },
+    {
+      "a": "a_house_hill",
+      "b": "house_hill",
+      "minutes": 5,
+      "kind": "busline",
+      "street": "bus_5"
+    },
+    {
       "a": "j_center",
       "b": "employment",
-      "minutes": 12,
+      "minutes": 5,
+      "kind": "busline",
+      "street": "bus_1"
+    },
+    {
+      "a": "j_center",
+      "b": "monolith",
+      "minutes": 5,
+      "kind": "busline",
+      "street": "bus_1"
+    },
+    {
+      "a": "j_center",
+      "b": "rent_office",
+      "minutes": 5,
+      "kind": "busline",
+      "street": "bus_1"
+    },
+    {
+      "a": "a_gym",
+      "b": "gym",
+      "minutes": 3,
       "kind": "busline",
       "street": "bus_1"
     },
     {
       "a": "a_newsstand",
       "b": "newsstand",
-      "minutes": 2,
+      "minutes": 5,
       "kind": "busline",
       "street": "bus_1"
     },
     {
-      "a": "a_monolith",
-      "b": "monolith",
-      "minutes": 12,
+      "a": "a_bank",
+      "b": "bank",
+      "minutes": 5,
       "kind": "busline",
-      "street": "bus_1"
+      "street": "bus_5"
     },
     {
-      "a": "a_clinic",
-      "b": "clinic",
-      "minutes": 2,
+      "a": "a_qt_clothing",
+      "b": "qt_clothing",
+      "minutes": 5,
       "kind": "busline",
-      "street": "bus_1"
-    },
-    {
-      "a": "a_lowcost",
-      "b": "lowcost",
-      "minutes": 11,
-      "kind": "busline",
-      "street": "bus_2"
+      "street": "bus_5"
     },
     {
       "a": "a_socket_city",
       "b": "socket_city",
-      "minutes": 11,
+      "minutes": 5,
+      "kind": "busline",
+      "street": "bus_5"
+    },
+    {
+      "a": "a_shady_acres",
+      "b": "shady_acres",
+      "minutes": 2,
+      "kind": "busline",
+      "street": "bus_5"
+    },
+    {
+      "a": "a_university",
+      "b": "university",
+      "minutes": 5,
+      "kind": "busline",
+      "street": "bus_4"
+    },
+    {
+      "a": "a_security_apts",
+      "b": "security_apts",
+      "minutes": 2,
+      "kind": "busline",
+      "street": "bus_4"
+    },
+    {
+      "a": "a_factory",
+      "b": "factory",
+      "minutes": 5,
+      "kind": "busline",
+      "street": "bus_2"
+    },
+    {
+      "a": "a_zmart",
+      "b": "zmart",
+      "minutes": 5,
       "kind": "busline",
       "street": "bus_3"
     },
     {
       "a": "a_zmart",
-      "b": "zmart",
-      "minutes": 8,
-      "kind": "busline",
-      "street": "bus_3"
-    },
-    {
-      "a": "a_auto",
-      "b": "auto",
-      "minutes": 10,
-      "kind": "busline",
-      "street": "bus_3"
-    },
-    {
-      "a": "a_blacks_market",
       "b": "blacks_market",
-      "minutes": 7,
+      "minutes": 5,
       "kind": "busline",
       "street": "bus_3"
     },
     {
-      "a": "a_security_apts",
-      "b": "security_apts",
-      "minutes": 18,
+      "a": "a_pawn",
+      "b": "pawn",
+      "minutes": 3,
       "kind": "busline",
-      "street": "bus_4"
+      "street": "bus_3"
+    }
+  ],
+  "water": [
+    {
+      "id": "river",
+      "points": [
+        {
+          "x": 24,
+          "y": 104
+        },
+        {
+          "x": 261,
+          "y": 356
+        },
+        {
+          "x": 586,
+          "y": 336
+        },
+        {
+          "x": 812,
+          "y": 560
+        },
+        {
+          "x": 1079,
+          "y": 613
+        },
+        {
+          "x": 1288,
+          "y": 782
+        },
+        {
+          "x": 1578,
+          "y": 831
+        },
+        {
+          "x": 1772,
+          "y": 946
+        },
+        {
+          "x": 1904,
+          "y": 1096
+        }
+      ],
+      "width": 48
+    },
+    {
+      "id": "pool_west",
+      "points": [
+        {
+          "x": 178,
+          "y": 902
+        },
+        {
+          "x": 250,
+          "y": 926
+        },
+        {
+          "x": 322,
+          "y": 908
+        }
+      ],
+      "width": 62
+    },
+    {
+      "id": "pool_east",
+      "points": [
+        {
+          "x": 1782,
+          "y": 536
+        },
+        {
+          "x": 1846,
+          "y": 556
+        },
+        {
+          "x": 1898,
+          "y": 538
+        }
+      ],
+      "width": 56
+    },
+    {
+      "id": "lake",
+      "points": [
+        {
+          "x": 1580,
+          "y": 1075
+        },
+        {
+          "x": 1700,
+          "y": 1100
+        },
+        {
+          "x": 1810,
+          "y": 1084
+        }
+      ],
+      "width": 92
     }
   ],
   "decor": [
     {
       "kind": "water",
-      "x": 288,
-      "y": 0,
-      "w": 58,
-      "h": 66
-    },
-    {
-      "kind": "water",
-      "x": 276,
-      "y": 44,
-      "w": 58,
-      "h": 68
-    },
-    {
-      "kind": "water",
-      "x": 260,
-      "y": 92,
-      "w": 60,
-      "h": 70
-    },
-    {
-      "kind": "water",
-      "x": 244,
-      "y": 142,
-      "w": 60,
-      "h": 68
-    },
-    {
-      "kind": "water",
-      "x": 230,
-      "y": 192,
-      "w": 58,
-      "h": 70
-    },
-    {
-      "kind": "water",
-      "x": 218,
-      "y": 244,
-      "w": 58,
-      "h": 72
-    },
-    {
-      "kind": "water",
-      "x": 210,
-      "y": 298,
-      "w": 58,
-      "h": 72
-    },
-    {
-      "kind": "water",
-      "x": 206,
-      "y": 352,
-      "w": 58,
-      "h": 72
-    },
-    {
-      "kind": "water",
-      "x": 206,
-      "y": 406,
-      "w": 60,
-      "h": 70
-    },
-    {
-      "kind": "water",
-      "x": 208,
-      "y": 456,
-      "w": 62,
-      "h": 68
-    },
-    {
-      "kind": "water",
-      "x": 206,
-      "y": 506,
-      "w": 62,
-      "h": 70
-    },
-    {
-      "kind": "water",
-      "x": 180,
-      "y": 556,
-      "w": 62,
-      "h": 70
-    },
-    {
-      "kind": "water",
-      "x": 162,
-      "y": 606,
-      "w": 60,
-      "h": 70
-    },
-    {
-      "kind": "water",
-      "x": 140,
-      "y": 656,
-      "w": 60,
-      "h": 70
-    },
-    {
-      "kind": "water",
-      "x": 116,
-      "y": 704,
-      "w": 62,
-      "h": 64
-    },
-    {
-      "kind": "water",
-      "x": 996,
-      "y": 722,
-      "w": 110,
-      "h": 46
-    },
-    {
-      "kind": "water",
-      "x": 1092,
-      "y": 714,
-      "w": 104,
-      "h": 54
-    },
-    {
-      "kind": "water",
-      "x": 1182,
-      "y": 720,
-      "w": 82,
-      "h": 48
-    },
-    {
-      "kind": "water",
-      "x": 1044,
-      "y": 710,
-      "w": 130,
-      "h": 24
-    },
-    {
-      "kind": "plaza",
       "x": 612,
-      "y": 498,
-      "w": 92,
-      "h": 56
+      "y": 1084,
+      "w": 58,
+      "h": 36
     },
     {
       "kind": "plaza",
-      "x": 976,
-      "y": 148,
-      "w": 84,
-      "h": 56
+      "x": 1246,
+      "y": 430,
+      "w": 116,
+      "h": 70
+    },
+    {
+      "kind": "plaza",
+      "x": 1078,
+      "y": 1044,
+      "w": 96,
+      "h": 58
     },
     {
       "kind": "grass",
-      "x": 372,
-      "y": 300,
-      "w": 100,
+      "x": 852,
+      "y": 226,
+      "w": 128,
+      "h": 84
+    },
+    {
+      "kind": "grass",
+      "x": 520,
+      "y": 900,
+      "w": 130,
+      "h": 82
+    },
+    {
+      "kind": "grass",
+      "x": 700,
+      "y": 520,
+      "w": 110,
+      "h": 70
+    },
+    {
+      "kind": "grass",
+      "x": 1520,
+      "y": 620,
+      "w": 110,
       "h": 72
     },
     {
-      "kind": "grass",
-      "x": 60,
-      "y": 560,
-      "w": 92,
-      "h": 66
+      "kind": "viaduct",
+      "x": 1283,
+      "y": 779,
+      "dir": {
+        "x": 0.7368,
+        "y": -0.6761
+      }
+    },
+    {
+      "kind": "underpass",
+      "x": 1382,
+      "y": 662,
+      "dir": {
+        "x": 0.4805,
+        "y": 0.877
+      }
     },
     {
       "kind": "bridge",
-      "x": 323,
-      "y": 25
+      "x": 1210,
+      "y": 727,
+      "dir": {
+        "x": -0.8016,
+        "y": 0.5979
+      }
+    },
+    {
+      "kind": "underpass",
+      "x": 993,
+      "y": 947,
+      "dir": {
+        "x": 0.4082,
+        "y": 0.9129
+      }
     },
     {
       "kind": "bridge",
-      "x": 187,
-      "y": 660
+      "x": 404,
+      "y": 352,
+      "dir": {
+        "x": -0.2808,
+        "y": -0.9598
+      }
+    },
+    {
+      "kind": "underpass",
+      "x": 774,
+      "y": 1021,
+      "dir": {
+        "x": -0.1235,
+        "y": 0.9923
+      }
+    },
+    {
+      "kind": "underpass",
+      "x": 1610,
+      "y": 476,
+      "dir": {
+        "x": -0.4585,
+        "y": -0.8887
+      }
     },
     {
       "kind": "bridge",
-      "x": 231,
-      "y": 614
-    },
-    {
-      "kind": "bridge",
-      "x": 193,
-      "y": 584
+      "x": 1708,
+      "y": 902,
+      "dir": {
+        "x": -0.0036,
+        "y": 1
+      }
     },
     {
       "kind": "dock",
-      "x": 1052,
-      "y": 712
+      "x": 1640,
+      "y": 1022
     },
     {
       "kind": "lamp",
-      "x": 273,
-      "y": 617
+      "x": 475,
+      "y": 263
     },
     {
       "kind": "lamp",
-      "x": 307,
-      "y": 573
+      "x": 534,
+      "y": 255
     },
     {
       "kind": "lamp",
-      "x": 362,
-      "y": 580
+      "x": 573,
+      "y": 299
     },
     {
       "kind": "lamp",
-      "x": 396,
-      "y": 536
+      "x": 631,
+      "y": 291
     },
     {
       "kind": "lamp",
-      "x": 450,
-      "y": 544
+      "x": 671,
+      "y": 335
     },
     {
       "kind": "lamp",
-      "x": 486,
-      "y": 501
-    },
-    {
-      "kind": "lamp",
-      "x": 540,
-      "y": 513
-    },
-    {
-      "kind": "lamp",
-      "x": 579,
-      "y": 473
-    },
-    {
-      "kind": "lamp",
-      "x": 632,
-      "y": 488
-    },
-    {
-      "kind": "lamp",
-      "x": 674,
-      "y": 451
-    },
-    {
-      "kind": "lamp",
-      "x": 728,
-      "y": 470
+      "x": 729,
+      "y": 325
     },
     {
       "kind": "lamp",
       "x": 770,
-      "y": 440
+      "y": 368
     },
     {
       "kind": "lamp",
-      "x": 820,
-      "y": 465
+      "x": 828,
+      "y": 356
     },
     {
       "kind": "lamp",
-      "x": 869,
-      "y": 433
+      "x": 877,
+      "y": 401
     },
     {
       "kind": "lamp",
-      "x": 916,
-      "y": 454
+      "x": 927,
+      "y": 388
     },
     {
       "kind": "lamp",
-      "x": 961,
-      "y": 421
+      "x": 968,
+      "y": 430
     },
     {
       "kind": "lamp",
-      "x": 1011,
-      "y": 447
+      "x": 1026,
+      "y": 420
     },
     {
       "kind": "lamp",
-      "x": 1057,
-      "y": 415
+      "x": 1067,
+      "y": 462
     },
     {
       "kind": "lamp",
-      "x": 971,
-      "y": 215
+      "x": 1125,
+      "y": 452
     },
     {
       "kind": "lamp",
-      "x": 1024,
-      "y": 234
+      "x": 1164,
+      "y": 497
     },
     {
       "kind": "lamp",
-      "x": 1030,
-      "y": 289
+      "x": 1222,
+      "y": 489
     },
     {
       "kind": "lamp",
+      "x": 1266,
+      "y": 530
+    },
+    {
+      "kind": "lamp",
+      "x": 1318,
+      "y": 505
+    },
+    {
+      "kind": "lamp",
+      "x": 1375,
+      "y": 520
+    },
+    {
+      "kind": "lamp",
+      "x": 1410,
+      "y": 472
+    },
+    {
+      "kind": "lamp",
+      "x": 1469,
+      "y": 471
+    },
+    {
+      "kind": "lamp",
+      "x": 1497,
+      "y": 419
+    },
+    {
+      "kind": "lamp",
+      "x": 1556,
+      "y": 413
+    },
+    {
+      "kind": "lamp",
+      "x": 1578,
+      "y": 355
+    },
+    {
+      "kind": "lamp",
+      "x": 1637,
+      "y": 345
+    },
+    {
+      "kind": "lamp",
+      "x": 1661,
+      "y": 291
+    },
+    {
+      "kind": "lamp",
+      "x": 1720,
+      "y": 283
+    },
+    {
+      "kind": "lamp",
+      "x": 954,
+      "y": 808
+    },
+    {
+      "kind": "lamp",
+      "x": 982,
+      "y": 846
+    },
+    {
+      "kind": "lamp",
+      "x": 963,
+      "y": 902
+    },
+    {
+      "kind": "lamp",
+      "x": 1018,
+      "y": 953
+    },
+    {
+      "kind": "lamp",
+      "x": 1007,
+      "y": 1001
+    },
+    {
+      "kind": "lamp",
+      "x": 1061,
+      "y": 1024
+    },
+    {
+      "kind": "lamp",
+      "x": 1082,
+      "y": 1079
+    },
+    {
+      "kind": "lamp",
+      "x": 1141,
+      "y": 1081
+    },
+    {
+      "kind": "lamp",
+      "x": 1181,
+      "y": 1125
+    },
+    {
+      "kind": "lamp",
+      "x": 1237,
+      "y": 1106
+    },
+    {
+      "kind": "lamp",
+      "x": 1288,
+      "y": 1136
+    },
+    {
+      "kind": "lamp",
+      "x": 1338,
+      "y": 1104
+    },
+    {
+      "kind": "lamp",
+      "x": 1393,
+      "y": 1123
+    },
+    {
+      "kind": "lamp",
+      "x": 1156,
+      "y": 492
+    },
+    {
+      "kind": "lamp",
+      "x": 1153,
+      "y": 424
+    },
+    {
+      "kind": "lamp",
+      "x": 1184,
+      "y": 382
+    },
+    {
+      "kind": "lamp",
+      "x": 1137,
+      "y": 335
+    },
+    {
+      "kind": "lamp",
+      "x": 1130,
+      "y": 275
+    },
+    {
+      "kind": "lamp",
+      "x": 1080,
+      "y": 254
+    },
+    {
+      "kind": "lamp",
+      "x": 1059,
+      "y": 199
+    },
+    {
+      "kind": "lamp",
+      "x": 1000,
+      "y": 196
+    },
+    {
+      "kind": "lamp",
+      "x": 963,
+      "y": 150
+    },
+    {
+      "kind": "bush",
+      "x": 1013,
+      "y": 174
+    },
+    {
+      "kind": "bush",
       "x": 1078,
-      "y": 316
-    },
-    {
-      "kind": "lamp",
-      "x": 1072,
-      "y": 371
-    },
-    {
-      "kind": "lamp",
-      "x": 1111,
-      "y": 410
-    },
-    {
-      "kind": "lamp",
-      "x": 1087,
-      "y": 460
-    },
-    {
-      "kind": "lamp",
-      "x": 1106,
-      "y": 512
-    },
-    {
-      "kind": "lamp",
-      "x": 1063,
-      "y": 544
-    },
-    {
-      "kind": "lamp",
-      "x": 1051,
-      "y": 595
+      "y": 149
     },
     {
       "kind": "bush",
-      "x": 580,
-      "y": 261
+      "x": 1138,
+      "y": 141
     },
     {
       "kind": "bush",
-      "x": 665,
-      "y": 268
+      "x": 1217,
+      "y": 106
     },
     {
       "kind": "bush",
-      "x": 730,
-      "y": 277
+      "x": 1268,
+      "y": 177
     },
     {
       "kind": "bush",
-      "x": 808,
-      "y": 244
+      "x": 1330,
+      "y": 211
     },
     {
       "kind": "bush",
-      "x": 870,
-      "y": 270
+      "x": 1323,
+      "y": 532
     },
     {
       "kind": "bush",
-      "x": 939,
-      "y": 280
+      "x": 1278,
+      "y": 598
     },
     {
       "kind": "bush",
-      "x": 978,
-      "y": 221
+      "x": 1240,
+      "y": 663
     },
     {
       "kind": "bush",
-      "x": 351,
-      "y": 582
+      "x": 1206,
+      "y": 765
     },
     {
       "kind": "bush",
-      "x": 334,
-      "y": 652
+      "x": 1117,
+      "y": 753
     },
     {
       "kind": "bush",
-      "x": 385,
-      "y": 704
+      "x": 1037,
+      "y": 765
     },
     {
       "kind": "bush",
-      "x": 461,
-      "y": 697
+      "x": 955,
+      "y": 816
     },
     {
       "kind": "bush",
-      "x": 517,
-      "y": 744
+      "x": 872,
+      "y": 780
     },
     {
       "kind": "bush",
-      "x": 585,
-      "y": 757
+      "x": 789,
+      "y": 776
     },
     {
       "kind": "bush",
-      "x": 652,
+      "x": 728,
+      "y": 819
+    },
+    {
+      "kind": "bush",
+      "x": 624,
+      "y": 771
+    },
+    {
+      "kind": "bush",
+      "x": 542,
+      "y": 760
+    },
+    {
+      "kind": "bush",
+      "x": 452,
+      "y": 777
+    },
+    {
+      "kind": "bush",
+      "x": 382,
       "y": 717
     },
     {
       "kind": "bush",
-      "x": 722,
-      "y": 744
+      "x": 818,
+      "y": 789
     },
     {
       "kind": "bush",
-      "x": 786,
-      "y": 723
+      "x": 857,
+      "y": 729
     },
     {
       "kind": "bush",
-      "x": 945,
-      "y": 425
+      "x": 813,
+      "y": 686
     },
     {
       "kind": "bush",
-      "x": 917,
-      "y": 511
+      "x": 766,
+      "y": 642
     },
     {
       "kind": "bush",
-      "x": 953,
-      "y": 588
+      "x": 776,
+      "y": 573
     },
     {
       "kind": "bush",
-      "x": 1023,
-      "y": 629
+      "x": 485,
+      "y": 756
     },
     {
       "kind": "bush",
-      "x": 1058,
-      "y": 704
+      "x": 538,
+      "y": 712
     },
     {
       "kind": "bush",
-      "x": 1125,
-      "y": 691
+      "x": 511,
+      "y": 649
     },
     {
       "kind": "bush",
-      "x": 565,
-      "y": 479
-    },
-    {
-      "kind": "bush",
-      "x": 600,
-      "y": 413
-    },
-    {
-      "kind": "bush",
-      "x": 637,
-      "y": 353
-    },
-    {
-      "kind": "bush",
-      "x": 581,
-      "y": 277
-    },
-    {
-      "kind": "bush",
-      "x": 609,
-      "y": 194
-    },
-    {
-      "kind": "bush",
-      "x": 584,
-      "y": 122
-    },
-    {
-      "kind": "bush",
-      "x": 528,
-      "y": 60
-    },
-    {
-      "kind": "bush",
-      "x": 361,
-      "y": 677
-    },
-    {
-      "kind": "bush",
-      "x": 302,
-      "y": 669
-    },
-    {
-      "kind": "bush",
-      "x": 253,
-      "y": 656
-    },
-    {
-      "kind": "bush",
-      "x": 201,
-      "y": 684
-    },
-    {
-      "kind": "bush",
-      "x": 138,
+      "x": 442,
       "y": 608
     },
     {
       "kind": "bush",
-      "x": 699,
-      "y": 474
+      "x": 445,
+      "y": 540
     },
     {
       "kind": "bush",
-      "x": 727,
-      "y": 416
+      "x": 822,
+      "y": 789
     },
     {
       "kind": "bush",
-      "x": 751,
-      "y": 389
+      "x": 782,
+      "y": 869
+    },
+    {
+      "kind": "bush",
+      "x": 771,
+      "y": 937
+    },
+    {
+      "kind": "bush",
+      "x": 790,
+      "y": 998
+    },
+    {
+      "kind": "bush",
+      "x": 754,
+      "y": 1077
+    },
+    {
+      "kind": "bush",
+      "x": 1729,
+      "y": 806
+    },
+    {
+      "kind": "bush",
+      "x": 1689,
+      "y": 847
+    },
+    {
+      "kind": "bush",
+      "x": 1684,
+      "y": 926
+    },
+    {
+      "kind": "bush",
+      "x": 1730,
+      "y": 988
+    },
+    {
+      "kind": "bush",
+      "x": 1362,
+      "y": 524
+    },
+    {
+      "kind": "bush",
+      "x": 1332,
+      "y": 603
+    },
+    {
+      "kind": "bush",
+      "x": 1381,
+      "y": 690
+    },
+    {
+      "kind": "bush",
+      "x": 1440,
+      "y": 728
+    },
+    {
+      "kind": "bush",
+      "x": 1496,
+      "y": 769
+    },
+    {
+      "kind": "bush",
+      "x": 1613,
+      "y": 811
+    },
+    {
+      "kind": "bush",
+      "x": 1660,
+      "y": 777
+    },
+    {
+      "kind": "bush",
+      "x": 1744,
+      "y": 814
     },
     {
       "kind": "flowers",
-      "x": 127,
-      "y": 471
+      "x": 814,
+      "y": 721
     },
     {
       "kind": "flowers",
-      "x": 195,
-      "y": 459
+      "x": 753,
+      "y": 722
     },
     {
       "kind": "flowers",
-      "x": 199,
+      "x": 707,
+      "y": 714
+    },
+    {
+      "kind": "flowers",
+      "x": 640,
+      "y": 733
+    },
+    {
+      "kind": "flowers",
+      "x": 607,
+      "y": 672
+    },
+    {
+      "kind": "flowers",
+      "x": 561,
+      "y": 641
+    },
+    {
+      "kind": "flowers",
+      "x": 495,
+      "y": 622
+    },
+    {
+      "kind": "flowers",
+      "x": 495,
+      "y": 552
+    },
+    {
+      "kind": "flowers",
+      "x": 469,
+      "y": 502
+    },
+    {
+      "kind": "flowers",
+      "x": 413,
+      "y": 461
+    },
+    {
+      "kind": "flowers",
+      "x": 435,
       "y": 394
     },
     {
       "kind": "flowers",
-      "x": 149,
-      "y": 351
-    },
-    {
-      "kind": "flowers",
-      "x": 154,
-      "y": 289
-    },
-    {
-      "kind": "flowers",
-      "x": 136,
-      "y": 238
-    },
-    {
-      "kind": "flowers",
-      "x": 218,
-      "y": 684
-    },
-    {
-      "kind": "flowers",
-      "x": 259,
-      "y": 618
-    },
-    {
-      "kind": "flowers",
-      "x": 196,
-      "y": 554
-    },
-    {
-      "kind": "flowers",
-      "x": 156,
-      "y": 550
-    },
-    {
-      "kind": "flowers",
-      "x": 164,
-      "y": 484
-    },
-    {
-      "kind": "tree_round",
-      "x": 211,
-      "y": 178
-    },
-    {
-      "kind": "tree_round",
-      "x": 213,
-      "y": 185
-    },
-    {
-      "kind": "tree_pine",
-      "x": 132,
-      "y": 145
-    },
-    {
-      "kind": "tree_round",
-      "x": 107,
-      "y": 186
-    },
-    {
-      "kind": "tree_pine",
-      "x": 145,
-      "y": 181
-    },
-    {
-      "kind": "tree_round",
-      "x": 151,
-      "y": 178
-    },
-    {
-      "kind": "tree_oak",
-      "x": 146,
-      "y": 175
-    },
-    {
-      "kind": "tree_pine",
-      "x": 157,
-      "y": 138
-    },
-    {
-      "kind": "tree_pine",
-      "x": 309,
-      "y": 176
-    },
-    {
-      "kind": "tree_oak",
-      "x": 290,
-      "y": 220
-    },
-    {
-      "kind": "tree_pine",
-      "x": 289,
-      "y": 232
-    },
-    {
-      "kind": "tree_pine",
-      "x": 314,
-      "y": 227
-    },
-    {
-      "kind": "tree_oak",
-      "x": 364,
-      "y": 187
-    },
-    {
-      "kind": "tree_oak",
-      "x": 363,
-      "y": 215
-    },
-    {
-      "kind": "tree_pine",
-      "x": 372,
-      "y": 264
-    },
-    {
-      "kind": "tree_pine",
-      "x": 300,
-      "y": 309
-    },
-    {
-      "kind": "tree_oak",
-      "x": 344,
-      "y": 475
-    },
-    {
-      "kind": "tree_round",
-      "x": 322,
-      "y": 430
-    },
-    {
-      "kind": "tree_oak",
-      "x": 426,
-      "y": 382
-    },
-    {
-      "kind": "tree_round",
       "x": 411,
-      "y": 423
+      "y": 320
     },
     {
-      "kind": "tree_pine",
-      "x": 396,
-      "y": 413
+      "kind": "flowers",
+      "x": 364,
+      "y": 296
     },
     {
-      "kind": "tree_pine",
-      "x": 317,
-      "y": 382
+      "kind": "flowers",
+      "x": 373,
+      "y": 229
     },
     {
-      "kind": "tree_round",
-      "x": 323,
-      "y": 389
+      "kind": "flowers",
+      "x": 1636,
+      "y": 811
     },
     {
-      "kind": "tree_pine",
-      "x": 388,
-      "y": 152
+      "kind": "flowers",
+      "x": 1664,
+      "y": 738
     },
     {
-      "kind": "tree_pine",
-      "x": 375,
-      "y": 182
+      "kind": "flowers",
+      "x": 1668,
+      "y": 682
     },
     {
-      "kind": "tree_oak",
-      "x": 460,
-      "y": 79
+      "kind": "flowers",
+      "x": 1647,
+      "y": 616
     },
     {
-      "kind": "tree_pine",
-      "x": 367,
-      "y": 149
+      "kind": "flowers",
+      "x": 1663,
+      "y": 548
     },
     {
-      "kind": "tree_pine",
-      "x": 407,
-      "y": 197
+      "kind": "flowers",
+      "x": 1639,
+      "y": 489
     },
     {
-      "kind": "tree_oak",
-      "x": 439,
-      "y": 193
+      "kind": "flowers",
+      "x": 1580,
+      "y": 451
     },
     {
-      "kind": "tree_round",
-      "x": 430,
-      "y": 167
-    },
-    {
-      "kind": "tree_oak",
-      "x": 750,
-      "y": 81
-    },
-    {
-      "kind": "tree_round",
-      "x": 651,
-      "y": 164
-    },
-    {
-      "kind": "tree_pine",
-      "x": 661,
-      "y": 94
-    },
-    {
-      "kind": "tree_pine",
-      "x": 662,
-      "y": 170
-    },
-    {
-      "kind": "tree_pine",
-      "x": 716,
-      "y": 126
-    },
-    {
-      "kind": "tree_oak",
-      "x": 624,
-      "y": 151
-    },
-    {
-      "kind": "tree_pine",
-      "x": 698,
-      "y": 95
-    },
-    {
-      "kind": "tree_pine",
-      "x": 1025,
-      "y": 89
-    },
-    {
-      "kind": "tree_pine",
-      "x": 1067,
-      "y": 153
-    },
-    {
-      "kind": "tree_round",
-      "x": 1023,
-      "y": 116
-    },
-    {
-      "kind": "tree_round",
-      "x": 1051,
-      "y": 165
-    },
-    {
-      "kind": "tree_oak",
-      "x": 996,
-      "y": 39
-    },
-    {
-      "kind": "tree_oak",
-      "x": 1080,
-      "y": 138
-    },
-    {
-      "kind": "tree_pine",
-      "x": 1173,
-      "y": 245
-    },
-    {
-      "kind": "tree_oak",
-      "x": 1244,
-      "y": 254
-    },
-    {
-      "kind": "tree_pine",
-      "x": 1212,
-      "y": 259
-    },
-    {
-      "kind": "tree_pine",
-      "x": 1178,
-      "y": 255
-    },
-    {
-      "kind": "tree_pine",
-      "x": 1209,
-      "y": 350
-    },
-    {
-      "kind": "tree_pine",
-      "x": 590,
-      "y": 580
-    },
-    {
-      "kind": "tree_pine",
-      "x": 623,
-      "y": 544
-    },
-    {
-      "kind": "tree_oak",
-      "x": 620,
-      "y": 538
-    },
-    {
-      "kind": "tree_oak",
-      "x": 609,
-      "y": 617
-    },
-    {
-      "kind": "tree_pine",
-      "x": 622,
-      "y": 536
-    },
-    {
-      "kind": "tree_pine",
-      "x": 650,
-      "y": 563
-    },
-    {
-      "kind": "tree_oak",
-      "x": 917,
-      "y": 659
-    },
-    {
-      "kind": "tree_pine",
-      "x": 823,
-      "y": 621
-    },
-    {
-      "kind": "tree_round",
-      "x": 876,
-      "y": 706
-    },
-    {
-      "kind": "tree_pine",
-      "x": 917,
-      "y": 638
-    },
-    {
-      "kind": "tree_pine",
-      "x": 825,
-      "y": 649
-    },
-    {
-      "kind": "tree_pine",
-      "x": 824,
-      "y": 668
-    },
-    {
-      "kind": "tree_oak",
-      "x": 1180,
-      "y": 556
-    },
-    {
-      "kind": "tree_pine",
-      "x": 1173,
-      "y": 590
-    },
-    {
-      "kind": "tree_pine",
-      "x": 1177,
-      "y": 555
-    },
-    {
-      "kind": "tree_oak",
-      "x": 1213,
-      "y": 554
-    },
-    {
-      "kind": "tree_pine",
-      "x": 129,
-      "y": 659
-    },
-    {
-      "kind": "tree_pine",
-      "x": 87,
-      "y": 721
-    },
-    {
-      "kind": "tree_oak",
-      "x": 86,
-      "y": 723
-    },
-    {
-      "kind": "tree_oak",
-      "x": 95,
-      "y": 634
-    },
-    {
-      "kind": "tree_oak",
-      "x": 91,
-      "y": 695
-    },
-    {
-      "kind": "tree_oak",
-      "x": 68,
-      "y": 355
-    },
-    {
-      "kind": "tree_round",
-      "x": 115,
-      "y": 350
-    },
-    {
-      "kind": "tree_oak",
-      "x": 77,
+      "kind": "flowers",
+      "x": 1577,
       "y": 390
     },
     {
       "kind": "tree_pine",
-      "x": 98,
-      "y": 405
+      "x": 106,
+      "y": 159
+    },
+    {
+      "kind": "tree_pine",
+      "x": 143,
+      "y": 206
+    },
+    {
+      "kind": "tree_pine",
+      "x": 209,
+      "y": 126
+    },
+    {
+      "kind": "tree_pine",
+      "x": 121,
+      "y": 280
+    },
+    {
+      "kind": "tree_pine",
+      "x": 160,
+      "y": 229
+    },
+    {
+      "kind": "tree_pine",
+      "x": 205,
+      "y": 232
+    },
+    {
+      "kind": "tree_oak",
+      "x": 171,
+      "y": 241
+    },
+    {
+      "kind": "tree_oak",
+      "x": 112,
+      "y": 145
+    },
+    {
+      "kind": "tree_pine",
+      "x": 325,
+      "y": 123
+    },
+    {
+      "kind": "tree_pine",
+      "x": 287,
+      "y": 131
+    },
+    {
+      "kind": "tree_pine",
+      "x": 325,
+      "y": 111
+    },
+    {
+      "kind": "tree_pine",
+      "x": 262,
+      "y": 185
+    },
+    {
+      "kind": "tree_pine",
+      "x": 227,
+      "y": 183
+    },
+    {
+      "kind": "tree_pine",
+      "x": 325,
+      "y": 172
     },
     {
       "kind": "tree_round",
-      "x": 92,
-      "y": 353
+      "x": 573,
+      "y": 255
     },
     {
-      "kind": "bench",
-      "x": 520,
+      "kind": "tree_pine",
+      "x": 562,
+      "y": 154
+    },
+    {
+      "kind": "tree_pine",
+      "x": 641,
+      "y": 153
+    },
+    {
+      "kind": "tree_oak",
+      "x": 638,
+      "y": 193
+    },
+    {
+      "kind": "tree_pine",
+      "x": 615,
+      "y": 166
+    },
+    {
+      "kind": "tree_round",
+      "x": 625,
+      "y": 176
+    },
+    {
+      "kind": "tree_round",
+      "x": 585,
+      "y": 217
+    },
+    {
+      "kind": "tree_oak",
+      "x": 787,
+      "y": 215
+    },
+    {
+      "kind": "tree_pine",
+      "x": 752,
+      "y": 247
+    },
+    {
+      "kind": "tree_pine",
+      "x": 813,
+      "y": 215
+    },
+    {
+      "kind": "tree_pine",
+      "x": 783,
+      "y": 183
+    },
+    {
+      "kind": "tree_oak",
+      "x": 706,
+      "y": 241
+    },
+    {
+      "kind": "tree_pine",
+      "x": 752,
+      "y": 144
+    },
+    {
+      "kind": "tree_round",
+      "x": 1021,
+      "y": 348
+    },
+    {
+      "kind": "tree_oak",
+      "x": 962,
+      "y": 364
+    },
+    {
+      "kind": "tree_pine",
+      "x": 995,
+      "y": 405
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1004,
+      "y": 311
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1029,
+      "y": 363
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1071,
+      "y": 400
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1561,
+      "y": 248
+    },
+    {
+      "kind": "tree_oak",
+      "x": 1546,
+      "y": 177
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1519,
+      "y": 268
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1533,
+      "y": 187
+    },
+    {
+      "kind": "tree_oak",
+      "x": 1610,
+      "y": 195
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1539,
+      "y": 290
+    },
+    {
+      "kind": "tree_oak",
+      "x": 1492,
+      "y": 263
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1503,
+      "y": 296
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1722,
+      "y": 200
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1731,
+      "y": 87
+    },
+    {
+      "kind": "tree_round",
+      "x": 1802,
+      "y": 237
+    },
+    {
+      "kind": "tree_oak",
+      "x": 1739,
+      "y": 182
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1844,
+      "y": 162
+    },
+    {
+      "kind": "tree_oak",
+      "x": 1799,
+      "y": 181
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1735,
+      "y": 103
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1738,
+      "y": 597
+    },
+    {
+      "kind": "tree_round",
+      "x": 1796,
+      "y": 504
+    },
+    {
+      "kind": "tree_round",
+      "x": 1831,
+      "y": 590
+    },
+    {
+      "kind": "tree_oak",
+      "x": 1838,
       "y": 520
     },
     {
-      "kind": "bench",
-      "x": 566,
-      "y": 508
+      "kind": "tree_pine",
+      "x": 1779,
+      "y": 572
     },
     {
-      "kind": "bench",
-      "x": 178,
-      "y": 520
+      "kind": "tree_oak",
+      "x": 1812,
+      "y": 628
     },
     {
-      "kind": "bench",
-      "x": 196,
-      "y": 486
+      "kind": "tree_pine",
+      "x": 1734,
+      "y": 546
     },
     {
-      "kind": "bench",
-      "x": 1036,
-      "y": 420
+      "kind": "tree_round",
+      "x": 1325,
+      "y": 826
     },
     {
-      "kind": "bench",
-      "x": 1124,
-      "y": 664
+      "kind": "tree_oak",
+      "x": 1380,
+      "y": 875
     },
     {
-      "kind": "bench",
-      "x": 696,
-      "y": 616
+      "kind": "tree_round",
+      "x": 1275,
+      "y": 924
     },
     {
-      "kind": "picnic_table",
-      "x": 206,
-      "y": 505
+      "kind": "tree_oak",
+      "x": 1314,
+      "y": 915
     },
     {
-      "kind": "picnic_table",
-      "x": 664,
-      "y": 606
+      "kind": "tree_oak",
+      "x": 1322,
+      "y": 953
     },
     {
-      "kind": "car_red",
-      "x": 1156,
-      "y": 398
+      "kind": "tree_oak",
+      "x": 1220,
+      "y": 952
     },
     {
-      "kind": "car_blue",
-      "x": 1160,
-      "y": 434
+      "kind": "tree_pine",
+      "x": 1322,
+      "y": 829
     },
     {
-      "kind": "car_green",
-      "x": 1154,
-      "y": 466
+      "kind": "tree_pine",
+      "x": 1323,
+      "y": 985
     },
     {
-      "kind": "car_red",
-      "x": 1042,
-      "y": 328
+      "kind": "tree_round",
+      "x": 1628,
+      "y": 996
     },
     {
-      "kind": "car_blue",
-      "x": 1024,
-      "y": 540
+      "kind": "tree_pine",
+      "x": 1511,
+      "y": 1021
     },
     {
-      "kind": "car_green",
-      "x": 467,
+      "kind": "tree_pine",
+      "x": 1534,
+      "y": 959
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1568,
+      "y": 1015
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1551,
+      "y": 1031
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1575,
+      "y": 883
+    },
+    {
+      "kind": "tree_oak",
+      "x": 180,
+      "y": 578
+    },
+    {
+      "kind": "tree_round",
+      "x": 318,
       "y": 509
     },
     {
-      "kind": "car_red",
-      "x": 739,
-      "y": 470
+      "kind": "tree_pine",
+      "x": 268,
+      "y": 459
     },
     {
-      "kind": "car_blue",
+      "kind": "tree_pine",
+      "x": 322,
+      "y": 473
+    },
+    {
+      "kind": "tree_pine",
+      "x": 280,
+      "y": 588
+    },
+    {
+      "kind": "tree_pine",
+      "x": 250,
+      "y": 527
+    },
+    {
+      "kind": "tree_pine",
+      "x": 205,
+      "y": 473
+    },
+    {
+      "kind": "tree_oak",
+      "x": 280,
+      "y": 568
+    },
+    {
+      "kind": "tree_pine",
+      "x": 250,
+      "y": 686
+    },
+    {
+      "kind": "tree_pine",
+      "x": 263,
+      "y": 724
+    },
+    {
+      "kind": "tree_pine",
+      "x": 190,
+      "y": 671
+    },
+    {
+      "kind": "tree_oak",
+      "x": 228,
+      "y": 714
+    },
+    {
+      "kind": "tree_pine",
+      "x": 155,
+      "y": 657
+    },
+    {
+      "kind": "tree_oak",
+      "x": 189,
+      "y": 649
+    },
+    {
+      "kind": "tree_pine",
+      "x": 173,
+      "y": 708
+    },
+    {
+      "kind": "tree_pine",
+      "x": 418,
+      "y": 992
+    },
+    {
+      "kind": "tree_pine",
+      "x": 440,
+      "y": 1040
+    },
+    {
+      "kind": "tree_pine",
+      "x": 480,
+      "y": 937
+    },
+    {
+      "kind": "tree_pine",
+      "x": 471,
+      "y": 1000
+    },
+    {
+      "kind": "tree_pine",
+      "x": 441,
+      "y": 1007
+    },
+    {
+      "kind": "tree_pine",
+      "x": 366,
+      "y": 1001
+    },
+    {
+      "kind": "tree_round",
+      "x": 434,
+      "y": 905
+    },
+    {
+      "kind": "tree_pine",
+      "x": 419,
+      "y": 870
+    },
+    {
+      "kind": "tree_pine",
+      "x": 785,
+      "y": 886
+    },
+    {
+      "kind": "tree_pine",
+      "x": 766,
+      "y": 826
+    },
+    {
+      "kind": "tree_pine",
+      "x": 773,
+      "y": 940
+    },
+    {
+      "kind": "tree_pine",
+      "x": 767,
+      "y": 837
+    },
+    {
+      "kind": "tree_oak",
+      "x": 828,
+      "y": 983
+    },
+    {
+      "kind": "tree_pine",
+      "x": 830,
+      "y": 891
+    },
+    {
+      "kind": "tree_pine",
+      "x": 910,
+      "y": 915
+    },
+    {
+      "kind": "tree_pine",
       "x": 900,
-      "y": 466
+      "y": 864
     },
     {
-      "kind": "bus",
-      "x": 557,
-      "y": 478
+      "kind": "tree_oak",
+      "x": 1070,
+      "y": 569
     },
     {
-      "kind": "signpost",
-      "x": 1081,
-      "y": 412
+      "kind": "tree_pine",
+      "x": 1007,
+      "y": 626
     },
     {
-      "kind": "signpost",
-      "x": 344,
-      "y": 601
+      "kind": "tree_oak",
+      "x": 958,
+      "y": 560
     },
     {
-      "kind": "signpost",
-      "x": 352,
-      "y": 676
-    },
-    {
-      "kind": "signpost",
-      "x": 225,
-      "y": 697
-    },
-    {
-      "kind": "signpost",
-      "x": 161,
-      "y": 456
-    },
-    {
-      "kind": "signpost",
-      "x": 601,
-      "y": 461
-    },
-    {
-      "kind": "signpost",
-      "x": 562,
-      "y": 37
-    },
-    {
-      "kind": "signpost",
-      "x": 709,
-      "y": 474
-    },
-    {
-      "kind": "signpost",
-      "x": 594,
-      "y": 292
-    },
-    {
-      "kind": "signpost",
-      "x": 1024,
-      "y": 237
-    },
-    {
-      "kind": "signpost",
-      "x": 810,
-      "y": 282
-    },
-    {
-      "kind": "signpost",
-      "x": 895,
-      "y": 237
-    },
-    {
-      "kind": "signpost",
-      "x": 908,
-      "y": 26
-    },
-    {
-      "kind": "signpost",
+      "kind": "tree_pine",
       "x": 948,
-      "y": 414
+      "y": 548
     },
     {
-      "kind": "hydrant",
-      "x": 486,
-      "y": 528
+      "kind": "tree_pine",
+      "x": 931,
+      "y": 558
     },
     {
-      "kind": "hydrant",
-      "x": 696,
-      "y": 475
+      "kind": "tree_oak",
+      "x": 549,
+      "y": 663
     },
     {
-      "kind": "hydrant",
-      "x": 1060,
-      "y": 350
+      "kind": "tree_round",
+      "x": 605,
+      "y": 624
     },
     {
-      "kind": "mailbox",
-      "x": 604,
-      "y": 494
+      "kind": "tree_round",
+      "x": 584,
+      "y": 717
     },
     {
-      "kind": "mailbox",
-      "x": 842,
-      "y": 462
+      "kind": "tree_oak",
+      "x": 622,
+      "y": 653
     },
     {
-      "kind": "mailbox",
-      "x": 390,
-      "y": 650
+      "kind": "tree_round",
+      "x": 506,
+      "y": 705
     },
     {
-      "kind": "fence_h",
-      "x": 809,
-      "y": 117
+      "kind": "tree_pine",
+      "x": 927,
+      "y": 1107
     },
     {
-      "kind": "fence_h",
-      "x": 809,
-      "y": 205
+      "kind": "tree_pine",
+      "x": 933,
+      "y": 1044
     },
     {
-      "kind": "fence_h",
-      "x": 831,
-      "y": 117
+      "kind": "tree_pine",
+      "x": 901,
+      "y": 1119
     },
     {
-      "kind": "fence_h",
-      "x": 831,
-      "y": 205
-    },
-    {
-      "kind": "fence_h",
-      "x": 853,
-      "y": 117
-    },
-    {
-      "kind": "fence_h",
-      "x": 853,
-      "y": 205
-    },
-    {
-      "kind": "fence_h",
+      "kind": "tree_oak",
       "x": 875,
-      "y": 117
+      "y": 1123
     },
     {
-      "kind": "fence_h",
-      "x": 875,
-      "y": 205
+      "kind": "tree_pine",
+      "x": 815,
+      "y": 1048
     },
     {
-      "kind": "fence_h",
-      "x": 893,
-      "y": 117
+      "kind": "tree_pine",
+      "x": 841,
+      "y": 1086
     },
     {
-      "kind": "fence_h",
-      "x": 897,
-      "y": 205
+      "kind": "tree_pine",
+      "x": 451,
+      "y": 1081
     },
     {
-      "kind": "fence_v",
-      "x": 801,
+      "kind": "tree_pine",
+      "x": 373,
+      "y": 1032
+    },
+    {
+      "kind": "tree_oak",
+      "x": 428,
+      "y": 1141
+    },
+    {
+      "kind": "tree_oak",
+      "x": 358,
+      "y": 1041
+    },
+    {
+      "kind": "tree_round",
+      "x": 391,
+      "y": 1064
+    },
+    {
+      "kind": "tree_pine",
+      "x": 362,
+      "y": 1088
+    },
+    {
+      "kind": "tree_pine",
+      "x": 419,
+      "y": 1078
+    },
+    {
+      "kind": "tree_round",
+      "x": 1602,
+      "y": 639
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1640,
+      "y": 705
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1669,
+      "y": 683
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1652,
+      "y": 603
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1696,
+      "y": 594
+    },
+    {
+      "kind": "tree_oak",
+      "x": 74,
+      "y": 962
+    },
+    {
+      "kind": "tree_pine",
+      "x": 77,
+      "y": 997
+    },
+    {
+      "kind": "tree_oak",
+      "x": 183,
+      "y": 946
+    },
+    {
+      "kind": "tree_oak",
+      "x": 37,
+      "y": 954
+    },
+    {
+      "kind": "tree_oak",
+      "x": 67,
+      "y": 938
+    },
+    {
+      "kind": "tree_round",
+      "x": 109,
+      "y": 892
+    },
+    {
+      "kind": "tree_pine",
+      "x": 206,
+      "y": 984
+    },
+    {
+      "kind": "tree_oak",
+      "x": 154,
+      "y": 1046
+    },
+    {
+      "kind": "tree_pine",
+      "x": 706,
+      "y": 1071
+    },
+    {
+      "kind": "tree_pine",
+      "x": 614,
+      "y": 1131
+    },
+    {
+      "kind": "tree_oak",
+      "x": 570,
+      "y": 1092
+    },
+    {
+      "kind": "tree_oak",
+      "x": 674,
+      "y": 1103
+    },
+    {
+      "kind": "tree_oak",
+      "x": 695,
+      "y": 1061
+    },
+    {
+      "kind": "tree_pine",
+      "x": 597,
+      "y": 1086
+    },
+    {
+      "kind": "tree_oak",
+      "x": 964,
+      "y": 1105
+    },
+    {
+      "kind": "tree_oak",
+      "x": 965,
+      "y": 1141
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1068,
+      "y": 1134
+    },
+    {
+      "kind": "tree_round",
+      "x": 962,
+      "y": 1140
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1875,
+      "y": 742
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1861,
+      "y": 803
+    },
+    {
+      "kind": "tree_round",
+      "x": 1909,
+      "y": 727
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1813,
+      "y": 754
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1829,
+      "y": 749
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1851,
+      "y": 966
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1811,
+      "y": 1030
+    },
+    {
+      "kind": "tree_oak",
+      "x": 1805,
+      "y": 1022
+    },
+    {
+      "kind": "tree_round",
+      "x": 1787,
+      "y": 918
+    },
+    {
+      "kind": "tree_oak",
+      "x": 1806,
+      "y": 935
+    },
+    {
+      "kind": "tree_pine",
+      "x": 149,
+      "y": 430
+    },
+    {
+      "kind": "tree_round",
+      "x": 27,
+      "y": 436
+    },
+    {
+      "kind": "tree_pine",
+      "x": 97,
+      "y": 522
+    },
+    {
+      "kind": "tree_pine",
+      "x": 60,
+      "y": 504
+    },
+    {
+      "kind": "tree_pine",
+      "x": 116,
+      "y": 446
+    },
+    {
+      "kind": "tree_oak",
+      "x": 127,
+      "y": 437
+    },
+    {
+      "kind": "tree_pine",
+      "x": 478,
+      "y": 172
+    },
+    {
+      "kind": "tree_round",
+      "x": 510,
+      "y": 129
+    },
+    {
+      "kind": "tree_pine",
+      "x": 456,
+      "y": 143
+    },
+    {
+      "kind": "tree_pine",
+      "x": 498,
+      "y": 125
+    },
+    {
+      "kind": "tree_round",
+      "x": 499,
+      "y": 122
+    },
+    {
+      "kind": "tree_oak",
+      "x": 471,
+      "y": 132
+    },
+    {
+      "kind": "tree_oak",
+      "x": 543,
+      "y": 92
+    },
+    {
+      "kind": "tree_pine",
+      "x": 920,
+      "y": 120
+    },
+    {
+      "kind": "tree_pine",
+      "x": 910,
+      "y": 191
+    },
+    {
+      "kind": "tree_pine",
+      "x": 917,
+      "y": 210
+    },
+    {
+      "kind": "tree_pine",
+      "x": 932,
+      "y": 119
+    },
+    {
+      "kind": "tree_oak",
+      "x": 954,
+      "y": 196
+    },
+    {
+      "kind": "tree_round",
+      "x": 890,
+      "y": 181
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1160,
+      "y": 107
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1094,
+      "y": 58
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1171,
+      "y": 108
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1092,
+      "y": 69
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1165,
+      "y": 109
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1462,
+      "y": 154
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1498,
       "y": 137
     },
     {
-      "kind": "fence_v",
-      "x": 902,
-      "y": 140
+      "kind": "tree_round",
+      "x": 1523,
+      "y": 163
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1459,
+      "y": 63
+    },
+    {
+      "kind": "tree_oak",
+      "x": 1439,
+      "y": 54
+    },
+    {
+      "kind": "tree_round",
+      "x": 1467,
+      "y": 127
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1084,
+      "y": 651
+    },
+    {
+      "kind": "tree_oak",
+      "x": 1114,
+      "y": 595
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1129,
+      "y": 690
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1188,
+      "y": 659
+    },
+    {
+      "kind": "tree_pine",
+      "x": 941,
+      "y": 504
+    },
+    {
+      "kind": "tree_pine",
+      "x": 903,
+      "y": 543
+    },
+    {
+      "kind": "tree_oak",
+      "x": 895,
+      "y": 509
+    },
+    {
+      "kind": "tree_pine",
+      "x": 899,
+      "y": 618
+    },
+    {
+      "kind": "tree_round",
+      "x": 943,
+      "y": 620
+    },
+    {
+      "kind": "tree_round",
+      "x": 11,
+      "y": 141
+    },
+    {
+      "kind": "tree_pine",
+      "x": 98,
+      "y": 150
+    },
+    {
+      "kind": "tree_pine",
+      "x": 84,
+      "y": 130
+    },
+    {
+      "kind": "tree_pine",
+      "x": 117,
+      "y": 123
+    },
+    {
+      "kind": "tree_pine",
+      "x": 11,
+      "y": 137
+    },
+    {
+      "kind": "tree_pine",
+      "x": 71,
+      "y": 306
+    },
+    {
+      "kind": "tree_pine",
+      "x": 74,
+      "y": 370
+    },
+    {
+      "kind": "tree_oak",
+      "x": 124,
+      "y": 298
+    },
+    {
+      "kind": "tree_pine",
+      "x": 135,
+      "y": 355
+    },
+    {
+      "kind": "tree_pine",
+      "x": 80,
+      "y": 356
+    },
+    {
+      "kind": "tree_pine",
+      "x": 69,
+      "y": 620
+    },
+    {
+      "kind": "tree_oak",
+      "x": 114,
+      "y": 668
+    },
+    {
+      "kind": "tree_pine",
+      "x": 112,
+      "y": 658
+    },
+    {
+      "kind": "tree_oak",
+      "x": 77,
+      "y": 644
+    },
+    {
+      "kind": "tree_round",
+      "x": 21,
+      "y": 721
+    },
+    {
+      "kind": "tree_pine",
+      "x": 42,
+      "y": 699
+    },
+    {
+      "kind": "tree_pine",
+      "x": 273,
+      "y": 461
+    },
+    {
+      "kind": "tree_pine",
+      "x": 383,
+      "y": 476
+    },
+    {
+      "kind": "tree_pine",
+      "x": 303,
+      "y": 333
+    },
+    {
+      "kind": "tree_pine",
+      "x": 304,
+      "y": 470
+    },
+    {
+      "kind": "tree_pine",
+      "x": 272,
+      "y": 405
+    },
+    {
+      "kind": "tree_oak",
+      "x": 373,
+      "y": 425
+    },
+    {
+      "kind": "tree_round",
+      "x": 358,
+      "y": 258
+    },
+    {
+      "kind": "tree_pine",
+      "x": 472,
+      "y": 238
+    },
+    {
+      "kind": "tree_pine",
+      "x": 454,
+      "y": 199
+    },
+    {
+      "kind": "tree_round",
+      "x": 360,
+      "y": 259
+    },
+    {
+      "kind": "tree_oak",
+      "x": 380,
+      "y": 306
+    },
+    {
+      "kind": "tree_oak",
+      "x": 486,
+      "y": 218
+    },
+    {
+      "kind": "tree_oak",
+      "x": 326,
+      "y": 1126
+    },
+    {
+      "kind": "tree_pine",
+      "x": 286,
+      "y": 1101
+    },
+    {
+      "kind": "tree_round",
+      "x": 246,
+      "y": 1141
+    },
+    {
+      "kind": "tree_pine",
+      "x": 282,
+      "y": 1142
+    },
+    {
+      "kind": "tree_oak",
+      "x": 296,
+      "y": 1092
+    },
+    {
+      "kind": "tree_oak",
+      "x": 959,
+      "y": 679
+    },
+    {
+      "kind": "tree_pine",
+      "x": 911,
+      "y": 625
+    },
+    {
+      "kind": "tree_pine",
+      "x": 940,
+      "y": 646
+    },
+    {
+      "kind": "tree_pine",
+      "x": 864,
+      "y": 650
+    },
+    {
+      "kind": "tree_pine",
+      "x": 861,
+      "y": 715
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1241,
+      "y": 923
+    },
+    {
+      "kind": "tree_oak",
+      "x": 1157,
+      "y": 979
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1151,
+      "y": 965
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1163,
+      "y": 994
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1152,
+      "y": 888
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1216,
+      "y": 985
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1425,
+      "y": 924
+    },
+    {
+      "kind": "tree_oak",
+      "x": 1436,
+      "y": 993
+    },
+    {
+      "kind": "tree_oak",
+      "x": 1490,
+      "y": 899
+    },
+    {
+      "kind": "tree_round",
+      "x": 1499,
+      "y": 986
+    },
+    {
+      "kind": "tree_round",
+      "x": 1473,
+      "y": 975
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1722,
+      "y": 869
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1732,
+      "y": 877
+    },
+    {
+      "kind": "tree_oak",
+      "x": 1756,
+      "y": 893
+    },
+    {
+      "kind": "tree_round",
+      "x": 1761,
+      "y": 897
+    },
+    {
+      "kind": "tree_round",
+      "x": 1819,
+      "y": 945
+    },
+    {
+      "kind": "tree_oak",
+      "x": 1862,
+      "y": 729
+    },
+    {
+      "kind": "tree_round",
+      "x": 1910,
+      "y": 651
+    },
+    {
+      "kind": "tree_round",
+      "x": 1843,
+      "y": 676
+    },
+    {
+      "kind": "tree_round",
+      "x": 1877,
+      "y": 691
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1291,
+      "y": 364
+    },
+    {
+      "kind": "tree_round",
+      "x": 1287,
+      "y": 298
+    },
+    {
+      "kind": "tree_oak",
+      "x": 1239,
+      "y": 302
+    },
+    {
+      "kind": "tree_oak",
+      "x": 1333,
+      "y": 387
+    },
+    {
+      "kind": "tree_round",
+      "x": 673,
+      "y": 51
+    },
+    {
+      "kind": "tree_round",
+      "x": 720,
+      "y": 72
+    },
+    {
+      "kind": "tree_pine",
+      "x": 739,
+      "y": 90
+    },
+    {
+      "kind": "tree_round",
+      "x": 647,
+      "y": 44
+    },
+    {
+      "kind": "tree_oak",
+      "x": 715,
+      "y": 66
+    },
+    {
+      "kind": "tree_round",
+      "x": 1617,
+      "y": 1031
+    },
+    {
+      "kind": "tree_round",
+      "x": 1635,
+      "y": 1035
+    },
+    {
+      "kind": "tree_round",
+      "x": 1575,
+      "y": 970
+    },
+    {
+      "kind": "tree_pine",
+      "x": 1613,
+      "y": 980
+    },
+    {
+      "kind": "bench",
+      "x": 1256,
+      "y": 586
+    },
+    {
+      "kind": "bench",
+      "x": 1312,
+      "y": 600
+    },
+    {
+      "kind": "bench",
+      "x": 890,
+      "y": 254
+    },
+    {
+      "kind": "bench",
+      "x": 1088,
+      "y": 1090
+    },
+    {
+      "kind": "bench",
+      "x": 668,
+      "y": 606
+    },
+    {
+      "kind": "bench",
+      "x": 1617,
+      "y": 812
+    },
+    {
+      "kind": "bench",
+      "x": 560,
+      "y": 930
+    },
+    {
+      "kind": "picnic_table",
+      "x": 690,
+      "y": 548
+    },
+    {
+      "kind": "picnic_table",
+      "x": 900,
+      "y": 262
+    },
+    {
+      "kind": "car_red",
+      "x": 726,
+      "y": 1084
+    },
+    {
+      "kind": "car_blue",
+      "x": 760,
+      "y": 1096
+    },
+    {
+      "kind": "car_green",
+      "x": 700,
+      "y": 1120
+    },
+    {
+      "kind": "car_red",
+      "x": 1206,
+      "y": 1102
+    },
+    {
+      "kind": "car_blue",
+      "x": 1010,
+      "y": 1010
+    },
+    {
+      "kind": "car_green",
+      "x": 1079,
+      "y": 464
+    },
+    {
+      "kind": "car_red",
+      "x": 1400,
+      "y": 508
+    },
+    {
+      "kind": "car_blue",
+      "x": 1006,
+      "y": 214
+    },
+    {
+      "kind": "hydrant",
+      "x": 1250,
+      "y": 500
+    },
+    {
+      "kind": "hydrant",
+      "x": 996,
+      "y": 439
+    },
+    {
+      "kind": "hydrant",
+      "x": 1090,
+      "y": 1082
+    },
+    {
+      "kind": "mailbox",
+      "x": 1352,
+      "y": 542
+    },
+    {
+      "kind": "mailbox",
+      "x": 862,
+      "y": 394
+    },
+    {
+      "kind": "mailbox",
+      "x": 1508,
+      "y": 742
+    },
+    {
+      "kind": "mailbox",
+      "x": 612,
+      "y": 803
+    },
+    {
+      "kind": "bus",
+      "x": 1300,
+      "y": 386
+    },
+    {
+      "kind": "signpost",
+      "x": 1159,
+      "y": 493
+    },
+    {
+      "kind": "signpost",
+      "x": 1025,
+      "y": 173
+    },
+    {
+      "kind": "signpost",
+      "x": 1321,
+      "y": 507
+    },
+    {
+      "kind": "signpost",
+      "x": 1286,
+      "y": 494
+    },
+    {
+      "kind": "signpost",
+      "x": 988,
+      "y": 819
+    },
+    {
+      "kind": "signpost",
+      "x": 830,
+      "y": 789
+    },
+    {
+      "kind": "signpost",
+      "x": 778,
+      "y": 682
+    },
+    {
+      "kind": "signpost",
+      "x": 799,
+      "y": 780
+    },
+    {
+      "kind": "signpost",
+      "x": 523,
+      "y": 764
+    },
+    {
+      "kind": "signpost",
+      "x": 1635,
+      "y": 781
+    },
+    {
+      "kind": "signpost",
+      "x": 1558,
+      "y": 420
+    },
+    {
+      "kind": "signpost",
+      "x": 1726,
+      "y": 809
+    },
+    {
+      "kind": "fence_h",
+      "x": 1234,
+      "y": 178
+    },
+    {
+      "kind": "fence_h",
+      "x": 1234,
+      "y": 272
+    },
+    {
+      "kind": "fence_h",
+      "x": 1256,
+      "y": 178
+    },
+    {
+      "kind": "fence_h",
+      "x": 1256,
+      "y": 272
+    },
+    {
+      "kind": "fence_h",
+      "x": 1278,
+      "y": 178
+    },
+    {
+      "kind": "fence_h",
+      "x": 1278,
+      "y": 272
+    },
+    {
+      "kind": "fence_h",
+      "x": 1302,
+      "y": 181
+    },
+    {
+      "kind": "fence_h",
+      "x": 1285,
+      "y": 277
+    },
+    {
+      "kind": "fence_h",
+      "x": 1324,
+      "y": 166
+    },
+    {
+      "kind": "fence_h",
+      "x": 1325,
+      "y": 256
     },
     {
       "kind": "fence_v",
-      "x": 809,
-      "y": 175
+      "x": 1224,
+      "y": 200
     },
     {
       "kind": "fence_v",
-      "x": 905,
-      "y": 161
+      "x": 1330,
+      "y": 203
     },
     {
       "kind": "fence_v",
-      "x": 809,
-      "y": 185
+      "x": 1228,
+      "y": 224
     },
     {
       "kind": "fence_v",
-      "x": 905,
-      "y": 185
+      "x": 1332,
+      "y": 224
+    },
+    {
+      "kind": "fence_v",
+      "x": 1228,
+      "y": 248
+    },
+    {
+      "kind": "fence_v",
+      "x": 1332,
+      "y": 248
+    },
+    {
+      "kind": "rock",
+      "x": 1027,
+      "y": 747
+    },
+    {
+      "kind": "rock",
+      "x": 893,
+      "y": 1100
     },
     {
       "kind": "flowers",
-      "x": 429,
-      "y": 211
+      "x": 116,
+      "y": 598
     },
     {
       "kind": "flowers",
+      "x": 469,
+      "y": 1026
+    },
+    {
+      "kind": "rock",
+      "x": 1070,
+      "y": 538
+    },
+    {
+      "kind": "bush",
+      "x": 181,
+      "y": 535
+    },
+    {
+      "kind": "flowers",
+      "x": 1739,
+      "y": 480
+    },
+    {
+      "kind": "flowers",
+      "x": 386,
+      "y": 753
+    },
+    {
+      "kind": "bush",
+      "x": 1235,
+      "y": 462
+    },
+    {
+      "kind": "bush",
+      "x": 487,
+      "y": 503
+    },
+    {
+      "kind": "bush",
+      "x": 1175,
+      "y": 633
+    },
+    {
+      "kind": "bush",
+      "x": 110,
+      "y": 35
+    },
+    {
+      "kind": "flowers",
+      "x": 212,
+      "y": 1108
+    },
+    {
+      "kind": "tree_round",
+      "x": 955,
+      "y": 337
+    },
+    {
+      "kind": "rock",
+      "x": 455,
+      "y": 256
+    },
+    {
+      "kind": "flowers",
+      "x": 1630,
+      "y": 318
+    },
+    {
+      "kind": "flowers",
+      "x": 1429,
+      "y": 648
+    },
+    {
+      "kind": "flowers",
+      "x": 1414,
+      "y": 275
+    },
+    {
+      "kind": "rock",
+      "x": 676,
+      "y": 114
+    },
+    {
+      "kind": "rock",
+      "x": 1234,
+      "y": 846
+    },
+    {
+      "kind": "tree_round",
+      "x": 297,
+      "y": 686
+    },
+    {
+      "kind": "flowers",
+      "x": 266,
+      "y": 659
+    },
+    {
+      "kind": "tree_round",
+      "x": 230,
+      "y": 791
+    },
+    {
+      "kind": "bush",
+      "x": 1125,
+      "y": 853
+    },
+    {
+      "kind": "flowers",
+      "x": 145,
+      "y": 416
+    },
+    {
+      "kind": "bush",
+      "x": 439,
+      "y": 292
+    },
+    {
+      "kind": "tree_round",
+      "x": 1662,
+      "y": 389
+    },
+    {
+      "kind": "flowers",
+      "x": 374,
+      "y": 753
+    },
+    {
+      "kind": "tree_round",
+      "x": 318,
+      "y": 396
+    },
+    {
+      "kind": "rock",
+      "x": 1510,
+      "y": 591
+    },
+    {
+      "kind": "flowers",
+      "x": 1429,
+      "y": 701
+    },
+    {
+      "kind": "flowers",
+      "x": 340,
+      "y": 965
+    },
+    {
+      "kind": "flowers",
+      "x": 726,
+      "y": 395
+    },
+    {
+      "kind": "bush",
+      "x": 1322,
+      "y": 461
+    },
+    {
+      "kind": "flowers",
+      "x": 1392,
+      "y": 708
+    },
+    {
+      "kind": "bush",
+      "x": 906,
+      "y": 469
+    },
+    {
+      "kind": "flowers",
+      "x": 654,
+      "y": 601
+    },
+    {
+      "kind": "flowers",
+      "x": 1350,
+      "y": 30
+    },
+    {
+      "kind": "rock",
+      "x": 1580,
+      "y": 345
+    },
+    {
+      "kind": "flowers",
+      "x": 1422,
+      "y": 106
+    },
+    {
+      "kind": "flowers",
+      "x": 1747,
+      "y": 271
+    },
+    {
+      "kind": "bush",
+      "x": 302,
+      "y": 1081
+    },
+    {
+      "kind": "bush",
+      "x": 1436,
+      "y": 921
+    },
+    {
+      "kind": "bush",
+      "x": 1430,
+      "y": 298
+    },
+    {
+      "kind": "rock",
+      "x": 772,
+      "y": 946
+    },
+    {
+      "kind": "bush",
+      "x": 321,
+      "y": 831
+    },
+    {
+      "kind": "flowers",
+      "x": 1561,
+      "y": 187
+    },
+    {
+      "kind": "bush",
+      "x": 698,
+      "y": 310
+    },
+    {
+      "kind": "flowers",
+      "x": 1869,
+      "y": 923
+    },
+    {
+      "kind": "tree_round",
       "x": 1120,
+      "y": 478
+    },
+    {
+      "kind": "bush",
+      "x": 1283,
+      "y": 180
+    },
+    {
+      "kind": "tree_round",
+      "x": 1692,
+      "y": 1000
+    },
+    {
+      "kind": "flowers",
+      "x": 925,
+      "y": 1093
+    },
+    {
+      "kind": "bush",
+      "x": 760,
+      "y": 1129
+    },
+    {
+      "kind": "bush",
+      "x": 1354,
+      "y": 958
+    },
+    {
+      "kind": "rock",
+      "x": 506,
+      "y": 19
+    },
+    {
+      "kind": "tree_round",
+      "x": 1559,
+      "y": 226
+    },
+    {
+      "kind": "flowers",
+      "x": 1667,
+      "y": 360
+    },
+    {
+      "kind": "rock",
+      "x": 1809,
+      "y": 410
+    },
+    {
+      "kind": "flowers",
+      "x": 115,
+      "y": 364
+    },
+    {
+      "kind": "flowers",
+      "x": 928,
+      "y": 1102
+    },
+    {
+      "kind": "tree_round",
+      "x": 619,
+      "y": 772
+    },
+    {
+      "kind": "flowers",
+      "x": 533,
+      "y": 190
+    },
+    {
+      "kind": "rock",
+      "x": 1023,
+      "y": 110
+    },
+    {
+      "kind": "rock",
+      "x": 236,
+      "y": 171
+    },
+    {
+      "kind": "tree_round",
+      "x": 1570,
+      "y": 570
+    },
+    {
+      "kind": "rock",
+      "x": 1775,
+      "y": 594
+    },
+    {
+      "kind": "flowers",
+      "x": 545,
+      "y": 1034
+    },
+    {
+      "kind": "rock",
+      "x": 961,
+      "y": 97
+    },
+    {
+      "kind": "flowers",
+      "x": 1738,
+      "y": 363
+    },
+    {
+      "kind": "bush",
+      "x": 218,
+      "y": 707
+    },
+    {
+      "kind": "rock",
+      "x": 1357,
+      "y": 897
+    },
+    {
+      "kind": "flowers",
+      "x": 1200,
+      "y": 514
+    },
+    {
+      "kind": "rock",
+      "x": 1696,
+      "y": 734
+    },
+    {
+      "kind": "bush",
+      "x": 265,
+      "y": 316
+    },
+    {
+      "kind": "rock",
+      "x": 270,
+      "y": 107
+    },
+    {
+      "kind": "flowers",
+      "x": 337,
+      "y": 57
+    },
+    {
+      "kind": "flowers",
+      "x": 534,
+      "y": 654
+    },
+    {
+      "kind": "flowers",
+      "x": 945,
+      "y": 221
+    },
+    {
+      "kind": "rock",
+      "x": 92,
+      "y": 1115
+    },
+    {
+      "kind": "bush",
+      "x": 206,
+      "y": 526
+    },
+    {
+      "kind": "rock",
+      "x": 1335,
+      "y": 692
+    },
+    {
+      "kind": "bush",
+      "x": 224,
+      "y": 1039
+    },
+    {
+      "kind": "flowers",
+      "x": 787,
+      "y": 385
+    },
+    {
+      "kind": "rock",
+      "x": 1776,
+      "y": 801
+    },
+    {
+      "kind": "bush",
+      "x": 225,
+      "y": 483
+    },
+    {
+      "kind": "tree_round",
+      "x": 396,
+      "y": 70
+    },
+    {
+      "kind": "flowers",
+      "x": 620,
+      "y": 394
+    },
+    {
+      "kind": "flowers",
+      "x": 1851,
+      "y": 653
+    },
+    {
+      "kind": "rock",
+      "x": 1473,
+      "y": 598
+    },
+    {
+      "kind": "flowers",
+      "x": 460,
+      "y": 944
+    },
+    {
+      "kind": "bush",
+      "x": 261,
+      "y": 651
+    },
+    {
+      "kind": "bush",
+      "x": 244,
       "y": 41
     },
     {
       "kind": "bush",
-      "x": 896,
-      "y": 163
-    },
-    {
-      "kind": "bush",
-      "x": 752,
-      "y": 408
-    },
-    {
-      "kind": "bush",
-      "x": 468,
-      "y": 281
-    },
-    {
-      "kind": "tree_round",
-      "x": 964,
-      "y": 23
+      "x": 818,
+      "y": 680
     },
     {
       "kind": "flowers",
-      "x": 628,
-      "y": 181
+      "x": 898,
+      "y": 533
     },
     {
-      "kind": "flowers",
-      "x": 333,
-      "y": 274
+      "kind": "bush",
+      "x": 70,
+      "y": 1055
     },
     {
       "kind": "rock",
-      "x": 282,
-      "y": 732
-    },
-    {
-      "kind": "bush",
-      "x": 901,
-      "y": 742
-    },
-    {
-      "kind": "rock",
-      "x": 146,
-      "y": 82
-    },
-    {
-      "kind": "bush",
-      "x": 788,
-      "y": 133
-    },
-    {
-      "kind": "flowers",
-      "x": 65,
+      "x": 915,
       "y": 370
     },
     {
       "kind": "bush",
-      "x": 323,
-      "y": 485
+      "x": 1016,
+      "y": 327
+    },
+    {
+      "kind": "flowers",
+      "x": 320,
+      "y": 309
+    },
+    {
+      "kind": "flowers",
+      "x": 319,
+      "y": 122
+    },
+    {
+      "kind": "bush",
+      "x": 590,
+      "y": 157
+    },
+    {
+      "kind": "bush",
+      "x": 1088,
+      "y": 489
+    },
+    {
+      "kind": "tree_round",
+      "x": 1555,
+      "y": 51
+    },
+    {
+      "kind": "flowers",
+      "x": 1619,
+      "y": 26
+    },
+    {
+      "kind": "flowers",
+      "x": 887,
+      "y": 1044
+    },
+    {
+      "kind": "tree_round",
+      "x": 1410,
+      "y": 92
+    },
+    {
+      "kind": "flowers",
+      "x": 1593,
+      "y": 586
+    },
+    {
+      "kind": "rock",
+      "x": 924,
+      "y": 634
+    },
+    {
+      "kind": "flowers",
+      "x": 725,
+      "y": 765
+    },
+    {
+      "kind": "flowers",
+      "x": 1066,
+      "y": 519
+    },
+    {
+      "kind": "flowers",
+      "x": 1661,
+      "y": 481
+    },
+    {
+      "kind": "flowers",
+      "x": 998,
+      "y": 1041
+    },
+    {
+      "kind": "rock",
+      "x": 741,
+      "y": 192
+    },
+    {
+      "kind": "flowers",
+      "x": 1546,
+      "y": 956
+    },
+    {
+      "kind": "tree_round",
+      "x": 1887,
+      "y": 299
+    },
+    {
+      "kind": "flowers",
+      "x": 1883,
+      "y": 288
+    },
+    {
+      "kind": "rock",
+      "x": 1773,
+      "y": 852
+    },
+    {
+      "kind": "tree_round",
+      "x": 1456,
+      "y": 890
+    },
+    {
+      "kind": "flowers",
+      "x": 1823,
+      "y": 148
+    },
+    {
+      "kind": "flowers",
+      "x": 1264,
+      "y": 856
+    },
+    {
+      "kind": "rock",
+      "x": 586,
+      "y": 696
+    },
+    {
+      "kind": "flowers",
+      "x": 954,
+      "y": 342
+    },
+    {
+      "kind": "flowers",
+      "x": 1086,
+      "y": 75
+    },
+    {
+      "kind": "bush",
+      "x": 1575,
+      "y": 644
+    },
+    {
+      "kind": "flowers",
+      "x": 1459,
+      "y": 442
+    },
+    {
+      "kind": "bush",
+      "x": 963,
+      "y": 1008
+    },
+    {
+      "kind": "flowers",
+      "x": 593,
+      "y": 396
+    },
+    {
+      "kind": "flowers",
+      "x": 544,
+      "y": 594
+    },
+    {
+      "kind": "flowers",
+      "x": 1628,
+      "y": 571
+    },
+    {
+      "kind": "bush",
+      "x": 989,
+      "y": 825
+    },
+    {
+      "kind": "rock",
+      "x": 1001,
+      "y": 563
+    },
+    {
+      "kind": "bush",
+      "x": 1781,
+      "y": 123
+    },
+    {
+      "kind": "rock",
+      "x": 1563,
+      "y": 108
+    },
+    {
+      "kind": "tree_round",
+      "x": 491,
+      "y": 702
+    },
+    {
+      "kind": "bush",
+      "x": 212,
+      "y": 962
+    },
+    {
+      "kind": "flowers",
+      "x": 1168,
+      "y": 1028
+    },
+    {
+      "kind": "flowers",
+      "x": 1437,
+      "y": 927
+    },
+    {
+      "kind": "tree_round",
+      "x": 65,
+      "y": 281
+    },
+    {
+      "kind": "bush",
+      "x": 347,
+      "y": 1007
+    },
+    {
+      "kind": "tree_round",
+      "x": 244,
+      "y": 880
+    },
+    {
+      "kind": "bush",
+      "x": 1168,
+      "y": 181
+    },
+    {
+      "kind": "bush",
+      "x": 725,
+      "y": 374
+    },
+    {
+      "kind": "flowers",
+      "x": 821,
+      "y": 959
+    },
+    {
+      "kind": "bush",
+      "x": 1894,
+      "y": 25
+    },
+    {
+      "kind": "flowers",
+      "x": 392,
+      "y": 582
+    },
+    {
+      "kind": "rock",
+      "x": 1472,
+      "y": 271
+    },
+    {
+      "kind": "bush",
+      "x": 542,
+      "y": 155
+    },
+    {
+      "kind": "rock",
+      "x": 1813,
+      "y": 276
+    },
+    {
+      "kind": "tree_round",
+      "x": 998,
+      "y": 560
+    },
+    {
+      "kind": "bush",
+      "x": 1476,
+      "y": 76
+    },
+    {
+      "kind": "tree_round",
+      "x": 409,
+      "y": 283
+    },
+    {
+      "kind": "bush",
+      "x": 1154,
+      "y": 976
+    },
+    {
+      "kind": "flowers",
+      "x": 973,
+      "y": 971
+    },
+    {
+      "kind": "tree_round",
+      "x": 1318,
+      "y": 534
+    },
+    {
+      "kind": "flowers",
+      "x": 190,
+      "y": 193
+    },
+    {
+      "kind": "flowers",
+      "x": 944,
+      "y": 507
+    },
+    {
+      "kind": "rock",
+      "x": 344,
+      "y": 945
+    },
+    {
+      "kind": "tree_round",
+      "x": 428,
+      "y": 712
+    },
+    {
+      "kind": "flowers",
+      "x": 1463,
+      "y": 431
+    },
+    {
+      "kind": "flowers",
+      "x": 599,
+      "y": 653
+    },
+    {
+      "kind": "tree_round",
+      "x": 567,
+      "y": 34
+    },
+    {
+      "kind": "flowers",
+      "x": 93,
+      "y": 729
+    },
+    {
+      "kind": "rock",
+      "x": 1228,
+      "y": 878
+    },
+    {
+      "kind": "bush",
+      "x": 744,
+      "y": 146
+    },
+    {
+      "kind": "tree_round",
+      "x": 1666,
+      "y": 532
+    },
+    {
+      "kind": "flowers",
+      "x": 198,
+      "y": 382
+    },
+    {
+      "kind": "bush",
+      "x": 1899,
+      "y": 345
+    },
+    {
+      "kind": "rock",
+      "x": 1265,
+      "y": 47
+    },
+    {
+      "kind": "tree_round",
+      "x": 897,
+      "y": 1019
+    },
+    {
+      "kind": "flowers",
+      "x": 257,
+      "y": 32
     }
   ]
 }

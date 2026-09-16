@@ -7,6 +7,18 @@ export const TRANSPORT: Record<TransportMode, TransportProfile> = {
   car: { mode: 'car', speed: 0.25, roads: ['street', 'highway'], overhead: 5 },
 };
 
+export const MINUTES_PER_HOUR = 60;
+
+/**
+ * Whole hours a trip costs under the classic ruleset: minutes rounded up to
+ * the next hour, and never free. Edges keep their minutes (the sim budget and
+ * the replay timeline use them); only the charge is coarse. Tune the town so
+ * that raw minutes land in the intended hour bands.
+ */
+export function routeHours(minutes: number): number {
+  return Math.max(1, Math.ceil(minutes / MINUTES_PER_HOUR));
+}
+
 /** Precomputed adjacency for fast repeated queries. */
 export class TownGraph {
   readonly town: Town;

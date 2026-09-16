@@ -15,6 +15,7 @@ export const LOCATION_RECIPES: Record<string, PixelBuildingRef> = {
   // --- civic and transport -------------------------------------------------
   bus_depot: { kind: 'bus_depot', params: { sign: 'BUS' } },
   employment: { kind: 'employment', params: { sign: 'EMPLOYMENT' } },
+  rent_office: { kind: 'rent_office', params: { sign: 'RENT', sign2: 'OFFICE' } },
   bank: { kind: 'bank', params: { sign: 'BANK' } },
   newsstand: { kind: 'newsstand', params: { sign: 'NEWS' } },
   university: { kind: 'university', params: { sign: 'HI-TECH U' } },

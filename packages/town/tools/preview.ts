@@ -29,8 +29,8 @@ const OUT = resolve(HERE, '../../../art/sheets/riverton-graph.png');
 const town = riverton as unknown as Town;
 const SCALE = 1; // preview scale, not the game's
 
-const W = 1280;
-const H = 768;
+const W = town.canvas?.w ?? 1920;
+const H = town.canvas?.h ?? 1152;
 const s = createSurface(W, H, C.grass);
 
 // faint grid every 64px so distances are easy to eyeball
@@ -128,7 +128,21 @@ function drawStreets(kind: RoadKind): void {
   }
 }
 
-// 1. water, under everything
+// 1. water, under everything: the authored courses first, then rectangle ponds
+for (const w of town.water ?? []) {
+  const poly = sampleCurve(w.points[0]!, w.points.slice(1, -1), w.points[w.points.length - 1]!, 2);
+  for (let i = 1; i < poly.length; i++) thickLine(poly[i - 1]!, poly[i]!, w.width, C.water);
+  // a darker bank line either side, so the channel reads as water not road
+  for (let i = 1; i < poly.length; i++) {
+    const a = poly[i - 1]!;
+    const b = poly[i]!;
+    const len = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+    const nx = (-(b.y - a.y) / len) * (w.width / 2);
+    const ny = ((b.x - a.x) / len) * (w.width / 2);
+    put(s, a.x + nx, a.y + ny, C.waterDark);
+    put(s, a.x - nx, a.y - ny, C.waterDark);
+  }
+}
 for (const d of town.decor ?? []) {
   if (d.kind !== 'water') continue;
   rect(s, d.x, d.y, d.w ?? 10, d.h ?? 10, C.water);
@@ -152,6 +166,8 @@ const PROP_COLOUR: Record<string, number> = {
   bench: C.wood,
   bus: C.orange,
   bridge: C.stone,
+  viaduct: C.stone,
+  underpass: C.ink,
   dock: C.wood,
   hydrant: C.red,
   mailbox: C.blue,
@@ -165,6 +181,18 @@ const PROP_COLOUR: Record<string, number> = {
 for (const d of town.decor ?? []) {
   if (AREA.has(d.kind)) continue;
   const idx = PROP_COLOUR[d.kind] ?? C.leaf;
+  if (d.dir) {
+    // Crossings are drawn as a short bar across the road, along `dir`, so the
+    // preview shows which way a deck or a tunnel mouth runs.
+    const span = d.kind === 'underpass' ? 16 : 26;
+    thickLine(
+      { x: d.x - d.dir.x * span, y: d.y - d.dir.y * span },
+      { x: d.x + d.dir.x * span, y: d.y + d.dir.y * span },
+      d.kind === 'underpass' ? 6 : 10,
+      idx,
+    );
+    continue;
+  }
   put(s, d.x, d.y, idx);
   put(s, d.x + 1, d.y, idx);
   put(s, d.x, d.y + 1, idx);

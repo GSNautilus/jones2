@@ -26,6 +26,7 @@ import { chezCholesterol } from './chez_cholesterol';
 import { shadyAcres } from './shady_acres';
 import { lowcost } from './lowcost';
 import { securityApts } from './security_apts';
+import { rentOffice } from './rent_office';
 
 export const BUILDINGS: Record<string, BuildingGenerator> = {
   // phase A heroes
@@ -38,6 +39,7 @@ export const BUILDINGS: Record<string, BuildingGenerator> = {
   // civic and transport
   bus_depot: busDepot,
   employment,
+  rent_office: rentOffice,
   newsstand,
   clinic,
   // the parade

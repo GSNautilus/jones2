@@ -6,7 +6,8 @@ import { buildTimeline } from '../../src/replay/timeline';
 const TOWN = riverton as Town;
 const GRAPH = new TownGraph(TOWN);
 
-// Real riverton nodes/edges: bus_depot -(street,4m)-> j_center -(street,6m)-> employment.
+// Real riverton nodes/edges: bus_depot and employment both hang off j_center,
+// the crossroads at the town centre, on a 5-minute driveway each.
 const aEvents: PlayerEvent[] = [
   {
     minute: 0,
@@ -68,9 +69,11 @@ describe('buildTimeline', () => {
     expect(frame.poses.a).toEqual({ kind: 'at', node: 'bus_depot' });
   });
 
-  it('is between the right segment midway through a travel event', () => {
+  it('is between the right segment part-way through a travel event', () => {
     const timeline = buildTestTimeline();
-    const frame = timeline.at(15); // midpoint of the 0..30 travel event
+    // The two legs cost the same, so minute 15 lands exactly on j_center;
+    // sample past it to be unambiguously on the second leg.
+    const frame = timeline.at(20);
     const pose = frame.poses.a!;
     expect(pose.kind).toBe('between');
     if (pose.kind === 'between') {

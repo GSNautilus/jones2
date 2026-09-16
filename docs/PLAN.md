@@ -62,27 +62,73 @@ Distance is now a real cost, so the town's shape *is* game design.
 - Only the 13 classic locations are active in classic mode (see §3). The other 14 buildings
   either stay as inert scenery or are removed from the classic town.
 
-**Proposal**
-- Convert travel to **whole hours** (round up; minimum 1h) and re-tune the town so:
-  downtown hops 1h, downtown↔strip 2h, downtown↔campus 2–3h, downtown↔factory 3h,
-  Low-Cost Housing far from downtown (3h) vs Security Apartments in the centre (1h).
-  The rent difference then buys *time*, which is the strategic hook the original lacked.
-- Districts, each with one reason to go there:
-  - **Centre:** Employment Office, Bank, Rent Office, Monolith Burgers, Security Apartments.
-  - **Retail strip (one direction):** Z-Mart, QT Clothing, Socket City, Black's Market, Pawn Shop.
-  - **Campus (another direction):** Hi-Tech U — studying means committing to trips.
-  - **Industrial (opposite):** Factory (best wages, far) with Low-Cost Housing beside it.
-- Canvas grows to fit those distances (≈1920×1152) with woods, river and highway as the
-  space between districts. The renderer's 1× overview shows it whole; play at 2×.
-- Later (not classic): the parked transport system (bus/bike/car) becomes the way to buy back
-  travel time on this map.
-
-**Decided 2026-09-16**
-1. Whole-hour travel with the ladder above. Yes.
+**Decided 2026-09-16 (first pass)**
+1. Whole-hour travel with a distance ladder (superseded in detail by the table below).
 2. The 14 non-classic buildings stay on the map as **inert placeholders**: drawn, labelled CLOSED
    (a sign/board on the sprite and a "Closed" note if clicked), not enterable, no actions.
-   They are reserved for later rulesets.
-3. Canvas ≈ 1920×1152; the ladder numbers are the starting point for tuning.
+   They are reserved for later rulesets. On the new map they are scattered through the wedges as
+   scenery so no district looks empty; they have no travel role.
+3. Canvas ≈ 1920×1152.
+
+**Decided 2026-09-16 (second pass): river and highway**
+
+The town's shape is a **river on one diagonal and a highway on the other**, crossing at the
+centre. The river splits the town into a rich/commercial half and a poor/industrial half; the
+highway cuts each half in two, so the town is four wedges meeting at the crossing.
+
+- **Orientation:** the river runs from the top-left corner to the bottom-right; the rich half is
+  above it (north-east), the poor half below (south-west). The highway runs bottom-left to top-right.
+- **Not a grid.** The diagonals are the *scheme*, not the drawing: the river meanders, the highway
+  sweeps in long curves, streets bend and branch at odd angles, wedges differ in size and density,
+  and the crossing is off-centre rather than at the exact middle. Woods, water and open ground
+  fill the gaps between districts. The sketch is a diagram; the generator should hide it.
+- **The highway is a barrier to walkers** (the transport table already forbids walking on it).
+  Streets cross it only at authored **underpasses**, about two per half, drawn as a prop with no
+  junction node (a street that crosses without attaching gets no junction, so grade separation is
+  automatic in the streets-first generator).
+- **Three bridges:** one at the central crossing (the highway crosses the river there too, on its
+  own span) and one out toward each end of the river. Prune to fewer if crossing feels too cheap.
+- **Water is authored like a street:** a curve with a width, rasterised by the same machinery as
+  roads, so the shoreline comes from the outline of the water mask the way kerbs come from the
+  asphalt mask. The rectangle-chain river goes away.
+
+**Where things live**
+- **Centre (the crossing):** Employment Office, Monolith Burgers, Rent Office. Everyone starts
+  here; it is at most 2h from anywhere. Monolith sits here so the poor side is not 3h from lunch.
+- **Poor half, mill wedge:** Factory, Low-Cost Housing. A starting player can live and work here
+  without crossing water.
+- **Poor half, strip wedge:** Z-Mart, Black's Market, Pawn Shop — the original's low-tier employers.
+- **Rich half, uptown wedge:** Bank, QT Clothing, Socket City.
+- **Rich half, campus wedge:** Hi-Tech U with **Security Apartments beside it**, so the higher rent
+  buys a short walk to lessons and a short hop to the centre. Education is what rent buys.
+
+**The hour ladder (the target; encoded as a test)**
+
+Edges keep minutes (the sim budget and the replay timeline use them). The classic ruleset charges
+whole hours per trip, rounded up, minimum 1h. Street rates are tuned until this table passes:
+
+| From                | Same wedge | Centre | Other wedge, same half | Across the river |
+|---------------------|-----------:|-------:|-----------------------:|-----------------:|
+| Low-Cost Housing    | 1h         | 2h     | 2h                     | 3h               |
+| Security Apartments | 1h         | 1h     | 2h                     | 3h               |
+
+The rich side is nearer the centre than the poor side (1h vs 2h), which is the asymmetry rent
+buys. Across-the-river trips are 3h from every wedge; 4h is impossible once the centre is 2h from
+one side and 1h from the other, because a route through the centre caps it. The full wedge-pair
+table is the test in `packages/town/test/scheme.test.ts`.
+
+Number to watch first in the balance runner: a poor-side player's university lesson costs 3h each
+way plus 6h in class, a fifth of the week.
+
+**Build order for the map**
+1. Amend this plan (done) and write the hour-table test, failing, as the target.
+2. Schema: water curve with width; underpass decor kind. Renderer: river stroke with shoreline,
+   highway painted over streets, bridge and underpass props sized to the new widths.
+3. Generator: 1920×1152 canvas, the two diagonals with curves and variation, four wedges of
+   streets, all 27 locations placed (13 active, 14 CLOSED), water and woods between districts.
+   Overlap checker learns the water corridor.
+4. Sim: classic mode charges whole hours per trip. Tune until the hour table passes.
+5. Preview PNG, eyeball, iterate; then a human walk-through in the client.
 
 ## 2. Interface — recognisable from the original  **DECIDED**
 
@@ -167,8 +213,9 @@ Sequential first, then parallel where the interfaces are fixed.
    a test per table (every job/degree/item present, prices numeric). ~150–250k tokens.
 3. **Classic ruleset in the sim** — Opus agent: `ruleset` flag, classic week/turn logic, actions,
    goals; balance runner strategies for classic; tests. ~400–600k tokens.
-4. **Map retune** — Opus agent: hour-granular travel, classic location set, district layout,
-   larger canvas, generator + checker + tests. ~300–450k tokens.
+4. **Map rebuild** — Opus agent: the river/highway scheme in §1 (water as a curve, underpasses,
+   bridges, four wedges, 1920×1152, hour-table test), generator + renderer + checker + tests.
+   ~300–450k tokens. Chosen as the first step to run.
 5. **Interface rebuild** — Opus agent: centre location window with clerk/bubble/menu, bottom
    bar with pie clock and readout, goals/stats screens, turn-start cards, hover tooltips;
    remove side panels. ~400–600k tokens.

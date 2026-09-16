@@ -4,38 +4,28 @@
  *
  *   npx tsx packages/town/tools/riverton.ts
  *
- * STREETS FIRST. The town is authored as a dozen named streets (see
- * `STREETS`), each a smooth polyline of waypoints. A side street is never
- * given hand-placed endpoints: it declares its parent street and an
- * arc-length position on it, and the generator computes the junction point,
- * the parent's tangent there, and lays the side street's first control point
- * along the normal — so every branch leaves its parent at ~90 degrees and the
- * two roads meet the way real roads do. A street may also *end* on another
- * street, approaching it along that street's normal, which is how the
- * downtown spine meets the shopping strip and the mill road meets the
- * highway.
+ * STREETS FIRST, and now WATER FIRST too. The plan (`riverton/plan.ts`) is
+ * pure data: a meandering river and a lake authored as curves with a width, a
+ * highway sweeping the other diagonal, and a dozen named streets. A side
+ * street declares its parent and a point on it; the generator computes the
+ * junction, the parent's tangent there and lays the first control point along
+ * the normal, so every branch leaves at ~90 degrees.
  *
  * Buildings are placed ALONG streets: a location declares its street, an
- * arc-length address and a kerb. The anchor is the street point pushed out
- * along the normal (and, if it has to be, slid a little along the street)
+ * arc-length address and a kerb, and the anchor is pushed out along the normal
  * until the REAL catalogue sprite box from `buildFromRef` clears every road
- * corridor and every building already placed. Nothing is rotated — the
- * sprites are fixed facade-forward art — so a building on the downhill kerb
- * is pushed out far enough to stand clear of the carriageway instead of
- * straddling it.
+ * corridor, every water course and every building already placed.
  *
- * The graph falls out of that. Nodes are junctions, waypoint nodes (which
- * double as bus stops on long stretches) and the locations themselves. Edges
- * join consecutive nodes along a street and carry that street's own sample
- * points as their `curve`, so the renderer redraws exactly the authored road;
- * every edge carries a `street` id so a whole road strokes as one line.
- * Locations hang off their street on a short driveway edge (`dwy_<id>`).
+ * The graph falls out of that. Two crossing kinds are found automatically and
+ * emitted as decor rather than as nodes:
+ *   - a walkable road over a water course becomes a `bridge` (three of them);
+ *     the highway's own span becomes a `viaduct`.
+ *   - a street crossing the highway becomes an `underpass`. There is
+ *     deliberately no junction there, so walkers can never step onto the
+ *     highway — grade separation is automatic in a streets-first generator.
  *
- * Town units are native pixels (1 unit = 1 px) on a 1280x768 canvas — double
- * the old geometry. Travel times keep their old feel because the per-pixel
- * rate is halved: streets 1 min / 8 px, paths 1 / 6, highway 1 / 12.
- *
- * `tools/overlaps.ts` must report zero problems; `tools/preview.ts` renders
+ * `tools/overlaps.ts` must report zero problems, `tools/ladder.ts` prints the
+ * hour table the scheme test checks, and `tools/preview.ts` renders
  * `art/sheets/riverton-graph.png` for eyeballing.
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -44,402 +34,92 @@ import { fileURLToPath } from 'node:url';
 
 import { buildFromRef } from '../../pixelart/src/index';
 import type { Decor, RoadKind, Town, TownEdge, TownNode } from '../src/types';
-import { type Pt, type Rect, frange, mulberry32, rectContains, resample, sampleCurve } from './geom';
+import { type Pt, type Rect, frange, mulberry32, resample, sampleCurve } from './geom';
+import {
+  attachS,
+  buildStreets,
+  inflate,
+  markS,
+  maskQuery,
+  normalOf,
+  rectsOverlap,
+  roadMask,
+  stampPolyline,
+  streetAt,
+  streetBits,
+  streets,
+  unit,
+} from './riverton/curves';
+import {
+  AREAS,
+  BENCHES,
+  BUS_LINES,
+  CARS,
+  HEDGES,
+  LAMPED,
+  LOCATIONS,
+  PICNIC,
+  PONDS,
+  STREETS,
+  STREET_FURNITURE,
+  WATER,
+  WOODS,
+} from './riverton/plan';
+import { DRIVEWAY_MINUTES, H, HALF, MARGIN, MAX_GAP, PER_MINUTE, SETBACK, W, type LocSpec } from './riverton/spec';
+import { type Crossing, buildCourses, inWater, roadCrossings, toWaterCourses, waterCrossings } from './riverton/water';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const OUT_FILE = resolve(HERE, '../src/towns/riverton.json');
 
-const W = 1280;
-const H = 768;
-const MARGIN = 16;
+const rng = mulberry32(20260916);
 
-/** Half the drawn width of each road kind, in pixels. */
-const HALF: Record<RoadKind, number> = { highway: 10, street: 7, busline: 7, path: 4 };
-/** Pixels of arc length per minute on foot — half the old rate, for double geometry. */
-const PER_MINUTE: Record<RoadKind, number> = { street: 8, busline: 8, path: 6, highway: 12 };
-/** Kerb-to-facade gap: an anchor starts at half the road width plus this. */
-const SETBACK = 12;
-/** Longest stretch of street without a node; longer runs get waypoint nodes. */
-const MAX_GAP = 150;
+buildStreets(STREETS);
+const courses = buildCourses(WATER);
 
-const rng = mulberry32(20260914);
+/* ------------------------------------------------------------- occupancy */
 
-/* --------------------------------------------------------------- geometry */
-
-function add(a: Pt, b: Pt, k = 1): Pt {
-  return { x: a.x + b.x * k, y: a.y + b.y * k };
-}
-
-function unit(a: Pt): Pt {
-  const len = Math.hypot(a.x, a.y) || 1;
-  return { x: a.x / len, y: a.y / len };
-}
-
-/** Left-hand normal of a tangent, flipped by `side` (-1 picks the other kerb). */
-function normalOf(tan: Pt, side: -1 | 1): Pt {
-  return { x: -tan.y * side, y: tan.x * side };
-}
-
-function inflate(r: Rect, by: number): Rect {
-  return { x: r.x - by, y: r.y - by, w: r.w + by * 2, h: r.h + by * 2 };
-}
-
-function rectsOverlap(a: Rect, b: Rect): boolean {
-  return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
-}
-
-/* ---------------------------------------------------------------- streets */
-
-/** Where a street attaches to another: an arc position, a kerb, a stub length. */
-interface Attach {
-  street: string;
-  /** Arc length along the other street, in pixels from its start. */
-  s: number;
-  side: -1 | 1;
-  /** How far the perpendicular departure runs before the street bends away. */
-  stub?: number;
-  /** Junction node id. */
-  id: string;
-}
-
-/** A named node planted on a street at a fixed arc position. */
-interface Mark {
-  id: string;
-  s: number;
-}
-
-interface StreetSpec {
-  id: string;
-  kind: RoadKind;
-  /** Free waypoints, in order. Attachment points are spliced on either end. */
-  pts?: Pt[];
-  start?: Attach;
-  end?: Attach;
-  marks?: Mark[];
-}
-
-interface Street {
-  id: string;
-  kind: RoadKind;
-  spec: StreetSpec;
-  poly: Pt[];
-  cum: number[];
-  len: number;
-}
-
-const streets = new Map<string, Street>();
-
-function streetAt(id: string, s: number): { p: Pt; tan: Pt } {
-  const st = streets.get(id);
-  if (!st) throw new Error(`Unknown street ${id}`);
-  const want = Math.max(0, Math.min(st.len, s));
-  let i = 1;
-  while (i < st.cum.length - 1 && st.cum[i]! < want) i++;
-  const a = st.poly[i - 1]!;
-  const b = st.poly[i]!;
-  const segLen = st.cum[i]! - st.cum[i - 1]! || 1;
-  const t = (want - st.cum[i - 1]!) / segLen;
-  const p = { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
-  // Tangent over a short window so a single 3px sample never dominates.
-  const lo = st.poly[Math.max(0, i - 4)]!;
-  const hi = st.poly[Math.min(st.poly.length - 1, i + 3)]!;
-  return { p, tan: unit({ x: hi.x - lo.x, y: hi.y - lo.y }) };
-}
-
-function resolveStreet(spec: StreetSpec): Street {
-  const wps: Pt[] = [];
-  if (spec.start) {
-    const { p, tan } = streetAt(spec.start.street, spec.start.s);
-    wps.push(p, add(p, normalOf(tan, spec.start.side), spec.start.stub ?? 56));
-  }
-  for (const p of spec.pts ?? []) wps.push(p);
-  if (spec.end) {
-    const { p, tan } = streetAt(spec.end.street, spec.end.s);
-    wps.push(add(p, normalOf(tan, spec.end.side), spec.end.stub ?? 56), p);
-  }
-  if (wps.length < 2) throw new Error(`Street ${spec.id} needs at least two waypoints`);
-  const poly = sampleCurve(wps[0]!, wps.slice(1, -1), wps[wps.length - 1]!, 3);
-  const cum = [0];
-  for (let i = 1; i < poly.length; i++) {
-    cum.push(cum[i - 1]! + Math.hypot(poly[i]!.x - poly[i - 1]!.x, poly[i]!.y - poly[i - 1]!.y));
-  }
-  return { id: spec.id, kind: spec.kind, spec, poly, cum, len: cum[cum.length - 1]! };
+const boxOnRoad = roadMask(6);
+const pointNearRoad = roadMask(4);
+const boxInWater = maskQuery((mark) => {
+  for (const c of courses) stampPolyline(c.poly, c.width / 2 + 8, mark);
+});
+const { bits: ROAD_BITS, index: STREET_BIT } = streetBits();
+/** Water as a point lookup, for walking a driveway out from the kerb. */
+const WET = new Uint8Array(W * H);
+for (const c of courses) {
+  stampPolyline(c.poly, c.width / 2 + 4, (x, y) => {
+    if (x >= 0 && y >= 0 && x < W && y < H) WET[y * W + x] = 1;
+  });
 }
 
 /**
- * The street plan. Two roads are drawn in absolute coordinates: the `highway`
- * skirting the north and east rim, and `strip_rd`, the out-of-town shopping
- * strip curving down the east side. Everything else hangs off a parent at a
- * computed right-angle junction.
- *
- * West to east: `main_st` is downtown, a gentle S through the middle of the
- * map. `river_ln` drops south from its west end into the leisure lane;
- * `elm_ln` runs west off that across the river bridge, and `park_path` then
- * the long switchbacking `lookout_path` climb the far west bank. `mill_rd`
- * runs north out of downtown to the factory and on to a highway junction;
- * `hill_rd` branches east off it across the top of the map to the manor drive
- * and the head of the strip. `campus_ln` is the university's set-back spur.
- * `lake_rd` leaves the east end of downtown for the lake and the cottage.
+ * Does the push from the kerb to `t` cross water, somebody else's road, or a
+ * building already standing? The driveway is drawn as a road, so anything it
+ * would run through is a placement that has to be rejected.
  */
-const STREETS: StreetSpec[] = [
-  {
-    id: 'highway',
-    kind: 'highway',
-    pts: [
-      { x: 300, y: 26 },
-      { x: 560, y: 20 },
-      { x: 820, y: 30 },
-      { x: 1032, y: 74 },
-      { x: 1160, y: 190 },
-      { x: 1232, y: 372 },
-      { x: 1240, y: 560 },
-      { x: 1214, y: 664 },
-    ],
-  },
-  {
-    id: 'strip_rd',
-    kind: 'street',
-    pts: [
-      { x: 982, y: 206 },
-      { x: 1046, y: 288 },
-      { x: 1090, y: 380 },
-      { x: 1100, y: 476 },
-      { x: 1068, y: 562 },
-      { x: 1016, y: 600 },
-    ],
-  },
-  {
-    id: 'main_st',
-    kind: 'street',
-    pts: [
-      { x: 268, y: 604 },
-      { x: 360, y: 566 },
-      { x: 452, y: 528 },
-      { x: 548, y: 496 },
-      { x: 648, y: 470 },
-      { x: 752, y: 456 },
-      { x: 856, y: 448 },
-      { x: 948, y: 436 },
-    ],
-    end: { street: 'strip_rd', s: 250, side: 1, stub: 66, id: 'j_east' },
-    marks: [{ id: 'j_center', s: 260 }],
-  },
-  {
-    id: 'river_ln',
-    kind: 'street',
-    start: { street: 'main_st', s: 60, side: 1, stub: 62, id: 'j_west' },
-    pts: [
-      { x: 400, y: 692 },
-      { x: 496, y: 724 },
-      { x: 604, y: 734 },
-      { x: 712, y: 722 },
-      { x: 800, y: 698 },
-    ],
-  },
-  {
-    id: 'elm_ln',
-    kind: 'street',
-    start: { street: 'river_ln', s: 80, side: 1, stub: 58, id: 'j_elm' },
-    pts: [
-      { x: 240, y: 678 },
-      { x: 168, y: 650 },
-      { x: 110, y: 612 },
-    ],
-  },
-  {
-    id: 'park_path',
-    kind: 'path',
-    start: { street: 'elm_ln', s: 140, side: 1, stub: 48, id: 'j_park' },
-    pts: [
-      { x: 186, y: 576 },
-      { x: 150, y: 502 },
-      { x: 128, y: 452 },
-    ],
-  },
-  {
-    id: 'lookout_path',
-    kind: 'path',
-    start: { street: 'park_path', s: 238, side: 1, stub: 46, id: 'j_bluff' },
-    pts: [
-      { x: 176, y: 372 },
-      { x: 138, y: 300 },
-      { x: 118, y: 228 },
-    ],
-  },
-  {
-    id: 'mill_rd',
-    kind: 'street',
-    start: { street: 'main_st', s: 350, side: -1, stub: 66, id: 'j_mill' },
-    pts: [
-      { x: 620, y: 340 },
-      { x: 590, y: 250 },
-      { x: 586, y: 170 },
-    ],
-    end: { street: 'highway', s: 250, side: 1, stub: 70, id: 'j_hwy_mill' },
-  },
-  {
-    id: 'campus_ln',
-    kind: 'street',
-    start: { street: 'main_st', s: 470, side: -1, stub: 64, id: 'j_campus' },
-    pts: [{ x: 748, y: 372 }],
-  },
-  {
-    id: 'hill_rd',
-    kind: 'street',
-    start: { street: 'mill_rd', s: 226, side: 1, stub: 66, id: 'j_hill' },
-    pts: [
-      { x: 780, y: 264 },
-      { x: 892, y: 248 },
-    ],
-    end: { street: 'strip_rd', s: 26, side: 1, stub: 62, id: 'j_strip_n' },
-  },
-  {
-    id: 'manor_dr',
-    kind: 'street',
-    start: { street: 'hill_rd', s: 205, side: -1, stub: 56, id: 'j_manor' },
-    pts: [{ x: 800, y: 156 }],
-  },
-  {
-    id: 'hwy_hill_ramp',
-    kind: 'highway',
-    start: { street: 'hill_rd', s: 330, side: -1, stub: 74, id: 'j_hill_ramp' },
-    end: { street: 'highway', s: 620, side: 1, stub: 74, id: 'j_hwy_hill' },
-  },
-  {
-    id: 'lake_rd',
-    kind: 'street',
-    start: { street: 'main_st', s: 690, side: 1, stub: 66, id: 'j_lake_w' },
-    pts: [
-      { x: 972, y: 584 },
-      { x: 1022, y: 660 },
-      { x: 1110, y: 702 },
-      { x: 1200, y: 706 },
-    ],
-  },
-];
-
-for (const spec of STREETS) streets.set(spec.id, resolveStreet(spec));
-
-/* ------------------------------------------------------------- road masks */
-
-/**
- * A 1px occupancy bitmap of the road corridors plus a summed-area table, so
- * "does this sprite box stand on a road?" is a constant-time query however
- * many setbacks the placement search tries.
- */
-function buildRoadMask(pad: number): (box: Rect) => boolean {
-  const mask = new Uint8Array(W * H);
-  for (const st of streets.values()) {
-    const r = HALF[st.kind] + pad;
-    for (const p of st.poly) {
-      const x0 = Math.max(0, Math.floor(p.x - r));
-      const x1 = Math.min(W - 1, Math.ceil(p.x + r));
-      const y0 = Math.max(0, Math.floor(p.y - r));
-      const y1 = Math.min(H - 1, Math.ceil(p.y + r));
-      for (let y = y0; y <= y1; y++) {
-        for (let x = x0; x <= x1; x++) {
-          if ((x - p.x) ** 2 + (y - p.y) ** 2 <= r * r) mask[y * W + x] = 1;
-        }
-      }
-    }
-  }
-  // summed-area table, (W+1) x (H+1)
-  const sat = new Int32Array((W + 1) * (H + 1));
-  for (let y = 0; y < H; y++) {
-    let rowSum = 0;
-    for (let x = 0; x < W; x++) {
-      rowSum += mask[y * W + x]!;
-      sat[(y + 1) * (W + 1) + (x + 1)] = sat[y * (W + 1) + (x + 1)]! + rowSum;
-    }
-  }
-  return (box: Rect): boolean => {
-    const x0 = Math.max(0, Math.floor(box.x));
-    const y0 = Math.max(0, Math.floor(box.y));
-    const x1 = Math.min(W, Math.ceil(box.x + box.w));
-    const y1 = Math.min(H, Math.ceil(box.y + box.h));
-    if (x1 <= x0 || y1 <= y0) return false;
-    const total =
-      sat[y1 * (W + 1) + x1]! - sat[y0 * (W + 1) + x1]! - sat[y1 * (W + 1) + x0]! + sat[y0 * (W + 1) + x0]!;
-    return total > 0;
-  };
-}
-
-const boxOnRoad = buildRoadMask(6);
-const pointNearRoad = buildRoadMask(4);
-
-/* -------------------------------------------------------------- locations */
-
-interface LocSpec {
-  id: string;
-  name: string;
-  street: string;
-  /** Arc-length address along the street. Ignored when `at` names a junction. */
-  s?: number;
-  /** Attach straight to an existing named node instead of minting an address. */
-  at?: string;
-  side: -1 | 1;
-  pixel: { kind: string; params?: Record<string, string | number | boolean> };
-}
-
-const HOUSE_PARAMS: Record<string, Record<string, string | number | boolean>> = {
-  house_elm: { wall: 'cream', roof: 'brick' },
-  house_lake: { roofShape: 'hip', wall: 'blue', roof: 'greenDark' },
-  house_hill: { storeys: 2, garage: true, wall: 'white', roof: 'blueDark' },
-};
-
-function loc(id: string, name: string, street: string, side: -1 | 1, s?: number, at?: string): LocSpec {
-  return {
-    id,
-    name,
-    street,
-    s,
-    at,
-    side,
-    pixel: HOUSE_PARAMS[id] ? { kind: 'house', params: HOUSE_PARAMS[id] } : { kind: id },
-  };
+function blockedRay(p: Pt, n: Pt, t: number, ownBit: number): boolean {
+  const x = Math.round(p.x + n.x * t);
+  const y = Math.round(p.y + n.y * t);
+  if (x < 0 || y < 0 || x >= W || y >= H) return true;
+  if (WET[y * W + x]) return true;
+  if ((ROAD_BITS[y * W + x]! & ~ownBit) !== 0) return true;
+  return placed.some((q) => x >= q.box.x - 3 && x <= q.box.x + q.box.w + 3 && y >= q.box.y - 3 && y <= q.box.y + q.box.h + 3);
 }
 
 /**
- * Every sim location, hung off a street. `bus_depot` and `employment` share
- * `j_center`, the downtown crossroads, because other packages hardcode the
- * two-edge walk bus_depot -> j_center -> employment.
+ * Same test, along the whole driveway from `a` to `b`. The first stretch is
+ * skipped: a driveway leaving a junction necessarily starts inside the apron
+ * where every road meeting there overlaps.
  */
-const LOCATIONS: LocSpec[] = [
-  // --- downtown, along main_st ---------------------------------------------
-  loc('bank', 'First Jones Bank', 'main_st', -1, 150),
-  loc('bus_depot', 'Bus Depot', 'main_st', -1, undefined, 'j_center'),
-  loc('employment', 'Employment Office', 'main_st', 1, undefined, 'j_center'),
-  loc('newsstand', 'Corner Newsstand', 'main_st', -1, 400),
-  loc('monolith', 'Monolith Burgers', 'main_st', 1, 505),
-  loc('clinic', "Doc's Walk-In Clinic", 'main_st', -1, 580),
-  loc('cafe', 'Java Hut', 'main_st', 1, 630),
-  loc('university', 'Hi-Tech University', 'campus_ln', -1, 75),
-  // --- industrial north, up mill_rd ----------------------------------------
-  loc('lowcost', 'Low-Cost Housing', 'mill_rd', -1, 130),
-  loc('factory', 'Consolidated Widgets', 'mill_rd', -1, 330),
-  // --- the ridge road, east across the top ---------------------------------
-  loc('shady_acres', 'Shady Acres', 'hill_rd', -1, 120),
-  loc('house_hill', 'Hilltop Manor', 'manor_dr', 1, 84),
-  // --- the shopping strip, east --------------------------------------------
-  loc('qt_clothing', 'QT Clothing', 'strip_rd', -1, 95),
-  loc('socket_city', 'Socket City', 'strip_rd', 1, 150),
-  loc('zmart', 'Z-Mart', 'strip_rd', -1, 215),
-  loc('auto', "Honest Al's Autos", 'strip_rd', -1, 348),
-  loc('blacks_market', "Black's Market", 'strip_rd', 1, 380),
-  loc('pawn', 'Pawn Shop', 'strip_rd', -1, 400),
-  // --- the leisure lane, south ---------------------------------------------
-  loc('cinema', 'Bijou Cinema', 'river_ln', -1, 180),
-  loc('gym', 'Flex Factory Gym', 'river_ln', -1, 290),
-  loc('gilded_fork', 'The Gilded Fork', 'river_ln', -1, 400),
-  loc('chez_cholesterol', 'Chez Cholesterol', 'river_ln', -1, 505),
-  // --- across the river, west ----------------------------------------------
-  loc('house_elm', '12 Elm Street', 'elm_ln', -1, 250),
-  loc('park', 'Riverside Park', 'park_path', -1, 168),
-  loc('lookout', 'Lookout Point', 'lookout_path', -1, 240),
-  // --- south-east, out to the lake -----------------------------------------
-  loc('security_apts', 'Security Apartments', 'lake_rd', 1, 170),
-  loc('house_lake', 'Lakeside Cottage', 'lake_rd', -1, 400),
-];
+function segmentBlocked(a: Pt, b: Pt, ownBit: number, skip = 26): boolean {
+  const len = Math.hypot(b.x - a.x, b.y - a.y);
+  if (len <= skip) return false;
+  const n = { x: (b.x - a.x) / len, y: (b.y - a.y) / len };
+  for (let t = skip; t < len - 1; t += 3) {
+    if (blockedRay(a, n, t, ownBit)) return true;
+  }
+  return false;
+}
 
 /* ---------------------------------------------- placing the real sprite box */
 
@@ -456,42 +136,86 @@ function boxInCanvas(box: Rect): boolean {
   return box.x >= 6 && box.y >= 6 && box.x + box.w <= W - 6 && box.y + box.h <= H - 6;
 }
 
+/** Longest a building may stand from its kerb. */
+const MAX_PUSH = 170;
+
 const placed: Array<{ id: string; box: Rect }> = [];
+/** Driveways already laid, so a later building never lands under one. */
+const drives: Array<{ a: Pt; b: Pt }> = [];
+const warnings: string[] = [];
+
+/** The building a driveway ends at, so a new driveway can be tested against it. */
+function placedBoxOf(d: { a: Pt; b: Pt }): Rect {
+  const hit = placed.find((q) => d.b.x >= q.box.x && d.b.x <= q.box.x + q.box.w && d.b.y >= q.box.y && d.b.y <= q.box.y + q.box.h);
+  return hit ? hit.box : { x: d.b.x, y: d.b.y, w: 1, h: 1 };
+}
+
+/** Does a driveway run through a building's facade band, as the checker sees it? */
+function driveHitsFacade(d: { a: Pt; b: Pt }, box: Rect, half = 8): boolean {
+  const len = Math.hypot(d.b.x - d.a.x, d.b.y - d.a.y) || 1;
+  const steps = Math.max(1, Math.ceil(len / 2));
+  const top = box.y + box.h * 0.45;
+  for (let k = 0; k <= steps; k++) {
+    const x = d.a.x + ((d.b.x - d.a.x) * k) / steps;
+    const y = d.a.y + ((d.b.y - d.a.y) * k) / steps;
+    if (x >= box.x - half && x <= box.x + box.w + half && y >= top && y <= box.y + box.h) return true;
+  }
+  return false;
+}
+/** How far each building drifted from its authored address, and off the kerb. */
+const drift: Array<{ id: string; street: string; want: number; got: number; push: number }> = [];
 
 /**
  * Push the anchor out along the kerb normal until the real sprite box clears
- * every road corridor and every building already placed, sliding the address
- * along the street only if the straight push cannot be made to work. The
- * downhill kerb always needs a long push: a sprite grows upward from its
- * anchor and would otherwise stand in the carriageway.
+ * every road corridor, every water course and every building already placed,
+ * sliding the address along the street only if the straight push cannot be
+ * made to work.
  */
-const warnings: string[] = [];
-
-function placeBuilding(l: LocSpec, s: number): { anchor: Pt; s: number } {
+function placeBuilding(l: LocSpec, s: number, origin?: Pt): { anchor: Pt; s: number } {
   const street = streets.get(l.street)!;
-  const base = HALF[street.kind] + SETBACK;
-  const slides = [0];
-  for (let d = 6; d <= 120; d += 6) slides.push(d, -d);
+  // A building on a junction stands well back, so the little square in front
+  // of it is open and the other driveways off that junction can pass.
+  const base = l.at ? 76 : HALF[street.kind] + SETBACK;
+  const ownBit = STREET_BIT.get(l.street) ?? 0;
+  // A building hung straight off a named junction pays a flat driveway however
+  // far along the street it ends up, so it may wander further to find room.
+  const reach = l.at ? 150 : 120;
+  const maxPush = l.at ? 200 : MAX_PUSH;
+  const nudge = l.nudge ?? 0;
+  const slides = [nudge];
+  for (let d = 6; d <= reach; d += 6) slides.push(nudge + d, nudge - d);
   let fallback: { anchor: Pt; s: number } | null = null;
   for (const ds of slides) {
     const sAt = Math.max(8, Math.min(street.len - 8, s + ds));
     const at = streetAt(l.street, sAt);
     const n = normalOf(at.tan, l.side);
-    for (let t = base; t <= 340; t += 2) {
+    for (let t = base; t <= maxPush; t += 2) {
+      // Once the driveway would have to cross water or another road, no
+      // greater setback on this bearing is legitimate either.
+      if (!origin && blockedRay(at.p, n, t, ownBit)) break;
       const anchor = { x: Math.round(at.p.x + n.x * t), y: Math.round(at.p.y + n.y * t) };
+      // A building hung off a junction is reached from the junction itself, so
+      // it is that line, not the kerb normal, that must stay clear.
+      if (origin && segmentBlocked(origin, anchor, ownBit)) continue;
       if (anchor.x < MARGIN || anchor.x > W - MARGIN || anchor.y < MARGIN || anchor.y > H - MARGIN) continue;
       const box = boxAt(anchor, l);
       if (!boxInCanvas(box)) continue;
       if (boxOnRoad(box)) continue;
+      if (boxInWater(box)) continue;
       if (!fallback) fallback = { anchor, s: sAt };
       if (placed.some((q) => rectsOverlap(inflate(q.box, 5), box))) continue;
+      if (drives.some((d) => driveHitsFacade(d, box))) continue;
+      const from = origin ?? at.p;
+      if (drives.some((d) => driveHitsFacade({ a: from, b: anchor }, placedBoxOf(d)))) continue;
+      drift.push({ id: l.id, street: l.street, want: s, got: sAt, push: t });
+      drives.push({ a: from, b: anchor });
       return { anchor, s: sAt };
     }
   }
   const at = streetAt(l.street, s);
   const n = normalOf(at.tan, l.side);
   warnings.push(
-    `${l.id} on ${l.street}@${s} (${at.p.x.toFixed(0)},${at.p.y.toFixed(0)} n ${n.x.toFixed(2)},${n.y.toFixed(2)}, len ${street.len.toFixed(0)}) — no clear spot`,
+    `${l.id} on ${l.street}@${s} (${at.p.x.toFixed(0)},${at.p.y.toFixed(0)}, len ${street.len.toFixed(0)}) — no clear spot`,
   );
   return fallback ?? { anchor: { x: Math.round(at.p.x + n.x * base), y: Math.round(at.p.y + n.y * base) }, s };
 }
@@ -521,33 +245,35 @@ function addStop(street: string, s: number, node: string, kind: StopKind): void 
 for (const spec of STREETS) {
   const st = streets.get(spec.id)!;
   if (spec.start) {
-    nodePos.set(spec.start.id, streetAt(spec.start.street, spec.start.s).p);
-    addStop(spec.start.street, spec.start.s, spec.start.id, 'junction');
+    const s = attachS(spec.start);
+    nodePos.set(spec.start.id, streetAt(spec.start.street, s).p);
+    addStop(spec.start.street, s, spec.start.id, 'junction');
     addStop(spec.id, 0, spec.start.id, 'junction');
-    junctions.set(spec.start.id, { parent: spec.start.street, child: spec.id, s: spec.start.s });
+    junctions.set(spec.start.id, { parent: spec.start.street, child: spec.id, s });
   } else {
     const id = `${spec.id}_w`;
     nodePos.set(id, st.poly[0]!);
     addStop(spec.id, 0, id, 'waypoint');
   }
   if (spec.end) {
-    nodePos.set(spec.end.id, streetAt(spec.end.street, spec.end.s).p);
-    addStop(spec.end.street, spec.end.s, spec.end.id, 'junction');
+    const s = attachS(spec.end);
+    nodePos.set(spec.end.id, streetAt(spec.end.street, s).p);
+    addStop(spec.end.street, s, spec.end.id, 'junction');
     addStop(spec.id, st.len, spec.end.id, 'junction');
-    junctions.set(spec.end.id, { parent: spec.end.street, child: spec.id, s: spec.end.s });
+    junctions.set(spec.end.id, { parent: spec.end.street, child: spec.id, s });
   } else {
     const id = `${spec.id}_e`;
     nodePos.set(id, st.poly[st.poly.length - 1]!);
     addStop(spec.id, st.len, id, 'waypoint');
   }
   for (const m of spec.marks ?? []) {
-    nodePos.set(m.id, streetAt(spec.id, m.s).p);
-    addStop(spec.id, m.s, m.id, 'junction');
+    const s = markS(spec.id, m);
+    nodePos.set(m.id, streetAt(spec.id, s).p);
+    addStop(spec.id, s, m.id, 'junction');
   }
 }
 
-// 2. one address node per location (unless it hangs off a named junction),
-//    then the building itself, pushed off the kerb
+// 2. one address node per location, then the building itself, off the kerb
 interface PlacedLoc extends LocSpec {
   anchor: Pt;
   address: string;
@@ -556,25 +282,20 @@ interface PlacedLoc extends LocSpec {
 const locNodes: PlacedLoc[] = [];
 
 for (const l of LOCATIONS) {
-  let addressId: string;
-  let s: number;
   if (l.at) {
-    addressId = l.at;
     const owner = stops.get(l.street)!.find((q) => q.node === l.at);
     if (!owner) throw new Error(`${l.id} attaches to ${l.at}, which is not a stop on ${l.street}`);
-    s = owner.s;
-    const hit = placeBuilding(l, s);
+    const hit = placeBuilding(l, owner.s, nodePos.get(l.at));
     nodePos.set(l.id, hit.anchor);
     placed.push({ id: l.id, box: boxAt(hit.anchor, l) });
-    locNodes.push({ ...l, anchor: hit.anchor, address: addressId });
+    locNodes.push({ ...l, anchor: hit.anchor, address: l.at });
     continue;
   }
   if (l.s === undefined) throw new Error(`${l.id} needs an address`);
   const hit = placeBuilding(l, l.s);
-  addressId = `a_${l.id}`;
-  s = hit.s;
-  nodePos.set(addressId, streetAt(l.street, s).p);
-  addStop(l.street, s, addressId, 'address');
+  const addressId = `a_${l.id}`;
+  nodePos.set(addressId, streetAt(l.street, hit.s).p);
+  addStop(l.street, hit.s, addressId, 'address');
   nodePos.set(l.id, hit.anchor);
   placed.push({ id: l.id, box: boxAt(hit.anchor, l) });
   locNodes.push({ ...l, anchor: hit.anchor, address: addressId });
@@ -594,13 +315,25 @@ function resolveNode(id: string): string {
   return cur;
 }
 
+/** A waypoint node must not land in the river; slide it along the street. */
+function dryArc(streetId: string, s: number, lo: number, hi: number): number {
+  if (!inWater(courses, streetAt(streetId, s).p, 14)) return s;
+  for (let d = 8; d <= 220; d += 8) {
+    for (const cand of [s + d, s - d]) {
+      if (cand <= lo + 6 || cand >= hi - 6) continue;
+      if (!inWater(courses, streetAt(streetId, cand).p, 14)) return cand;
+    }
+  }
+  return s;
+}
+
 for (const spec of STREETS) {
   const list = stops.get(spec.id)!;
   list.sort((a, b) => a.s - b.s);
   const merged: Stop[] = [];
   for (const stop of list) {
     const last = merged[merged.length - 1];
-    if (last && stop.s - last.s < 22) {
+    if (last && stop.s - last.s < 24) {
       // Two stops that close would draw a stub edge; keep the more structural
       // one and point everything that referenced the other at it.
       if (last.kind === 'junction' || (last.kind === 'address' && stop.kind !== 'junction')) {
@@ -621,7 +354,8 @@ for (const spec of STREETS) {
     if (gap <= MAX_GAP) continue;
     const parts = Math.ceil(gap / MAX_GAP);
     for (let k = 1; k < parts; k++) {
-      const s = merged[i]!.s + (gap * k) / parts;
+      const want = merged[i]!.s + (gap * k) / parts;
+      const s = dryArc(spec.id, want, merged[i]!.s, next.s);
       const id = `w_${spec.id}_${i}_${k}`;
       nodePos.set(id, streetAt(spec.id, s).p);
       filled.push({ s, node: id, kind: 'waypoint' });
@@ -649,7 +383,7 @@ for (const [id, p] of nodePos) {
 }
 
 const edges: TownEdge[] = [];
-/** Sampled polyline per edge — decor occupancy and the overlap report use these. */
+/** Sampled polyline per edge — the overlap report uses these. */
 const edgePolys: Array<{ edge: TownEdge; poly: Pt[] }> = [];
 
 function minutesFor(kind: RoadKind, length: number): number {
@@ -665,7 +399,7 @@ function curveBetween(streetId: string, s0: number, s1: number): Pt[] {
     inner.push(st.poly[i]!);
   }
   if (inner.length === 0) return [];
-  const want = Math.max(1, Math.min(8, Math.round((s1 - s0) / 24)));
+  const want = Math.max(1, Math.min(8, Math.round((s1 - s0) / 26)));
   const out: Pt[] = [];
   for (let k = 1; k <= want; k++) {
     const idx = Math.round(((inner.length - 1) * k) / (want + 1));
@@ -696,12 +430,14 @@ for (const spec of STREETS) {
   }
 }
 
-// driveways: address node -> the building's door
+// driveways: address node -> the building's door. Clamped, because how far a
+// sprite had to be pushed off the kerb is an art problem, not a travel cost.
 for (const l of locNodes) {
   l.address = resolveNode(l.address);
   const from = nodePos.get(l.address)!;
   const kind = streets.get(l.street)!.kind;
-  pushEdge(l.address, l.id, kind, `dwy_${l.id}`, [], Math.hypot(l.anchor.x - from.x, l.anchor.y - from.y));
+  const edge = pushEdge(l.address, l.id, kind, `dwy_${l.id}`, [], Math.hypot(l.anchor.x - from.x, l.anchor.y - from.y));
+  edge.minutes = Math.max(DRIVEWAY_MINUTES[0], Math.min(DRIVEWAY_MINUTES[1], edge.minutes));
 }
 
 /* ------------------------------------------------------------- bus routes */
@@ -749,20 +485,6 @@ for (const e of edges) {
   edgeByPair.set(`${e.b}|${e.a}`, e);
 }
 
-/**
- * Four lines out of the depot, each stroked as its own continuous route.
- * `bus_1` runs the length of main street and `bus_3` the length of the strip,
- * so each is listed twice — once for either terminus.
- */
-const BUS_LINES: Array<{ id: string; to: string }> = [
-  { id: 'bus_1', to: 'cafe' },
-  { id: 'bus_1', to: 'bank' },
-  { id: 'bus_2', to: 'factory' },
-  { id: 'bus_3', to: 'pawn' },
-  { id: 'bus_3', to: 'qt_clothing' },
-  { id: 'bus_4', to: 'house_lake' },
-];
-
 const busDone = new Set<string>();
 /** Which line serves each stop, so a location's driveway joins the right route. */
 const lineAtNode = new Map<string, string>();
@@ -784,10 +506,8 @@ for (const line of BUS_LINES) {
   for (let i = 1; i < path.length; i++) layBus(path[i - 1]!, path[i]!, line.id);
 }
 
-// The bus also pulls in at every building it drives past: a location whose
-// address sits on a line gets its driveway as a busline stop. Places off the
-// lines — the campus, the leisure lane, the west bank, the lookout — stay a
-// walk or a drive, which is the point of owning a car.
+// The bus also pulls in at every building it drives past. Places off the lines
+// — the bluff path, the ridge path — stay a walk or a drive.
 for (const l of locNodes) {
   const lineId = lineAtNode.get(l.address);
   if (!lineId || streets.get(l.street)!.kind !== 'street') continue;
@@ -798,57 +518,29 @@ for (const l of locNodes) {
 
 const BUILDING_BOXES: Rect[] = placed.map((p) => p.box);
 
-/**
- * The river: a chain of small rectangles that reads as a meander rather than
- * one fat channel. It enters from the north and runs down the west side; road
- * bridges are found automatically wherever a road crosses it.
- */
-const RIVER: Array<[number, number, number, number]> = [
-  [288, 0, 58, 66],
-  [276, 44, 58, 68],
-  [260, 92, 60, 70],
-  [244, 142, 60, 68],
-  [230, 192, 58, 70],
-  [218, 244, 58, 72],
-  [210, 298, 58, 72],
-  [206, 352, 58, 72],
-  [206, 406, 60, 70],
-  [208, 456, 62, 68],
-  [206, 506, 62, 70],
-  [180, 556, 62, 70],
-  [162, 606, 60, 70],
-  [140, 656, 60, 70],
-  [116, 704, 62, 64],
-];
-
-/** The lake, south-east, beside the cottage. */
-const LAKE: Array<[number, number, number, number]> = [
-  [996, 722, 110, 46],
-  [1092, 714, 104, 54],
-  [1182, 720, 82, 48],
-  [1044, 710, 130, 24],
-];
-
-const WATER: Rect[] = [...RIVER, ...LAKE].map(([x, y, w, h]) => ({ x, y, w, h }));
-
-function inCanvas(p: Pt, pad = 8): boolean {
+function inCanvas(p: Pt, pad = 10): boolean {
   return p.x >= pad && p.x <= W - pad && p.y >= pad && p.y <= H - pad;
 }
 
 function onBuilding(p: Pt): boolean {
-  return BUILDING_BOXES.some((b) => rectContains(p, inflate(b, 4)));
+  return BUILDING_BOXES.some((b) => p.x >= b.x - 4 && p.x <= b.x + b.w + 4 && p.y >= b.y - 4 && p.y <= b.y + b.h + 4);
 }
 
-function onWater(p: Pt): boolean {
-  return WATER.some((r) => rectContains(p, r));
-}
-
-/** Driveways are short and end under a building, so only the streets matter here. */
 function isFree(p: Pt): boolean {
-  return inCanvas(p) && !pointNearRoad({ x: p.x, y: p.y, w: 1, h: 1 }) && !onBuilding(p) && !onWater(p);
+  return (
+    inCanvas(p) &&
+    !pointNearRoad({ x: p.x, y: p.y, w: 1, h: 1 }) &&
+    !onBuilding(p) &&
+    !inWater(courses, p, 6) &&
+    !inPond(p)
+  );
 }
 
-function nearestFree(p: Pt, maxRadius = 56): Pt | null {
+function inPond(p: Pt): boolean {
+  return PONDS.some(([x, y, w, h]) => p.x >= x - 4 && p.x <= x + w + 4 && p.y >= y - 4 && p.y <= y + h + 4);
+}
+
+function nearestFree(p: Pt, maxRadius = 64): Pt | null {
   if (isFree(p)) return p;
   for (let r = 4; r <= maxRadius; r += 4) {
     for (let a = 0; a < 360; a += 20) {
@@ -864,13 +556,8 @@ function nearestFree(p: Pt, maxRadius = 56): Pt | null {
 
 const decor: Decor[] = [];
 
-for (const w of WATER) decor.push({ kind: 'water', x: w.x, y: w.y, w: w.w, h: w.h });
-
-// paved squares downtown and by the strip head, grass on the open common
-decor.push({ kind: 'plaza', x: 612, y: 498, w: 92, h: 56 });
-decor.push({ kind: 'plaza', x: 976, y: 148, w: 84, h: 56 });
-decor.push({ kind: 'grass', x: 372, y: 300, w: 100, h: 72 });
-decor.push({ kind: 'grass', x: 60, y: 560, w: 92, h: 66 });
+for (const [x, y, w, h] of PONDS) decor.push({ kind: 'water', x, y, w, h });
+for (const a of AREAS) decor.push({ kind: a.kind, x: a.x, y: a.y, w: a.w, h: a.h });
 
 function pushProp(kind: string, x: number, y: number): boolean {
   const p = nearestFree({ x, y });
@@ -879,31 +566,43 @@ function pushProp(kind: string, x: number, y: number): boolean {
   return true;
 }
 
-/** Wherever a road crosses the water, drop a bridge deck at the midpoint. */
-let bridges = 0;
-for (const { edge, poly } of edgePolys) {
-  if (edge.kind === 'busline') continue;
-  let run: Pt[] = [];
-  const flush = (): void => {
-    if (run.length >= 3) {
-      const mid = run[Math.floor(run.length / 2)]!;
-      decor.push({ kind: 'bridge', x: Math.round(mid.x), y: Math.round(mid.y) });
-      bridges++;
-    }
-    run = [];
-  };
-  for (const p of poly) {
-    if (onWater(p)) run.push(p);
-    else flush();
-  }
-  flush();
+/* --------------------------------------------------- bridges and underpasses */
+
+const highway = streets.get('highway')!;
+
+function pushCrossing(kind: string, c: Crossing): void {
+  decor.push({ kind, x: Math.round(c.x), y: Math.round(c.y), dir: { x: +c.dir.x.toFixed(4), y: +c.dir.y.toFixed(4) } });
 }
 
-// --- the lake dock ---------------------------------------------------------
-decor.push({ kind: 'dock', x: 1052, y: 712 });
+let bridges = 0;
+let viaducts = 0;
+let underpasses = 0;
+const crossingNotes: string[] = [];
 
-/** Lamp posts every ~48px down a street, alternating kerbs. */
-function lampsAlong(streetId: string, spacing = 48): void {
+for (const st of streets.values()) {
+  for (const c of waterCrossings(st.poly, courses)) {
+    if (st.kind === 'highway') {
+      pushCrossing('viaduct', c);
+      viaducts++;
+    } else {
+      pushCrossing('bridge', c);
+      bridges++;
+    }
+    crossingNotes.push(`${st.kind === 'highway' ? 'viaduct' : 'bridge'} ${st.id} over ${c.other} at ${c.x.toFixed(0)},${c.y.toFixed(0)} (${c.span.toFixed(0)}px)`);
+  }
+  if (st.kind === 'highway') continue;
+  for (const c of roadCrossings(st.poly, highway.poly, 'highway')) {
+    pushCrossing('underpass', c);
+    underpasses++;
+    crossingNotes.push(`underpass ${st.id} under highway at ${c.x.toFixed(0)},${c.y.toFixed(0)}`);
+  }
+}
+
+// --- the dock on the lake shore -------------------------------------------
+pushProp('dock', 1640, 1022);
+
+/** Lamp posts every ~52px down a street, alternating kerbs. */
+function lampsAlong(streetId: string, spacing = 52): void {
   const st = streets.get(streetId)!;
   const samples = resample(st.poly, spacing);
   samples.forEach((p, i) => {
@@ -914,8 +613,7 @@ function lampsAlong(streetId: string, spacing = 48): void {
   });
 }
 
-lampsAlong('main_st');
-lampsAlong('strip_rd');
+for (const id of LAMPED) lampsAlong(id);
 
 /** Bushes threaded along a road shoulder — hedgerows, not a random scatter. */
 function hedgeAlong(streetId: string, spacing: number, kind = 'bush'): void {
@@ -925,35 +623,12 @@ function hedgeAlong(streetId: string, spacing: number, kind = 'bush'): void {
     const prev = samples[i - 1] ?? p;
     const next = samples[i + 1] ?? p;
     const n = normalOf(unit({ x: next.x - prev.x, y: next.y - prev.y }), i % 3 === 0 ? -1 : 1);
-    const off = HALF[st.kind] + frange(rng, 9, 17);
+    const off = HALF[st.kind] + frange(rng, 9, 18);
     pushProp(kind, p.x + n.x * off, p.y + n.y * off);
   });
 }
 
-hedgeAlong('hill_rd', 70);
-hedgeAlong('river_ln', 66);
-hedgeAlong('lake_rd', 74);
-hedgeAlong('mill_rd', 76);
-hedgeAlong('elm_ln', 64);
-hedgeAlong('campus_ln', 52);
-hedgeAlong('lookout_path', 56, 'flowers');
-hedgeAlong('park_path', 56, 'flowers');
-
-// --- woods: clusters on the land the roads never reach --------------------
-const WOODS: Array<{ x: number; y: number; r: number; n: number }> = [
-  { x: 152, y: 140, r: 86, n: 8 }, // the bluff behind the lookout
-  { x: 320, y: 232, r: 88, n: 8 }, // the north-west river bank
-  { x: 366, y: 408, r: 80, n: 7 }, // the empty common west of downtown
-  { x: 440, y: 150, r: 80, n: 7 }, // between the highway and the mill road
-  { x: 700, y: 118, r: 84, n: 7 },
-  { x: 1024, y: 104, r: 74, n: 6 },
-  { x: 1198, y: 292, r: 60, n: 5 }, // the highway verge
-  { x: 636, y: 578, r: 68, n: 6 }, // the gap south of downtown
-  { x: 884, y: 618, r: 74, n: 6 },
-  { x: 1188, y: 552, r: 56, n: 4 },
-  { x: 106, y: 698, r: 58, n: 5 },
-  { x: 92, y: 384, r: 56, n: 5 },
-];
+for (const [id, spacing, kind] of HEDGES) hedgeAlong(id, spacing, kind);
 
 let woodPieces = 0;
 for (const cluster of WOODS) {
@@ -965,71 +640,34 @@ for (const cluster of WOODS) {
   }
 }
 
-// --- benches: downtown, the park, the lake shore --------------------------
-for (const [x, y] of [
-  [520, 520],
-  [566, 508],
-  [178, 520],
-  [196, 486],
-  [1040, 420],
-  [1124, 664],
-  [700, 640],
-] as const) {
-  pushProp('bench', x, y);
-}
-
-pushProp('picnic_table', 214, 508);
-pushProp('picnic_table', 664, 606);
-
-// --- parked cars: the auto lot, the strip, a couple downtown --------------
-for (const [kind, x, y] of [
-  ['car_red', 1156, 398],
-  ['car_blue', 1160, 434],
-  ['car_green', 1154, 466],
-  ['car_red', 1030, 328],
-  ['car_blue', 1024, 540],
-  ['car_green', 470, 512],
-  ['car_red', 742, 486],
-  ['car_blue', 900, 466],
-] as const) {
-  pushProp(kind, x, y);
-}
+for (const p of BENCHES) pushProp('bench', p.x, p.y);
+for (const p of PICNIC) pushProp('picnic_table', p.x, p.y);
+for (const [kind, x, y] of CARS) pushProp(kind, x, y);
+for (const [kind, x, y] of STREET_FURNITURE) pushProp(kind, x, y);
 
 // --- the bus, parked at the depot -----------------------------------------
 {
   const depot = nodePos.get('bus_depot')!;
-  pushProp('bus', depot.x + 62, depot.y + 8);
+  pushProp('bus', depot.x + 66, depot.y + 10);
 }
 
 // --- signposts at the junctions -------------------------------------------
 for (const id of junctions.keys()) {
   const p = nodePos.get(id);
   if (!p) continue;
-  pushProp('signpost', p.x + frange(rng, -24, 24), p.y + frange(rng, -24, 24));
-}
-
-// --- hydrants and mailboxes downtown --------------------------------------
-for (const [kind, x, y] of [
-  ['hydrant', 486, 528],
-  ['hydrant', 690, 470],
-  ['hydrant', 1060, 350],
-  ['mailbox', 604, 494],
-  ['mailbox', 836, 452],
-  ['mailbox', 402, 640],
-] as const) {
-  pushProp(kind, x, y);
+  pushProp('signpost', p.x + frange(rng, -26, 26), p.y + frange(rng, -26, 26));
 }
 
 // --- a fence around Hilltop Manor -----------------------------------------
 {
   const manor = nodePos.get('house_hill')!;
   for (let i = -2; i <= 2; i++) {
-    pushProp('fence_h', manor.x + i * 22, manor.y - 74);
-    pushProp('fence_h', manor.x + i * 22, manor.y + 14);
+    pushProp('fence_h', manor.x + i * 22, manor.y - 78);
+    pushProp('fence_h', manor.x + i * 22, manor.y + 16);
   }
   for (let i = -1; i <= 1; i++) {
-    pushProp('fence_v', manor.x - 52, manor.y - 30 + i * 24);
-    pushProp('fence_v', manor.x + 52, manor.y - 30 + i * 24);
+    pushProp('fence_v', manor.x - 54, manor.y - 32 + i * 24);
+    pushProp('fence_v', manor.x + 54, manor.y - 32 + i * 24);
   }
 }
 
@@ -1046,10 +684,10 @@ function pickFiller(): string {
   return FILLERS[0]!;
 }
 
-const FILLER_TARGET = 14;
+const FILLER_TARGET = 170;
 let fillers = 0;
 let attempts = 0;
-while (fillers < FILLER_TARGET && attempts < FILLER_TARGET * 60) {
+while (fillers < FILLER_TARGET && attempts < FILLER_TARGET * 80) {
   attempts++;
   const p = { x: frange(rng, MARGIN, W - MARGIN), y: frange(rng, MARGIN, H - MARGIN) };
   if (!isFree(p)) continue;
@@ -1063,26 +701,40 @@ const town: Town = {
   id: 'riverton',
   name: 'Riverton',
   startNode: 'bus_depot',
+  canvas: { w: W, h: H },
   nodes,
   edges,
+  water: toWaterCourses(WATER),
   decor,
 };
 
 mkdirSync(dirname(OUT_FILE), { recursive: true });
 writeFileSync(OUT_FILE, JSON.stringify(town, null, 2) + '\n');
 
-const AREA = new Set(['water', 'grass', 'plaza', 'path']);
+const AREA_KINDS = new Set(['water', 'grass', 'plaza', 'path']);
 const spine = edges.filter((e) => e.kind !== 'busline' && !e.street!.startsWith('dwy_'));
 const spineMinutes = spine.map((e) => e.minutes).sort((a, b) => a - b);
 
 console.log(`Riverton written to ${OUT_FILE}`);
 console.log(`  canvas: ${W}x${H}`);
 for (const st of streets.values()) {
-  console.log(`    ${st.id.padEnd(14)} ${st.kind.padEnd(8)} len ${st.len.toFixed(0).padStart(5)}  stops ${stops.get(st.id)!.length}`);
+  console.log(
+    `    ${st.id.padEnd(14)} ${st.kind.padEnd(8)} len ${st.len.toFixed(0).padStart(5)}  stops ${stops.get(st.id)!.length}`,
+  );
 }
 console.log(`  streets: ${STREETS.length} (+${new Set(BUS_LINES.map((b) => b.id)).size} bus lines, ${locNodes.length} driveways)`);
 console.log(`  nodes: ${nodes.length} (${locNodes.length} locations + ${nodes.length - locNodes.length} junctions/waypoints)`);
 console.log(`  edges: ${edges.length} (${spine.length} spine, ${locNodes.length} driveway, ${edges.filter((e) => e.kind === 'busline').length} busline)`);
-console.log(`  decor: ${decor.length} (${decor.filter((d) => !AREA.has(d.kind)).length} props, ${woodPieces} in woods, ${bridges} bridges)`);
+console.log(`  water: ${WATER.length} courses, ${PONDS.length} ponds`);
+console.log(`  crossings: ${bridges} bridges, ${viaducts} viaducts, ${underpasses} underpasses`);
+for (const note of crossingNotes) console.log(`    ${note}`);
+console.log(`  decor: ${decor.length} (${decor.filter((d) => !AREA_KINDS.has(d.kind)).length} props, ${woodPieces} in woods)`);
 console.log(`  spine minutes: min ${spineMinutes[0]} median ${spineMinutes[Math.floor(spineMinutes.length / 2)]} max ${spineMinutes[spineMinutes.length - 1]}`);
+const drifted = drift.filter((d) => Math.abs(d.got - d.want) > 40 || d.push > 90);
+if (drifted.length) {
+  console.log('  drift (authored address -> placed address, push off the kerb):');
+  for (const d of drifted) {
+    console.log(`    ${d.id.padEnd(18)} ${d.street.padEnd(12)} ${d.want.toFixed(0).padStart(5)} -> ${d.got.toFixed(0).padStart(5)}  push ${d.push}`);
+  }
+}
 for (const w of warnings) console.log(`  WARN ${w}`);
