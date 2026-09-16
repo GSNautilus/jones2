@@ -5,6 +5,7 @@ A modernized *Jones in the Fast Lane*. Family online play, async weeks, browser 
 ## Read first
 - `DESIGN.md` — the running design document. Every gameplay and build decision is recorded there with a status tag. Do not re-litigate DECIDED items; add new decisions to the decision log at the bottom.
 - `STATUS.md` — what is built, what is in progress, what is next. Update it at the end of every working session.
+- `docs/PLAN.md` — the current plan (classic Jones on the new map) with its open decisions. `docs/original-rules.md` is the extracted fan-wiki reference for the original game's rules; treat its numbers as the spec for the classic ruleset.
 
 ## Layout (npm workspaces)
 - `packages/sim` — deterministic game core. Pure TypeScript, no I/O, no DOM, no clock. `applyAction(state, playerId, action)` and `resolveWeek(state)`. All content (locations, jobs, items, degrees, food, news, achievements) lives in `packages/sim/src/content/` as typed data tables. Balance changes edit data, not logic.
