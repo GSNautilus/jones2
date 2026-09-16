@@ -51,7 +51,7 @@ The facts the plan is built on. Numbers are the wiki's.
 
 ---
 
-## 1. The map — bigger, strategic  **DISCUSSING**
+## 1. The map — bigger, strategic  **DECIDED**
 
 Distance is now a real cost, so the town's shape *is* game design.
 
@@ -77,12 +77,14 @@ Distance is now a real cost, so the town's shape *is* game design.
 - Later (not classic): the parked transport system (bus/bike/car) becomes the way to buy back
   travel time on this map.
 
-**To decide**
-1. Whole-hour travel and the distance ladder above?
-2. Inert scenery vs removal for the 14 non-classic buildings in classic mode?
-3. Canvas size / how far apart the districts should feel (the numbers above are a starting point).
+**Decided 2026-09-16**
+1. Whole-hour travel with the ladder above. Yes.
+2. The 14 non-classic buildings stay on the map as **inert placeholders**: drawn, labelled CLOSED
+   (a sign/board on the sprite and a "Closed" note if clicked), not enterable, no actions.
+   They are reserved for later rulesets.
+3. Canvas ≈ 1920×1152; the ladder numbers are the starting point for tuning.
 
-## 2. Interface — recognisable from the original  **DISCUSSING**
+## 2. Interface — recognisable from the original  **DECIDED**
 
 Goal: a player of the original knows immediately how to do everything. Replace the current side
 panels with the original's organisation.
@@ -105,13 +107,11 @@ panels with the original's organisation.
 **Art needed:** clerk portraits (13), the window frame and bubble in the pixel UI set, numbered
 player tokens, weekend/event illustrations (optional), goal-screen icons (exist).
 
-**To decide**
-4. Centre-window overlay with the map still visible around it (recommended), or the original's
-   exact framing where the window replaces the middle of the board?
-5. Keep the resolve → replay flow as-is (it's a new feature the original didn't have, but it's
-   the payoff of simultaneous weeks)?
+**Decided 2026-09-16**
+4. Centre-window overlay with the map visible around it.
+5. Keep the end-of-week replay.
 
-## 3. Gameplay — classic ruleset first  **DECIDED (direction) / DISCUSSING (details)**
+## 3. Gameplay — classic ruleset first  **DECIDED**
 
 Add `ruleset: 'classic' | 'jones2'` to `GameConfig`. Classic replaces the content tables and
 week logic with the original's; the Jones 2 systems stay in the code behind the flag.
@@ -140,11 +140,12 @@ non-classic locations.
 - **No Jones AI** for now (DESIGN §5).
 - The new map and travel time.
 
-**To decide**
-6. Wild Willy and the doctor are pure bad luck in the original, which contradicts DESIGN's
-   "informed, not random" pillar. Replicate exactly for now and revisit after play?
-7. Sequential-turn effects that don't map to simultaneous weeks (a crash "on another player's
-   turn"): resolve at week end for everyone — agreed?
+**Decided 2026-09-16**
+6. **Wild Willy (muggings, apartment robbery) and Doctor visits are NOT implemented** in the
+   first classic ruleset. A variant with a fairer version comes later. Everything that only
+   exists to feed them (relaxation's robbery odds, starvation's doctor roll) is dropped with them;
+   Relaxation itself stays (it gives Happiness). Appliance breakdowns and food spoilage stay.
+7. Economy events (booms, crashes, layoffs, wage cuts) resolve at week end for everyone.
 
 ## 4. UI details  **DECIDED**
 
@@ -161,7 +162,7 @@ non-classic locations.
 
 Sequential first, then parallel where the interfaces are fixed.
 
-1. **Decisions 1–7 above.** (This discussion.)
+1. ~~Decisions 1–7.~~ Done 2026-09-16.
 2. **Classic content extraction** — Sonnet agent: turn `original-rules.md` into typed tables with
    a test per table (every job/degree/item present, prices numeric). ~150–250k tokens.
 3. **Classic ruleset in the sim** — Opus agent: `ruleset` flag, classic week/turn logic, actions,
