@@ -73,6 +73,13 @@ Known weaknesses (from the art agent's own critique): QT Clothing palm trees rea
 
 Suggested next: a human plays a full week in the client; shoreline/rounded water; editor curve handles; UI sprites adopted by the HUD skin (currently CSS fallbacks); the interiors (location screens with clerks) as the next art chunk.
 
+## NEXT SESSION STARTS HERE — classic ruleset (see docs/PLAN.md)
+All seven plan decisions are made (2026-09-16). First batch to propose to the user before launching:
+- Classic content extraction from docs/original-rules.md → packages/sim/src/content/classic/ (Sonnet, ~150–250k)
+- Map retune: whole-hour travel, 13 active + 14 CLOSED placeholder buildings, ~1920×1152, district ladder (Opus, ~300–450k)
+- Clerk portraits (13) + window frame/bubble/player tokens in packages/pixelart (Opus, ~250–400k)
+Then: classic ruleset in the sim (Opus), interface rebuild around the centre window + pie clock + hover tooltips (Opus).
+
 ## Milestone 3 — server + async multiplayer (NOT STARTED)
 ## Milestone 4 — art pass (NOT STARTED)
 ## Milestone 5 — sound + polish (NOT STARTED)
