@@ -58,7 +58,10 @@ export function splitLabel(label: string): SplitLabel {
 
 export interface WindowRow {
   key: string;
-  action: Action;
+  /** null for a group heading, which opens that group instead of acting. */
+  action: Action | null;
+  /** Set on a group heading: the group it opens. */
+  group?: string;
   /** Left-hand text of the row. */
   text: string;
   /** Right-hand price, "" when the action costs nothing. */
@@ -127,6 +130,8 @@ function byEnabled(rows: WindowRow[]): WindowRow[] {
 export interface WindowOptions {
   /** How many times this window has been opened, for greeting rotation. */
   visit?: number;
+  /** The group the player has drilled into (e.g. an employer at the Employment Office). */
+  group?: string | null;
   /** Put the disabled rows after the enabled ones (default true). */
   sort?: boolean;
   /**
@@ -148,7 +153,7 @@ export function buildLocationWindow(
   locationId: string,
   opts: WindowOptions = {},
 ): LocationWindowModel {
-  const options = availableActions(state, playerId).filter((o) => !HIDDEN.has(o.action.type));
+  const options = availableActions(state, playerId).filter((o) => !HIDDEN.has(o.action.type) && !o.hidden);
 
   const buttons: WindowButton[] = [];
   for (const spec of BUTTON_ACTIONS) {
@@ -158,18 +163,57 @@ export function buildLocationWindow(
     if (o.reason) b.reason = o.reason;
     buttons.push(b);
   }
-  buttons.push({ key: 'done', action: null, label: 'DONE', enabled: true });
-
   const buttonTypes = new Set(BUTTON_ACTIONS.map((b) => b.type));
-  const rows = options.filter((o) => !buttonTypes.has(o.action.type)).map(toRow);
+  const listed = options.filter((o) => !buttonTypes.has(o.action.type));
+  const groups = groupsOf(listed);
+  const inGroup = opts.group && groups.includes(opts.group) ? opts.group : null;
+
+  let rows: WindowRow[];
+  if (inGroup) {
+    // Inside a group: its own options, and a BACK button to the headings.
+    rows = listed.filter((o) => o.group === inGroup).map(toRow);
+    buttons.unshift({ key: 'back', action: null, label: 'BACK', enabled: true });
+  } else if (groups.length) {
+    // The headings, as the original listed the workplaces, then any
+    // ungrouped options after them.
+    rows = [
+      ...groups.map((g) => groupRow(g, listed.filter((o) => o.group === g))),
+      ...listed.filter((o) => !o.group).map(toRow),
+    ];
+  } else {
+    rows = listed.map(toRow);
+  }
+  buttons.push({ key: 'done', action: null, label: 'DONE', enabled: true });
 
   return {
     locationId,
-    title: locationName(locationId).toUpperCase(),
+    title: inGroup ? inGroup.toUpperCase() : locationName(locationId).toUpperCase(),
     portrait: portraitFor(locationId),
     greeting: opts.say || greetingFor(locationId, opts.visit ?? 0),
-    rows: opts.sort === false ? rows : byEnabled(rows),
+    rows: opts.sort === false || inGroup === null && groups.length ? rows : byEnabled(rows),
     buttons,
+  };
+}
+
+/** The distinct group headings among these options, in first-seen order. */
+export function groupsOf(options: readonly ActionOption[]): string[] {
+  const seen: string[] = [];
+  for (const o of options) if (o.group && !seen.includes(o.group)) seen.push(o.group);
+  return seen;
+}
+
+/** A heading row: opens the group; its note says how many options wait inside. */
+function groupRow(group: string, members: readonly ActionOption[]): WindowRow {
+  const n = members.length;
+  return {
+    key: `group:${group}`,
+    action: null,
+    group,
+    text: group,
+    price: '',
+    hours: '',
+    note: `${n} ${n === 1 ? 'job' : 'jobs'}`,
+    enabled: true,
   };
 }
 

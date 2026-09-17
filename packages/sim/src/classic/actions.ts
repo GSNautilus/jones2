@@ -52,6 +52,8 @@ export function describeAction(state: GameState, playerId: string, action: Actio
   if (!reason && s.cost > p.cash) reason = 'Not enough cash';
   const opt: ActionOption = { action, label: s.label, minutes, cost: s.cost, enabled: !reason };
   if (reason) opt.reason = reason;
+  if (s.group) opt.group = s.group;
+  if (s.hidden?.()) opt.hidden = true;
   return opt;
 }
 

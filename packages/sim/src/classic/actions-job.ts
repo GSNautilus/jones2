@@ -109,7 +109,8 @@ export function jobSpec(cx: Ctx, a: Action): Spec | string | null {
       if (!job) return 'No such job';
       const wage = listedWage(state, job.id);
       return {
-        label: `Apply: ${job.title} at ${CLASSIC_LOCATIONS[job.employer].name} ($${wage}/h)`,
+        label: `${job.title} ($${wage}/h)`,
+        group: CLASSIC_LOCATIONS[job.employer].name,
         hours: 4,
         cost: 0,
         check: () => {
@@ -194,6 +195,10 @@ export function jobSpec(cx: Ctx, a: Action): Spec | string | null {
       const fee = priceOf(state, ENROLLMENT_FEE_BASE);
       return {
         label: `Enrol in ${deg.name} ($${fee})`,
+        // The course list only shows what you can take now: as each degree
+        // is acquired, more become available (Hi-Tech U, "Enrolling").
+        hidden: () =>
+          c.degrees.includes(deg.id) || c.enrolled.includes(deg.id) || (!!deg.prereq && !c.degrees.includes(deg.prereq)),
         hours: 0,
         cost: fee,
         check: () => {
@@ -221,6 +226,7 @@ export function jobSpec(cx: Ctx, a: Action): Spec | string | null {
       const need = lessonsNeeded(p);
       return {
         label: `Take a lesson: ${deg.name} (${taken}/${need})`,
+        hidden: () => c.degrees.includes(deg.id) || !c.enrolled.includes(deg.id),
         hours: LESSON_HOURS,
         cost: 0,
         partial: true,

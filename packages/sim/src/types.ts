@@ -329,6 +329,18 @@ export interface ActionOption {
   cost: number;
   enabled: boolean;
   reason?: string;
+  /**
+   * A heading this option is listed under, e.g. the employer for a job
+   * application: the Employment Office shows the businesses first and the
+   * jobs at one business after you pick it, as the original did.
+   */
+  group?: string;
+  /**
+   * Not worth listing right now: a course whose prerequisite is not held, a
+   * lesson in a course you are not enrolled in. Still a valid action for
+   * `applyAction`, just left off the menu.
+   */
+  hidden?: boolean;
 }
 
 // ---------------------------------------------------------------------------

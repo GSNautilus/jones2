@@ -64,7 +64,7 @@ describe('riverton — graph integrity', () => {
   it('the depot stands beside Low-Cost Housing on the mill road', () => {
     const r = g.route('bus_depot', 'lowcost', 'walk')!;
     expect(r).not.toBeNull();
-    expect(r.minutes).toBeLessThanOrEqual(30);
+    expect(r.minutes).toBeLessThanOrEqual(60);
     expect(nodeById.has('j_center'), 'the town-bridge crossroads keeps its id').toBe(true);
   });
 
@@ -231,14 +231,14 @@ describe('riverton — travel times', () => {
     for (const e of at) expect(e.street!.startsWith('dwy_'), `${e.street} hangs a building off j_center`).toBe(false);
   });
 
-  it('a hop along the high street is 4 to 18 minutes on foot', () => {
+  it('a hop along the high street is 8 to 36 minutes on foot', () => {
     const hops = DRAWN.filter((e) => e.street === 'main_st')
       .map((e) => e.minutes)
       .sort((a, b) => a - b);
     expect(hops.length, 'expected a good number of high-street hops').toBeGreaterThanOrEqual(10);
     const median = hops[Math.floor(hops.length / 2)]!;
-    expect(median, `high street hops: ${hops.join(',')}`).toBeGreaterThanOrEqual(4);
-    expect(median, `high street hops: ${hops.join(',')}`).toBeLessThanOrEqual(18);
+    expect(median, `high street hops: ${hops.join(',')}`).toBeGreaterThanOrEqual(8);
+    expect(median, `high street hops: ${hops.join(',')}`).toBeLessThanOrEqual(36);
   });
 
   it('the lookout is a serious walk from the depot', () => {

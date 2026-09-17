@@ -170,11 +170,15 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
   // How long the player's log was when the window opened: anything logged
   // after that is an outcome the clerk should announce.
   const [logLenAtOpen, setLogLenAtOpen] = useState(0);
+  // The group the player has drilled into within the window (an employer at
+  // the Employment Office). Reset whenever a window opens.
+  const [group, setGroup] = useState<string | null>(null);
   const openWindow = useCallback((loc: string) => {
     const s = stateRef.current;
     const pid = pidRef.current;
     setLogLenAtOpen(s && pid ? s.players[pid]!.log.length : 0);
     setVisits((v) => ({ ...v, [loc]: (v[loc] ?? 0) + 1 }));
+    setGroup(null);
     setOpenLoc(loc);
   }, []);
   const openRef = useRef(openWindow);
@@ -290,8 +294,8 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
     const log = state.players[currentPid]!.log;
     const outcome = log.length > logLenAtOpen ? log[log.length - 1]!.text : undefined;
     const say = store.error ?? outcome;
-    return buildLocationWindow(state, currentPid, openLoc, { visit: (visits[openLoc] ?? 1) - 1, say });
-  }, [state, currentPid, openLoc, visits, logLenAtOpen, store.error]);
+    return buildLocationWindow(state, currentPid, openLoc, { visit: (visits[openLoc] ?? 1) - 1, say, group });
+  }, [state, currentPid, openLoc, visits, logLenAtOpen, store.error, group]);
   const windowModel: PanelModel | null = useMemo(
     () => (windowActions ? locationPanel(windowActions) : null),
     [windowActions],
@@ -412,13 +416,16 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
             hint={`${left}H LEFT`}
             onRow={(i) => {
               const row = windowActions.rows[i];
-              if (row) store.act(row.action);
+              if (!row) return;
+              if (row.action) store.act(row.action);
+              else if (row.group) setGroup(row.group);
             }}
             onButton={(i) => {
               const btn = windowActions.buttons[i];
               if (!btn) return;
-              if (!btn.action) setOpenLoc(null);
-              else store.act(btn.action);
+              if (btn.action) store.act(btn.action);
+              else if (btn.key === 'back') setGroup(null);
+              else setOpenLoc(null);
             }}
           />
         </div>

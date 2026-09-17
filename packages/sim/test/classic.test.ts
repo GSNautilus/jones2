@@ -26,7 +26,7 @@ describe('classic: the 60-hour week', () => {
     if (!r.ok) return;
     expect(r.event.duration).toBe(route.minutes);
     expect(r.state.players.a!.minutesLeft).toBe(3600 - routeHours(route.minutes) * 60);
-    expect(routeHours(route.minutes)).toBe(2); // the hour ladder: depot -> employment is 2h
+    expect(routeHours(route.minutes)).toBe(3); // the hour ladder: depot -> employment is 3h
   });
 
   it('disables an action that does not fit in the hours left', () => {

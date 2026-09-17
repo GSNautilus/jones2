@@ -12,7 +12,7 @@ import type { FigurePose, FigureStyle } from './api';
 import { type ArtSet, PX_PER_UNIT } from './art';
 import { textWidth } from './font';
 import { facingOf, poseAlongEdge } from './roads';
-import { blitAnchored, fillRect, put, strokeRect, text, type RenderPalette, type Surface } from './surface';
+import { blit, blitAnchored, fillRect, put, strokeRect, text, type RenderPalette, type Surface } from './surface';
 
 /** One walk frame every 150 ms. */
 export const WALK_FRAME_MS = 150;
@@ -54,6 +54,10 @@ export const CLOSED_LABEL = '@closed';
  * CLOSED board is hung above it, on the building's face.
  */
 export const TOKEN_DROP = 8;
+/** Gap between the top of a walker's head and the bottom of the token's halo. */
+export const TOKEN_HOVER = 3;
+/** Width of the ink-and-white ring round a token. */
+const HALO = 3;
 export const CLOSED_LIFT = 22;
 /** Seats stand side by side so four players at one node all show. */
 export const TOKEN_SPREAD = 15;
@@ -160,12 +164,17 @@ export function drawFigure(
     // the node, or a CLOSED board hung on the building's face.
     const token = marker.kind === 'token';
     const sprite = art.ui?.(token ? `token_${marker.n}` : 'sign_closed');
-    if (sprite) {
-      const dy = token ? TOKEN_DROP : -CLOSED_LIFT;
-      const dx = token ? tokenOffset(marker.n) : 0;
-      if (token) drawToken(s, pal, sprite, x + dx, y + dy, f.ghost, ink);
-      else blitAnchored(s, sprite, x + dx, y + dy, { ghost: f.ghost });
+    if (!sprite) return;
+    if (!token) {
+      blitAnchored(s, sprite, x, y - CLOSED_LIFT, { ghost: f.ghost });
+      return;
     }
+    // A player: the little walker on the ground (idle at a door, striding
+    // along a route) with the numbered token floating over their head.
+    const dx = tokenOffset(marker.n);
+    const walker = art.character(f.dir, f.frame, pal.hex(f.tint));
+    blitAnchored(s, walker, x + dx, y, { ghost: f.ghost });
+    drawToken(s, pal, sprite, x + dx, y - (walker.anchorY + 1) - TOKEN_HOVER, f.ghost, ink);
     return;
   }
 
@@ -195,17 +204,19 @@ export function drawFigure(
 function drawToken(s: Surface, pal: RenderPalette, sprite: Sprite, x: number, y: number, ghost: boolean, ink: number): void {
   const white = pal.index('white', [242, 242, 238]);
   const scale = ghost ? 1 : 2;
-  const bob = ghost ? 0 : Math.round(Math.sin(Date.now() / 260) * 1.5);
+  // The bob only ever lifts the token, so it never dips into the head below.
+  const bob = ghost ? 0 : Math.round(Math.sin(Date.now() / 260) * 1.5) - 2;
   const w = sprite.width * scale;
   const h = sprite.height * scale;
-  const left = Math.round(x) - sprite.anchorX * scale;
-  const top = Math.round(y) - sprite.anchorY * scale + bob;
+  const left = Math.round(x) - (w >> 1);
+  // `y` is where the token's halo may reach down to; the disc sits above it.
+  const top = Math.round(y) - HALO - h + bob;
   // halo: an ink ring outside a white ring, hugging the sprite's disc
   const cx = left + w / 2 - 0.5;
   const cy = top + h / 2 - 0.5;
   const r = w / 2;
-  for (let py = top - 3; py < top + h + 3; py++) {
-    for (let px = left - 3; px < left + w + 3; px++) {
+  for (let py = top - HALO; py < top + h + HALO; py++) {
+    for (let px = left - HALO; px < left + w + HALO; px++) {
       const d = Math.hypot(px - cx, py - cy);
       if (d > r + 2.5) continue;
       if (d > r + 1.5) put(s, px, py, ink);
@@ -213,7 +224,7 @@ function drawToken(s: Surface, pal: RenderPalette, sprite: Sprite, x: number, y:
     }
   }
   if (scale === 1) {
-    blitAnchored(s, sprite, x, y + bob, { ghost });
+    blit(s, sprite, left, top, { ghost });
     return;
   }
   for (let sy = 0; sy < sprite.height; sy++) {
@@ -243,8 +254,13 @@ export function drawFigureLabel(
   const white = pal.index('white', [242, 242, 238]);
   const w = textWidth(label) + 4;
   const h = 9;
-  const x = Math.round(f.nx - ox - w / 2);
-  const y = Math.round(f.ny - oy - spriteHeight - h - 1);
+  // A player's plate sits above the token over their head (14px, doubled for
+  // the active player), not on top of it.
+  const token = f.marker?.kind === 'token';
+  const lift = token ? (f.ghost ? 14 : 28) + TOKEN_HOVER + HALO * 2 + 4 : 0;
+  const dx = token && f.marker?.kind === 'token' ? tokenOffset(f.marker.n) : 0;
+  const x = Math.round(f.nx - ox + dx - w / 2);
+  const y = Math.round(f.ny - oy - spriteHeight - lift - h - 1);
   fillRect(s, x, y, w, h, panel);
   strokeRect(s, x, y, w, h, ink);
   text(s, label, x + 2, y + 2, white);

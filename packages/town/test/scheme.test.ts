@@ -126,7 +126,7 @@ describe('scheme — locations by wedge', () => {
   it('starts everyone at the bus depot beside Low-Cost Housing', () => {
     expect(town.startNode).toBe('bus_depot');
     const r = g.route(town.startNode, nodeOf('lowcost').id, 'walk')!;
-    expect(r.minutes, 'the depot should be a short walk from Low-Cost Housing').toBeLessThanOrEqual(30);
+    expect(r.minutes, 'the depot should be a short walk from Low-Cost Housing').toBeLessThanOrEqual(60);
   });
 
   it('puts the jobs board and the burger bar on the poor bank at the town bridge', () => {
@@ -170,11 +170,11 @@ describe('scheme — the hour ladder', () => {
     expect(wrong, `\n${wrong.join('\n')}`).toHaveLength(0);
   });
 
-  it('no classic location is more than three hours from any other', () => {
+  it('no classic location is more than six hours from any other', () => {
     for (let i = 0; i < CLASSIC.length; i++) {
       for (let j = i + 1; j < CLASSIC.length; j++) {
         const r = g.route(nodeOf(CLASSIC[i]!).id, nodeOf(CLASSIC[j]!).id, 'walk')!;
-        expect(routeHours(r.minutes), `${CLASSIC[i]} -> ${CLASSIC[j]} (${r.minutes} min)`).toBeLessThanOrEqual(3);
+        expect(routeHours(r.minutes), `${CLASSIC[i]} -> ${CLASSIC[j]} (${r.minutes} min)`).toBeLessThanOrEqual(6);
       }
     }
   });

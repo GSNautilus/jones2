@@ -98,7 +98,7 @@ describe('the location window', () => {
     expect(w.portrait).toBe('monolith');
     expect(w.greeting).toMatch(/monolith/i);
 
-    const shown = new Set([...w.rows.map((r) => r.action.type), ...w.buttons.map((b) => b.action?.type)]);
+    const shown = new Set([...w.rows.map((r) => r.action?.type), ...w.buttons.map((b) => b.action?.type)]);
     expect(shown.has('travel')).toBe(false);
     expect(shown.has('endWeek')).toBe(false);
 
@@ -133,15 +133,16 @@ describe('the location window', () => {
     const labels = w.buttons.map((b) => b.label);
     expect(labels).toContain('BROKER');
     expect(labels).toContain('LOAN');
-    expect(w.rows.some((r) => r.action.type === 'bank')).toBe(true);
+    expect(w.rows.some((r) => r.action?.type === 'bank')).toBe(true);
     for (const spec of BUTTON_ACTIONS) {
-      expect(w.rows.some((r) => r.action.type === spec.type)).toBe(false);
+      expect(w.rows.some((r) => r.action?.type === spec.type)).toBe(false);
     }
   });
 
   it('greys a disabled row and keeps the sim s reason for the hover', () => {
-    // Nowhere near a university degree, so lessons and enrolments are refused.
+    // Broke, so the starter courses are listed but every enrolment is refused.
     const state = goTo(createGame(config()), 'university');
+    state.players.p0!.cash = 0;
     const w = buildLocationWindow(state, 'p0', 'university');
     const blocked = w.rows.filter((r) => !r.enabled);
     expect(blocked.length).toBeGreaterThan(0);
@@ -157,6 +158,40 @@ describe('the location window', () => {
     const raw = buildLocationWindow(state, 'p0', 'university', { sort: false });
     expect(raw.rows.length).toBe(sorted.rows.length);
     expect(raw.rows.map((r) => r.key).sort()).toEqual(sorted.rows.map((r) => r.key).sort());
+  });
+
+  it('lists the Employment Office by business, then the jobs of the one picked', () => {
+    const state = goTo(createGame(config()), 'employment');
+    const top = buildLocationWindow(state, 'p0', 'employment');
+    expect(top.rows.length).toBeGreaterThan(3);
+    for (const r of top.rows) {
+      expect(r.action).toBeNull();
+      expect(r.group).toBeTruthy();
+      expect(r.note).toMatch(/jobs?$/);
+    }
+    expect(top.buttons.some((b) => b.key === 'back')).toBe(false);
+
+    const business = top.rows[0]!.group!;
+    const inside = buildLocationWindow(state, 'p0', 'employment', { group: business });
+    expect(inside.title).toBe(business.toUpperCase());
+    expect(inside.rows.length).toBeGreaterThan(0);
+    for (const r of inside.rows) expect(r.action?.type).toBe('apply');
+    expect(inside.buttons[0]!.key).toBe('back');
+
+    const jobsListed = top.rows.reduce((n, r) => n + Number(/^(\d+)/.exec(r.note)?.[1] ?? 0), 0);
+    const applications = availableActions(state, 'p0').filter((o) => o.action.type === 'apply').length;
+    expect(jobsListed).toBe(applications);
+  });
+
+  it('shows only the courses open to the player at the university', () => {
+    const state = goTo(createGame(config()), 'university');
+    const w = buildLocationWindow(state, 'p0', 'university');
+    const enrol = w.rows.filter((r) => r.action?.type === 'enroll');
+    const lessons = w.rows.filter((r) => r.action?.type === 'class');
+    // Nothing enrolled yet: no lessons offered, and only the starter degrees.
+    expect(lessons).toHaveLength(0);
+    expect(enrol.length).toBeGreaterThan(0);
+    for (const r of enrol) expect(r.reason ?? '').not.toMatch(/^Requires/);
   });
 
   it('lets an outcome replace the greeting in the bubble', () => {

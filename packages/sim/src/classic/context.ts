@@ -20,6 +20,10 @@ export const MINUTES = 60;
 
 export interface Spec {
   label: string;
+  /** Heading the option is listed under (see `ActionOption.group`). */
+  group?: string;
+  /** True when the option should be left off the menu (see `ActionOption.hidden`). */
+  hidden?: () => boolean;
   /** Hours charged to the 60-hour week. */
   hours: number;
   cost: number;

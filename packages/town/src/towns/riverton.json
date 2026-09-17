@@ -803,7 +803,7 @@
     {
       "a": "highway_w",
       "b": "w_highway_0_1",
-      "minutes": 10,
+      "minutes": 21,
       "kind": "highway",
       "street": "highway",
       "curve": [
@@ -836,7 +836,7 @@
     {
       "a": "w_highway_0_1",
       "b": "w_highway_0_2",
-      "minutes": 10,
+      "minutes": 21,
       "kind": "highway",
       "street": "highway",
       "curve": [
@@ -869,7 +869,7 @@
     {
       "a": "w_highway_0_2",
       "b": "w_highway_0_3",
-      "minutes": 10,
+      "minutes": 21,
       "kind": "highway",
       "street": "highway",
       "curve": [
@@ -902,7 +902,7 @@
     {
       "a": "w_highway_0_3",
       "b": "w_highway_0_4",
-      "minutes": 10,
+      "minutes": 21,
       "kind": "highway",
       "street": "highway",
       "curve": [
@@ -935,7 +935,7 @@
     {
       "a": "w_highway_0_4",
       "b": "w_highway_0_5",
-      "minutes": 10,
+      "minutes": 21,
       "kind": "highway",
       "street": "highway",
       "curve": [
@@ -968,7 +968,7 @@
     {
       "a": "w_highway_0_5",
       "b": "w_highway_0_6",
-      "minutes": 10,
+      "minutes": 21,
       "kind": "highway",
       "street": "highway",
       "curve": [
@@ -1001,7 +1001,7 @@
     {
       "a": "w_highway_0_6",
       "b": "w_highway_0_7",
-      "minutes": 10,
+      "minutes": 21,
       "kind": "highway",
       "street": "highway",
       "curve": [
@@ -1034,7 +1034,7 @@
     {
       "a": "w_highway_0_7",
       "b": "w_highway_0_8",
-      "minutes": 10,
+      "minutes": 21,
       "kind": "highway",
       "street": "highway",
       "curve": [
@@ -1067,7 +1067,7 @@
     {
       "a": "w_highway_0_8",
       "b": "w_highway_0_9",
-      "minutes": 10,
+      "minutes": 21,
       "kind": "highway",
       "street": "highway",
       "curve": [
@@ -1100,7 +1100,7 @@
     {
       "a": "w_highway_0_9",
       "b": "w_highway_0_10",
-      "minutes": 10,
+      "minutes": 21,
       "kind": "highway",
       "street": "highway",
       "curve": [
@@ -1133,7 +1133,7 @@
     {
       "a": "w_highway_0_10",
       "b": "w_highway_0_11",
-      "minutes": 10,
+      "minutes": 21,
       "kind": "highway",
       "street": "highway",
       "curve": [
@@ -1166,7 +1166,7 @@
     {
       "a": "w_highway_0_11",
       "b": "w_highway_0_12",
-      "minutes": 10,
+      "minutes": 21,
       "kind": "highway",
       "street": "highway",
       "curve": [
@@ -1199,7 +1199,7 @@
     {
       "a": "w_highway_0_12",
       "b": "w_highway_0_13",
-      "minutes": 10,
+      "minutes": 21,
       "kind": "highway",
       "street": "highway",
       "curve": [
@@ -1232,7 +1232,7 @@
     {
       "a": "w_highway_0_13",
       "b": "highway_e",
-      "minutes": 10,
+      "minutes": 21,
       "kind": "highway",
       "street": "highway",
       "curve": [
@@ -1265,7 +1265,7 @@
     {
       "a": "main_st_w",
       "b": "a_theme_park",
-      "minutes": 6,
+      "minutes": 11,
       "kind": "street",
       "street": "main_st",
       "curve": [
@@ -1282,7 +1282,7 @@
     {
       "a": "a_theme_park",
       "b": "w_main_st_1_1",
-      "minutes": 11,
+      "minutes": 22,
       "kind": "street",
       "street": "main_st",
       "curve": [
@@ -1307,7 +1307,7 @@
     {
       "a": "w_main_st_1_1",
       "b": "w_main_st_1_2",
-      "minutes": 11,
+      "minutes": 22,
       "kind": "street",
       "street": "main_st",
       "curve": [
@@ -1332,7 +1332,7 @@
     {
       "a": "w_main_st_1_2",
       "b": "a_cinema",
-      "minutes": 11,
+      "minutes": 22,
       "kind": "street",
       "street": "main_st",
       "curve": [
@@ -1357,7 +1357,7 @@
     {
       "a": "a_cinema",
       "b": "a_gym",
-      "minutes": 3,
+      "minutes": 6,
       "kind": "street",
       "street": "main_st",
       "curve": [
@@ -1370,7 +1370,7 @@
     {
       "a": "a_gym",
       "b": "a_newsstand",
-      "minutes": 12,
+      "minutes": 25,
       "kind": "street",
       "street": "main_st",
       "curve": [
@@ -1399,7 +1399,7 @@
     {
       "a": "a_newsstand",
       "b": "j_uptown",
-      "minutes": 13,
+      "minutes": 26,
       "kind": "street",
       "street": "main_st",
       "curve": [
@@ -1428,7 +1428,7 @@
     {
       "a": "j_uptown",
       "b": "a_rent_office",
-      "minutes": 9,
+      "minutes": 17,
       "kind": "street",
       "street": "main_st",
       "curve": [
@@ -1453,7 +1453,7 @@
     {
       "a": "a_rent_office",
       "b": "j_center",
-      "minutes": 7,
+      "minutes": 14,
       "kind": "street",
       "street": "main_st",
       "curve": [
@@ -1474,7 +1474,7 @@
     {
       "a": "j_center",
       "b": "j_campus",
-      "minutes": 3,
+      "minutes": 7,
       "kind": "street",
       "street": "main_st",
       "curve": [
@@ -1487,7 +1487,7 @@
     {
       "a": "j_campus",
       "b": "a_clinic",
-      "minutes": 10,
+      "minutes": 19,
       "kind": "street",
       "street": "main_st",
       "curve": [
@@ -1512,7 +1512,7 @@
     {
       "a": "a_clinic",
       "b": "j_fork",
-      "minutes": 14,
+      "minutes": 29,
       "kind": "street",
       "street": "main_st",
       "curve": [
@@ -1545,7 +1545,7 @@
     {
       "a": "j_fork",
       "b": "a_cafe",
-      "minutes": 11,
+      "minutes": 23,
       "kind": "street",
       "street": "main_st",
       "curve": [
@@ -1574,7 +1574,7 @@
     {
       "a": "a_cafe",
       "b": "a_stadium",
-      "minutes": 10,
+      "minutes": 20,
       "kind": "street",
       "street": "main_st",
       "curve": [
@@ -1599,7 +1599,7 @@
     {
       "a": "j_uptown",
       "b": "a_bank",
-      "minutes": 11,
+      "minutes": 23,
       "kind": "street",
       "street": "uptown_rd",
       "curve": [
@@ -1628,7 +1628,7 @@
     {
       "a": "a_bank",
       "b": "a_qt_clothing",
-      "minutes": 6,
+      "minutes": 12,
       "kind": "street",
       "street": "uptown_rd",
       "curve": [
@@ -1649,7 +1649,7 @@
     {
       "a": "a_qt_clothing",
       "b": "a_socket_city",
-      "minutes": 9,
+      "minutes": 18,
       "kind": "street",
       "street": "uptown_rd",
       "curve": [
@@ -1674,7 +1674,7 @@
     {
       "a": "a_socket_city",
       "b": "j_hill",
-      "minutes": 5,
+      "minutes": 11,
       "kind": "street",
       "street": "uptown_rd",
       "curve": [
@@ -1691,7 +1691,7 @@
     {
       "a": "j_hill",
       "b": "uptown_rd_e",
-      "minutes": 12,
+      "minutes": 25,
       "kind": "street",
       "street": "uptown_rd",
       "curve": [
@@ -1720,7 +1720,7 @@
     {
       "a": "j_hill",
       "b": "a_shady_acres",
-      "minutes": 14,
+      "minutes": 29,
       "kind": "street",
       "street": "hill_rd",
       "curve": [
@@ -1753,7 +1753,7 @@
     {
       "a": "a_shady_acres",
       "b": "w_hill_rd_1_1",
-      "minutes": 11,
+      "minutes": 22,
       "kind": "street",
       "street": "hill_rd",
       "curve": [
@@ -1778,7 +1778,7 @@
     {
       "a": "w_hill_rd_1_1",
       "b": "a_house_hill",
-      "minutes": 11,
+      "minutes": 22,
       "kind": "street",
       "street": "hill_rd",
       "curve": [
@@ -1803,7 +1803,7 @@
     {
       "a": "a_house_hill",
       "b": "hill_rd_e",
-      "minutes": 4,
+      "minutes": 9,
       "kind": "street",
       "street": "hill_rd",
       "curve": [
@@ -1820,7 +1820,7 @@
     {
       "a": "j_campus",
       "b": "w_campus_rd_0_1",
-      "minutes": 14,
+      "minutes": 29,
       "kind": "street",
       "street": "campus_rd",
       "curve": [
@@ -1853,7 +1853,7 @@
     {
       "a": "w_campus_rd_0_1",
       "b": "a_university",
-      "minutes": 14,
+      "minutes": 29,
       "kind": "street",
       "street": "campus_rd",
       "curve": [
@@ -1886,7 +1886,7 @@
     {
       "a": "a_university",
       "b": "a_bus_station",
-      "minutes": 10,
+      "minutes": 21,
       "kind": "street",
       "street": "campus_rd",
       "curve": [
@@ -1911,7 +1911,7 @@
     {
       "a": "a_bus_station",
       "b": "w_campus_rd_2_1",
-      "minutes": 9,
+      "minutes": 17,
       "kind": "street",
       "street": "campus_rd",
       "curve": [
@@ -1932,7 +1932,7 @@
     {
       "a": "w_campus_rd_2_1",
       "b": "j_ridge",
-      "minutes": 9,
+      "minutes": 17,
       "kind": "street",
       "street": "campus_rd",
       "curve": [
@@ -1953,7 +1953,7 @@
     {
       "a": "j_ridge",
       "b": "j_lake",
-      "minutes": 3,
+      "minutes": 7,
       "kind": "street",
       "street": "campus_rd",
       "curve": [
@@ -1966,7 +1966,7 @@
     {
       "a": "j_lake",
       "b": "campus_rd_e",
-      "minutes": 9,
+      "minutes": 18,
       "kind": "street",
       "street": "campus_rd",
       "curve": [
@@ -1991,7 +1991,7 @@
     {
       "a": "j_center",
       "b": "w_mill_rd_0_1",
-      "minutes": 12,
+      "minutes": 24,
       "kind": "street",
       "street": "mill_rd",
       "curve": [
@@ -2020,7 +2020,7 @@
     {
       "a": "w_mill_rd_0_1",
       "b": "w_mill_rd_0_2",
-      "minutes": 15,
+      "minutes": 30,
       "kind": "street",
       "street": "mill_rd",
       "curve": [
@@ -2053,7 +2053,7 @@
     {
       "a": "w_mill_rd_0_2",
       "b": "a_employment",
-      "minutes": 9,
+      "minutes": 18,
       "kind": "street",
       "street": "mill_rd",
       "curve": [
@@ -2078,7 +2078,7 @@
     {
       "a": "a_employment",
       "b": "a_monolith",
-      "minutes": 5,
+      "minutes": 10,
       "kind": "street",
       "street": "mill_rd",
       "curve": [
@@ -2095,7 +2095,7 @@
     {
       "a": "a_monolith",
       "b": "j_strip",
-      "minutes": 6,
+      "minutes": 12,
       "kind": "street",
       "street": "mill_rd",
       "curve": [
@@ -2116,7 +2116,7 @@
     {
       "a": "j_strip",
       "b": "a_pet_store",
-      "minutes": 8,
+      "minutes": 16,
       "kind": "street",
       "street": "mill_rd",
       "curve": [
@@ -2137,7 +2137,7 @@
     {
       "a": "a_pet_store",
       "b": "j_park",
-      "minutes": 4,
+      "minutes": 8,
       "kind": "street",
       "street": "mill_rd",
       "curve": [
@@ -2154,7 +2154,7 @@
     {
       "a": "j_park",
       "b": "j_works",
-      "minutes": 4,
+      "minutes": 8,
       "kind": "street",
       "street": "mill_rd",
       "curve": [
@@ -2171,7 +2171,7 @@
     {
       "a": "j_works",
       "b": "a_factory",
-      "minutes": 11,
+      "minutes": 23,
       "kind": "street",
       "street": "mill_rd",
       "curve": [
@@ -2200,7 +2200,7 @@
     {
       "a": "a_factory",
       "b": "a_lowcost",
-      "minutes": 11,
+      "minutes": 23,
       "kind": "street",
       "street": "mill_rd",
       "curve": [
@@ -2229,7 +2229,7 @@
     {
       "a": "a_lowcost",
       "b": "j_elm",
-      "minutes": 6,
+      "minutes": 11,
       "kind": "street",
       "street": "mill_rd",
       "curve": [
@@ -2246,7 +2246,7 @@
     {
       "a": "j_elm",
       "b": "a_bus_depot",
-      "minutes": 5,
+      "minutes": 10,
       "kind": "street",
       "street": "mill_rd",
       "curve": [
@@ -2263,7 +2263,7 @@
     {
       "a": "a_bus_depot",
       "b": "mill_rd_e",
-      "minutes": 11,
+      "minutes": 23,
       "kind": "street",
       "street": "mill_rd",
       "curve": [
@@ -2292,7 +2292,7 @@
     {
       "a": "j_strip",
       "b": "w_strip_rd_0_1",
-      "minutes": 13,
+      "minutes": 26,
       "kind": "street",
       "street": "strip_rd",
       "curve": [
@@ -2321,7 +2321,7 @@
     {
       "a": "w_strip_rd_0_1",
       "b": "a_zmart",
-      "minutes": 13,
+      "minutes": 26,
       "kind": "street",
       "street": "strip_rd",
       "curve": [
@@ -2350,7 +2350,7 @@
     {
       "a": "a_zmart",
       "b": "w_strip_rd_1_1",
-      "minutes": 7,
+      "minutes": 15,
       "kind": "street",
       "street": "strip_rd",
       "curve": [
@@ -2371,7 +2371,7 @@
     {
       "a": "w_strip_rd_1_1",
       "b": "a_pawn",
-      "minutes": 7,
+      "minutes": 15,
       "kind": "street",
       "street": "strip_rd",
       "curve": [
@@ -2392,7 +2392,7 @@
     {
       "a": "a_pawn",
       "b": "a_chez_cholesterol",
-      "minutes": 7,
+      "minutes": 13,
       "kind": "street",
       "street": "strip_rd",
       "curve": [
@@ -2413,7 +2413,7 @@
     {
       "a": "a_chez_cholesterol",
       "b": "w_strip_rd_3_1",
-      "minutes": 7,
+      "minutes": 15,
       "kind": "street",
       "street": "strip_rd",
       "curve": [
@@ -2434,7 +2434,7 @@
     {
       "a": "w_strip_rd_3_1",
       "b": "strip_rd_e",
-      "minutes": 7,
+      "minutes": 15,
       "kind": "street",
       "street": "strip_rd",
       "curve": [
@@ -2455,7 +2455,7 @@
     {
       "a": "j_park",
       "b": "j_bluff",
-      "minutes": 12,
+      "minutes": 24,
       "kind": "street",
       "street": "park_ln",
       "curve": [
@@ -2484,7 +2484,7 @@
     {
       "a": "j_bluff",
       "b": "park_ln_e",
-      "minutes": 7,
+      "minutes": 13,
       "kind": "street",
       "street": "park_ln",
       "curve": [
@@ -2505,7 +2505,7 @@
     {
       "a": "j_bluff",
       "b": "w_lookout_path_0_1",
-      "minutes": 19,
+      "minutes": 37,
       "kind": "path",
       "street": "lookout_path",
       "curve": [
@@ -2538,7 +2538,7 @@
     {
       "a": "w_lookout_path_0_1",
       "b": "w_lookout_path_0_2",
-      "minutes": 19,
+      "minutes": 37,
       "kind": "path",
       "street": "lookout_path",
       "curve": [
@@ -2571,7 +2571,7 @@
     {
       "a": "w_lookout_path_0_2",
       "b": "w_lookout_path_0_3",
-      "minutes": 19,
+      "minutes": 37,
       "kind": "path",
       "street": "lookout_path",
       "curve": [
@@ -2604,7 +2604,7 @@
     {
       "a": "w_lookout_path_0_3",
       "b": "w_lookout_path_0_4",
-      "minutes": 19,
+      "minutes": 37,
       "kind": "path",
       "street": "lookout_path",
       "curve": [
@@ -2637,7 +2637,7 @@
     {
       "a": "w_lookout_path_0_4",
       "b": "a_lookout",
-      "minutes": 19,
+      "minutes": 37,
       "kind": "path",
       "street": "lookout_path",
       "curve": [
@@ -2670,7 +2670,7 @@
     {
       "a": "a_lookout",
       "b": "lookout_path_e",
-      "minutes": 9,
+      "minutes": 18,
       "kind": "path",
       "street": "lookout_path",
       "curve": [
@@ -2691,7 +2691,7 @@
     {
       "a": "j_works",
       "b": "w_works_rd_0_1",
-      "minutes": 10,
+      "minutes": 21,
       "kind": "street",
       "street": "works_rd",
       "curve": [
@@ -2716,7 +2716,7 @@
     {
       "a": "w_works_rd_0_1",
       "b": "a_auto",
-      "minutes": 10,
+      "minutes": 21,
       "kind": "street",
       "street": "works_rd",
       "curve": [
@@ -2741,7 +2741,7 @@
     {
       "a": "a_auto",
       "b": "works_rd_e",
-      "minutes": 10,
+      "minutes": 20,
       "kind": "street",
       "street": "works_rd",
       "curve": [
@@ -2766,7 +2766,7 @@
     {
       "a": "j_elm",
       "b": "w_elm_ln_0_1",
-      "minutes": 8,
+      "minutes": 15,
       "kind": "street",
       "street": "elm_ln",
       "curve": [
@@ -2787,7 +2787,7 @@
     {
       "a": "w_elm_ln_0_1",
       "b": "a_house_elm",
-      "minutes": 8,
+      "minutes": 15,
       "kind": "street",
       "street": "elm_ln",
       "curve": [
@@ -2808,7 +2808,7 @@
     {
       "a": "a_house_elm",
       "b": "elm_ln_e",
-      "minutes": 11,
+      "minutes": 22,
       "kind": "street",
       "street": "elm_ln",
       "curve": [
@@ -2833,7 +2833,7 @@
     {
       "a": "j_ridge",
       "b": "a_park",
-      "minutes": 10,
+      "minutes": 19,
       "kind": "path",
       "street": "ridge_path",
       "curve": [
@@ -2854,7 +2854,7 @@
     {
       "a": "a_park",
       "b": "a_gilded_fork",
-      "minutes": 18,
+      "minutes": 37,
       "kind": "path",
       "street": "ridge_path",
       "curve": [
@@ -2887,7 +2887,7 @@
     {
       "a": "a_gilded_fork",
       "b": "w_ridge_path_2_1",
-      "minutes": 14,
+      "minutes": 28,
       "kind": "path",
       "street": "ridge_path",
       "curve": [
@@ -2912,7 +2912,7 @@
     {
       "a": "w_ridge_path_2_1",
       "b": "j_fork",
-      "minutes": 14,
+      "minutes": 28,
       "kind": "path",
       "street": "ridge_path",
       "curve": [
@@ -2937,7 +2937,7 @@
     {
       "a": "j_lake",
       "b": "w_lake_ln_0_1",
-      "minutes": 11,
+      "minutes": 21,
       "kind": "street",
       "street": "lake_ln",
       "curve": [
@@ -2962,7 +2962,7 @@
     {
       "a": "w_lake_ln_0_1",
       "b": "a_house_lake",
-      "minutes": 11,
+      "minutes": 21,
       "kind": "street",
       "street": "lake_ln",
       "curve": [
@@ -2987,7 +2987,7 @@
     {
       "a": "a_theme_park",
       "b": "theme_park",
-      "minutes": 4,
+      "minutes": 5,
       "kind": "street",
       "street": "dwy_theme_park"
     },
@@ -3001,7 +3001,7 @@
     {
       "a": "a_gym",
       "b": "gym",
-      "minutes": 3,
+      "minutes": 5,
       "kind": "street",
       "street": "dwy_gym"
     },
@@ -3022,28 +3022,28 @@
     {
       "a": "a_rent_office",
       "b": "government",
-      "minutes": 3,
+      "minutes": 5,
       "kind": "street",
       "street": "dwy_government"
     },
     {
       "a": "a_clinic",
       "b": "clinic",
-      "minutes": 3,
+      "minutes": 5,
       "kind": "street",
       "street": "dwy_clinic"
     },
     {
       "a": "j_fork",
       "b": "corpo",
-      "minutes": 3,
+      "minutes": 5,
       "kind": "street",
       "street": "dwy_corpo"
     },
     {
       "a": "a_cafe",
       "b": "cafe",
-      "minutes": 4,
+      "minutes": 5,
       "kind": "street",
       "street": "dwy_cafe"
     },
@@ -3078,7 +3078,7 @@
     {
       "a": "a_shady_acres",
       "b": "shady_acres",
-      "minutes": 2,
+      "minutes": 4,
       "kind": "street",
       "street": "dwy_shady_acres"
     },
@@ -3092,7 +3092,7 @@
     {
       "a": "a_university",
       "b": "university",
-      "minutes": 4,
+      "minutes": 5,
       "kind": "street",
       "street": "dwy_university"
     },
@@ -3134,7 +3134,7 @@
     {
       "a": "a_employment",
       "b": "employment",
-      "minutes": 2,
+      "minutes": 5,
       "kind": "street",
       "street": "dwy_employment"
     },
@@ -3218,7 +3218,7 @@
     {
       "a": "a_pawn",
       "b": "pawn",
-      "minutes": 2,
+      "minutes": 4,
       "kind": "street",
       "street": "dwy_pawn"
     },
@@ -3239,7 +3239,7 @@
     {
       "a": "j_elm",
       "b": "a_bus_depot",
-      "minutes": 5,
+      "minutes": 10,
       "kind": "busline",
       "street": "bus_1",
       "curve": [
@@ -3256,7 +3256,7 @@
     {
       "a": "a_lowcost",
       "b": "j_elm",
-      "minutes": 6,
+      "minutes": 11,
       "kind": "busline",
       "street": "bus_1",
       "curve": [
@@ -3273,7 +3273,7 @@
     {
       "a": "a_factory",
       "b": "a_lowcost",
-      "minutes": 11,
+      "minutes": 23,
       "kind": "busline",
       "street": "bus_1",
       "curve": [
@@ -3302,7 +3302,7 @@
     {
       "a": "j_works",
       "b": "a_factory",
-      "minutes": 11,
+      "minutes": 23,
       "kind": "busline",
       "street": "bus_1",
       "curve": [
@@ -3331,7 +3331,7 @@
     {
       "a": "j_park",
       "b": "j_works",
-      "minutes": 4,
+      "minutes": 8,
       "kind": "busline",
       "street": "bus_1",
       "curve": [
@@ -3348,7 +3348,7 @@
     {
       "a": "a_pet_store",
       "b": "j_park",
-      "minutes": 4,
+      "minutes": 8,
       "kind": "busline",
       "street": "bus_1",
       "curve": [
@@ -3365,7 +3365,7 @@
     {
       "a": "j_strip",
       "b": "a_pet_store",
-      "minutes": 8,
+      "minutes": 16,
       "kind": "busline",
       "street": "bus_1",
       "curve": [
@@ -3386,7 +3386,7 @@
     {
       "a": "a_monolith",
       "b": "j_strip",
-      "minutes": 6,
+      "minutes": 12,
       "kind": "busline",
       "street": "bus_1",
       "curve": [
@@ -3407,7 +3407,7 @@
     {
       "a": "a_employment",
       "b": "a_monolith",
-      "minutes": 5,
+      "minutes": 10,
       "kind": "busline",
       "street": "bus_1",
       "curve": [
@@ -3424,7 +3424,7 @@
     {
       "a": "w_mill_rd_0_2",
       "b": "a_employment",
-      "minutes": 9,
+      "minutes": 18,
       "kind": "busline",
       "street": "bus_1",
       "curve": [
@@ -3449,7 +3449,7 @@
     {
       "a": "w_mill_rd_0_1",
       "b": "w_mill_rd_0_2",
-      "minutes": 15,
+      "minutes": 30,
       "kind": "busline",
       "street": "bus_1",
       "curve": [
@@ -3482,7 +3482,7 @@
     {
       "a": "j_center",
       "b": "w_mill_rd_0_1",
-      "minutes": 12,
+      "minutes": 24,
       "kind": "busline",
       "street": "bus_1",
       "curve": [
@@ -3511,7 +3511,7 @@
     {
       "a": "a_rent_office",
       "b": "j_center",
-      "minutes": 7,
+      "minutes": 14,
       "kind": "busline",
       "street": "bus_1",
       "curve": [
@@ -3532,7 +3532,7 @@
     {
       "a": "j_uptown",
       "b": "a_rent_office",
-      "minutes": 9,
+      "minutes": 17,
       "kind": "busline",
       "street": "bus_1",
       "curve": [
@@ -3557,7 +3557,7 @@
     {
       "a": "a_newsstand",
       "b": "j_uptown",
-      "minutes": 13,
+      "minutes": 26,
       "kind": "busline",
       "street": "bus_1",
       "curve": [
@@ -3586,7 +3586,7 @@
     {
       "a": "a_gym",
       "b": "a_newsstand",
-      "minutes": 12,
+      "minutes": 25,
       "kind": "busline",
       "street": "bus_1",
       "curve": [
@@ -3615,7 +3615,7 @@
     {
       "a": "a_cinema",
       "b": "a_gym",
-      "minutes": 3,
+      "minutes": 6,
       "kind": "busline",
       "street": "bus_1",
       "curve": [
@@ -3635,7 +3635,7 @@
     {
       "a": "j_center",
       "b": "j_campus",
-      "minutes": 3,
+      "minutes": 7,
       "kind": "busline",
       "street": "bus_1",
       "curve": [
@@ -3648,7 +3648,7 @@
     {
       "a": "j_campus",
       "b": "a_clinic",
-      "minutes": 10,
+      "minutes": 19,
       "kind": "busline",
       "street": "bus_1",
       "curve": [
@@ -3673,7 +3673,7 @@
     {
       "a": "a_clinic",
       "b": "clinic",
-      "minutes": 3,
+      "minutes": 5,
       "kind": "busline",
       "street": "bus_1"
     },
@@ -3687,7 +3687,7 @@
     {
       "a": "j_works",
       "b": "w_works_rd_0_1",
-      "minutes": 10,
+      "minutes": 21,
       "kind": "busline",
       "street": "bus_2",
       "curve": [
@@ -3712,7 +3712,7 @@
     {
       "a": "w_works_rd_0_1",
       "b": "a_auto",
-      "minutes": 10,
+      "minutes": 21,
       "kind": "busline",
       "street": "bus_2",
       "curve": [
@@ -3744,7 +3744,7 @@
     {
       "a": "j_strip",
       "b": "w_strip_rd_0_1",
-      "minutes": 13,
+      "minutes": 26,
       "kind": "busline",
       "street": "bus_3",
       "curve": [
@@ -3773,7 +3773,7 @@
     {
       "a": "w_strip_rd_0_1",
       "b": "a_zmart",
-      "minutes": 13,
+      "minutes": 26,
       "kind": "busline",
       "street": "bus_3",
       "curve": [
@@ -3802,7 +3802,7 @@
     {
       "a": "a_zmart",
       "b": "w_strip_rd_1_1",
-      "minutes": 7,
+      "minutes": 15,
       "kind": "busline",
       "street": "bus_3",
       "curve": [
@@ -3823,7 +3823,7 @@
     {
       "a": "w_strip_rd_1_1",
       "b": "a_pawn",
-      "minutes": 7,
+      "minutes": 15,
       "kind": "busline",
       "street": "bus_3",
       "curve": [
@@ -3844,7 +3844,7 @@
     {
       "a": "a_pawn",
       "b": "a_chez_cholesterol",
-      "minutes": 7,
+      "minutes": 13,
       "kind": "busline",
       "street": "bus_3",
       "curve": [
@@ -3872,7 +3872,7 @@
     {
       "a": "j_campus",
       "b": "w_campus_rd_0_1",
-      "minutes": 14,
+      "minutes": 29,
       "kind": "busline",
       "street": "bus_4",
       "curve": [
@@ -3905,7 +3905,7 @@
     {
       "a": "w_campus_rd_0_1",
       "b": "a_university",
-      "minutes": 14,
+      "minutes": 29,
       "kind": "busline",
       "street": "bus_4",
       "curve": [
@@ -3938,7 +3938,7 @@
     {
       "a": "a_university",
       "b": "a_bus_station",
-      "minutes": 10,
+      "minutes": 21,
       "kind": "busline",
       "street": "bus_4",
       "curve": [
@@ -3970,7 +3970,7 @@
     {
       "a": "a_bus_station",
       "b": "w_campus_rd_2_1",
-      "minutes": 9,
+      "minutes": 17,
       "kind": "busline",
       "street": "bus_4",
       "curve": [
@@ -3991,7 +3991,7 @@
     {
       "a": "w_campus_rd_2_1",
       "b": "j_ridge",
-      "minutes": 9,
+      "minutes": 17,
       "kind": "busline",
       "street": "bus_4",
       "curve": [
@@ -4012,7 +4012,7 @@
     {
       "a": "j_ridge",
       "b": "j_lake",
-      "minutes": 3,
+      "minutes": 7,
       "kind": "busline",
       "street": "bus_4",
       "curve": [
@@ -4025,7 +4025,7 @@
     {
       "a": "j_lake",
       "b": "w_lake_ln_0_1",
-      "minutes": 11,
+      "minutes": 21,
       "kind": "busline",
       "street": "bus_4",
       "curve": [
@@ -4050,7 +4050,7 @@
     {
       "a": "w_lake_ln_0_1",
       "b": "a_house_lake",
-      "minutes": 11,
+      "minutes": 21,
       "kind": "busline",
       "street": "bus_4",
       "curve": [
@@ -4082,7 +4082,7 @@
     {
       "a": "j_uptown",
       "b": "a_bank",
-      "minutes": 11,
+      "minutes": 23,
       "kind": "busline",
       "street": "bus_5",
       "curve": [
@@ -4111,7 +4111,7 @@
     {
       "a": "a_bank",
       "b": "a_qt_clothing",
-      "minutes": 6,
+      "minutes": 12,
       "kind": "busline",
       "street": "bus_5",
       "curve": [
@@ -4132,7 +4132,7 @@
     {
       "a": "a_qt_clothing",
       "b": "a_socket_city",
-      "minutes": 9,
+      "minutes": 18,
       "kind": "busline",
       "street": "bus_5",
       "curve": [
@@ -4157,7 +4157,7 @@
     {
       "a": "a_socket_city",
       "b": "j_hill",
-      "minutes": 5,
+      "minutes": 11,
       "kind": "busline",
       "street": "bus_5",
       "curve": [
@@ -4174,7 +4174,7 @@
     {
       "a": "j_hill",
       "b": "a_shady_acres",
-      "minutes": 14,
+      "minutes": 29,
       "kind": "busline",
       "street": "bus_5",
       "curve": [
@@ -4207,7 +4207,7 @@
     {
       "a": "a_shady_acres",
       "b": "w_hill_rd_1_1",
-      "minutes": 11,
+      "minutes": 22,
       "kind": "busline",
       "street": "bus_5",
       "curve": [
@@ -4232,7 +4232,7 @@
     {
       "a": "w_hill_rd_1_1",
       "b": "a_house_hill",
-      "minutes": 11,
+      "minutes": 22,
       "kind": "busline",
       "street": "bus_5",
       "curve": [
@@ -4264,7 +4264,7 @@
     {
       "a": "a_gym",
       "b": "gym",
-      "minutes": 3,
+      "minutes": 5,
       "kind": "busline",
       "street": "bus_1"
     },
@@ -4285,7 +4285,7 @@
     {
       "a": "a_rent_office",
       "b": "government",
-      "minutes": 3,
+      "minutes": 5,
       "kind": "busline",
       "street": "bus_1"
     },
@@ -4313,14 +4313,14 @@
     {
       "a": "a_shady_acres",
       "b": "shady_acres",
-      "minutes": 2,
+      "minutes": 4,
       "kind": "busline",
       "street": "bus_5"
     },
     {
       "a": "a_university",
       "b": "university",
-      "minutes": 4,
+      "minutes": 5,
       "kind": "busline",
       "street": "bus_4"
     },
@@ -4334,7 +4334,7 @@
     {
       "a": "a_employment",
       "b": "employment",
-      "minutes": 2,
+      "minutes": 5,
       "kind": "busline",
       "street": "bus_1"
     },
@@ -4376,7 +4376,7 @@
     {
       "a": "a_pawn",
       "b": "pawn",
-      "minutes": 2,
+      "minutes": 4,
       "kind": "busline",
       "street": "bus_3"
     }
