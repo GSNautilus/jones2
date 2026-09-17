@@ -467,23 +467,31 @@ class PixelTownScene implements TownScene {
   private drawRoute(frame: Surface, ox: number, oy: number): void {
     const path = this.route;
     if (!path) return;
-    // White, not yellow: the roads already carry yellow centre lines, and a
-    // yellow route overlay was invisible on top of them.
+    // Fat white dashes with an ink outline, marching toward the destination:
+    // the roads carry yellow centre lines and kerbs, so the route must be
+    // heavier and darker-edged than anything painted on them.
     const colour = this.pal.index('route', [255, 255, 255]);
+    const ink = this.pal.index('ink', [29, 26, 36]);
+    const dash = 7;
+    const gap = 5;
+    const phase = dash + gap - ((Date.now() / 60) % (dash + gap));
+    const polys: { x: number; y: number }[][] = [];
     for (let i = 1; i < path.length; i++) {
-      const from = path[i - 1]!;
-      const to = path[i]!;
       // The chain's own samples, so the route sits exactly on the drawn road.
-      const pts = edgePolyline(this.town, from, to).map((p) => ({
+      const pts = edgePolyline(this.town, path[i - 1]!, path[i]!).map((p) => ({
         x: p.x * PX_PER_UNIT - ox,
         y: p.y * PX_PER_UNIT - oy,
       }));
-      if (pts.length < 2) continue;
-      dashAlong(frame, pts, 2, 4, 0, (x, y) => {
-        put(frame, x, y, colour);
-        put(frame, x + 1, y, colour);
-        put(frame, x, y + 1, colour);
-        put(frame, x + 1, y + 1, colour);
+      if (pts.length >= 2) polys.push(pts);
+    }
+    for (const pts of polys) {
+      dashAlong(frame, pts, dash, gap, phase, (x, y) => {
+        for (let j = -2; j <= 2; j++) for (let i = -2; i <= 2; i++) put(frame, x + i, y + j, ink);
+      });
+    }
+    for (const pts of polys) {
+      dashAlong(frame, pts, dash, gap, phase, (x, y) => {
+        for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) put(frame, x + i, y + j, colour);
       });
     }
   }

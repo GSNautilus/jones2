@@ -129,6 +129,12 @@ export interface WindowOptions {
   visit?: number;
   /** Put the disabled rows after the enabled ones (default true). */
   sort?: boolean;
+  /**
+   * What the clerk says instead of the greeting: the outcome of the last
+   * action taken in this window ("Hired as Cook at $6/h.", "Refused: no
+   * openings."), so a result is seen the moment it happens.
+   */
+  say?: string;
 }
 
 /**
@@ -161,7 +167,7 @@ export function buildLocationWindow(
     locationId,
     title: locationName(locationId).toUpperCase(),
     portrait: portraitFor(locationId),
-    greeting: greetingFor(locationId, opts.visit ?? 0),
+    greeting: opts.say || greetingFor(locationId, opts.visit ?? 0),
     rows: opts.sort === false ? rows : byEnabled(rows),
     buttons,
   };

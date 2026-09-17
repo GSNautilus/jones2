@@ -7,18 +7,12 @@
  * alpha-blended: at native resolution there is no alpha.
  */
 import type { NodeId, Town, TransportMode } from '@jones2/town';
+import type { Sprite } from '@jones2/pixelart';
 import type { FigurePose, FigureStyle } from './api';
 import { type ArtSet, PX_PER_UNIT } from './art';
 import { textWidth } from './font';
 import { facingOf, poseAlongEdge } from './roads';
-import {
-  type RenderPalette,
-  type Surface,
-  blitAnchored,
-  fillRect,
-  strokeRect,
-  text,
-} from './surface';
+import { blitAnchored, fillRect, put, strokeRect, text, type RenderPalette, type Surface } from './surface';
 
 /** One walk frame every 150 ms. */
 export const WALK_FRAME_MS = 150;
@@ -169,7 +163,8 @@ export function drawFigure(
     if (sprite) {
       const dy = token ? TOKEN_DROP : -CLOSED_LIFT;
       const dx = token ? tokenOffset(marker.n) : 0;
-      blitAnchored(s, sprite, x + dx, y + dy, { ghost: f.ghost });
+      if (token) drawToken(s, pal, sprite, x + dx, y + dy, f.ghost, ink);
+      else blitAnchored(s, sprite, x + dx, y + dy, { ghost: f.ghost });
     }
     return;
   }
@@ -189,6 +184,47 @@ export function drawFigure(
   }
 
   blitAnchored(s, sprite, x, y, { ghost: f.ghost });
+}
+
+/**
+ * A player token, made hard to miss: an ink-and-white halo ring round every
+ * token, and the active player's token drawn at double size with a slow bob
+ * so the eye finds it on a busy board. Other players' tokens keep their
+ * ghost dither.
+ */
+function drawToken(s: Surface, pal: RenderPalette, sprite: Sprite, x: number, y: number, ghost: boolean, ink: number): void {
+  const white = pal.index('white', [242, 242, 238]);
+  const scale = ghost ? 1 : 2;
+  const bob = ghost ? 0 : Math.round(Math.sin(Date.now() / 260) * 1.5);
+  const w = sprite.width * scale;
+  const h = sprite.height * scale;
+  const left = Math.round(x) - sprite.anchorX * scale;
+  const top = Math.round(y) - sprite.anchorY * scale + bob;
+  // halo: an ink ring outside a white ring, hugging the sprite's disc
+  const cx = left + w / 2 - 0.5;
+  const cy = top + h / 2 - 0.5;
+  const r = w / 2;
+  for (let py = top - 3; py < top + h + 3; py++) {
+    for (let px = left - 3; px < left + w + 3; px++) {
+      const d = Math.hypot(px - cx, py - cy);
+      if (d > r + 2.5) continue;
+      if (d > r + 1.5) put(s, px, py, ink);
+      else if (d > r - 0.5) put(s, px, py, white);
+    }
+  }
+  if (scale === 1) {
+    blitAnchored(s, sprite, x, y + bob, { ghost });
+    return;
+  }
+  for (let sy = 0; sy < sprite.height; sy++) {
+    for (let sx = 0; sx < sprite.width; sx++) {
+      const v = sprite.pixels[sy * sprite.width + sx]!;
+      if (v === 0) continue;
+      const px = left + sx * scale;
+      const py = top + sy * scale;
+      for (let j = 0; j < scale; j++) for (let i = 0; i < scale; i++) put(s, px + i, py + j, v);
+    }
+  }
 }
 
 /** Name plate above a figure. Drawn after every figure so labels never occlude one. */

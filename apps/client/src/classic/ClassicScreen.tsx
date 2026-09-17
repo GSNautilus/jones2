@@ -16,6 +16,7 @@ import type { GameStore } from '../game/store';
 import { cardsFrom, currentCard, deckKey } from './cards';
 import { CLOSED_LABEL, assignTokens, tokenLabel } from './tokens';
 import { closedNodes, isArrivalLocation, isClassicLocation, locationName } from './locations';
+import { planWalk, walkPose, type WalkPlan } from './walk';
 import { buildLocationWindow, locationPanel } from './menu';
 import type { PanelModel } from './layout';
 import { PixelPanel } from './PixelPanel';
@@ -84,6 +85,12 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
   }, [wantDeck, deck]);
   const card = deck === wantDeck ? currentCard(cards, dismissed) : cards[0] ?? null;
 
+  // A walk in progress: the token moves along the route over real time and
+  // the window opens when it arrives. Input is blocked meanwhile.
+  const [walking, setWalking] = useState<{ pid: string; plan: WalkPlan; startedAt: number; then: string } | null>(null);
+  const walkingRef = useRef(walking);
+  walkingRef.current = walking;
+
   // ---- map: highlight, figures, camera ------------------------------------
   useEffect(() => {
     const dests = travelOptions
@@ -102,6 +109,8 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
       const pl = state.players[id]!;
       const t = tokens[id]!;
       figures[id] = { color: t.color, label: tokenLabel(t.token, pl.name) };
+      // A walking player's pose is driven by the walk loop, not by state.
+      if (walkingRef.current?.pid === id) continue;
       poses[id] = { kind: 'at', node: pl.node, ghost: id !== currentPid };
     }
     for (const { node, location } of closedNodes(graph.town)) {
@@ -120,11 +129,33 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scene, currentPid]);
 
+  // The walk loop: move the token each frame, then open the window on arrival.
+  useEffect(() => {
+    if (!walking) return;
+    scene.follow(walking.pid);
+    let raf = 0;
+    const tick = () => {
+      const elapsed = performance.now() - walking.startedAt;
+      const pose = walkPose(walking.plan, elapsed);
+      if (pose) scene.setPoses({ [walking.pid]: { ...pose, ghost: false } });
+      if (elapsed >= walking.plan.durationMs) {
+        scene.follow(null);
+        scene.setRoute(null);
+        setWalking(null);
+        openRef.current(walking.then);
+        return;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [walking, scene]);
+
   // ---- map: hover and click -----------------------------------------------
   // The handlers are registered ONCE and read everything volatile through refs.
   // Re-registering them on each render would run the cleanup, which clears the
   // route and the clock preview the hover had just set.
-  const blocked = card !== null || overlay !== 'none' || openLoc !== null;
+  const blocked = card !== null || overlay !== 'none' || openLoc !== null || walking !== null;
   const blockedRef = useRef(blocked);
   blockedRef.current = blocked;
   const pidRef = useRef(currentPid);
@@ -136,7 +167,13 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
   const storeRef = useRef(store);
   storeRef.current = store;
 
+  // How long the player's log was when the window opened: anything logged
+  // after that is an outcome the clerk should announce.
+  const [logLenAtOpen, setLogLenAtOpen] = useState(0);
   const openWindow = useCallback((loc: string) => {
+    const s = stateRef.current;
+    const pid = pidRef.current;
+    setLogLenAtOpen(s && pid ? s.players[pid]!.log.length : 0);
     setVisits((v) => ({ ...v, [loc]: (v[loc] ?? 0) + 1 }));
     setOpenLoc(loc);
   }, []);
@@ -227,8 +264,17 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
       }
       const opt = travelOptions.find((o) => travelTo(o.action) === hit.node);
       if (!opt || !opt.enabled) return;
+      const from = s.players[currentPid]!.node;
+      const route = graph.bestRoute(from, hit.node, ['walk']);
       storeRef.current.act(opt.action);
-      openRef.current(loc);
+      if (route && route.path.length > 1) {
+        const plan = planWalk(route.path, (id) => graph.node(id), route.minutes);
+        // Leave the route on the ground until the token has walked it.
+        scene.setRoute(route.path);
+        setWalking({ pid: currentPid, plan, startedAt: performance.now(), then: loc });
+      } else {
+        openRef.current(loc);
+      }
     };
     return () => {
       pickRef.current = null;
@@ -239,13 +285,13 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
   }, [pickRef, hoverRef, scene, setPreview]);
 
   // ---- the window ----------------------------------------------------------
-  const windowActions = useMemo(
-    () =>
-      state && currentPid && openLoc
-        ? buildLocationWindow(state, currentPid, openLoc, { visit: (visits[openLoc] ?? 1) - 1 })
-        : null,
-    [state, currentPid, openLoc, visits],
-  );
+  const windowActions = useMemo(() => {
+    if (!state || !currentPid || !openLoc) return null;
+    const log = state.players[currentPid]!.log;
+    const outcome = log.length > logLenAtOpen ? log[log.length - 1]!.text : undefined;
+    const say = store.error ?? outcome;
+    return buildLocationWindow(state, currentPid, openLoc, { visit: (visits[openLoc] ?? 1) - 1, say });
+  }, [state, currentPid, openLoc, visits, logLenAtOpen, store.error]);
   const windowModel: PanelModel | null = useMemo(
     () => (windowActions ? locationPanel(windowActions) : null),
     [windowActions],

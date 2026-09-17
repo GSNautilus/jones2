@@ -159,6 +159,14 @@ describe('the location window', () => {
     expect(raw.rows.map((r) => r.key).sort()).toEqual(sorted.rows.map((r) => r.key).sort());
   });
 
+  it('lets an outcome replace the greeting in the bubble', () => {
+    const state = goTo(createGame(config()), 'employment');
+    const w = buildLocationWindow(state, 'p0', 'employment', { say: 'Hired as Cook at $6/h.' });
+    expect(w.greeting).toBe('Hired as Cook at $6/h.');
+    const plain = buildLocationWindow(state, 'p0', 'employment', {});
+    expect(plain.greeting).not.toBe('Hired as Cook at $6/h.');
+  });
+
   it('offers WORK only where the player is employed', () => {
     const start = goTo(createGame(config()), 'monolith');
     expect(buildLocationWindow(start, 'p0', 'monolith').buttons.map((b) => b.label)).not.toContain('WORK');
