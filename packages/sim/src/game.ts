@@ -1,3 +1,4 @@
+import { createClassicGame } from './classic/game';
 import * as C from './content/config';
 import { generateSchedule } from './content/economy';
 import { getGraph, weekBudget } from './helpers';
@@ -51,6 +52,7 @@ function newPlayer(id: string, name: string, startNode: string): PlayerState {
 }
 
 export function createGame(config: GameConfig): GameState {
+  if (config.ruleset === 'classic') return createClassicGame(config);
   const graph = getGraph(config.townId);
   const start = graph.town.startNode;
   const horizon = config.mode === 'fixed' && config.weeks ? config.weeks : 120;

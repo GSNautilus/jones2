@@ -28,6 +28,11 @@ import {
   transportModes,
   tuitionFor,
 } from './helpers';
+import {
+  applyAction as classicApplyAction,
+  availableActions as classicAvailableActions,
+  describeAction as classicDescribeAction,
+} from './classic/actions';
 import { chance } from './rng';
 import type { Action, ActionError, ActionOption, ActionResult, Delta, GameState, PlayerEvent, PlayerState } from './types';
 
@@ -494,6 +499,10 @@ function spec(state: GameState, p: PlayerState, a: Action): Spec | string {
         check: () => null,
         run: () => ({ text: 'Ended the week', deltas: [] }),
       };
+
+    default:
+      // Classic-ruleset actions; see src/classic/actions.ts.
+      return 'Not available in this ruleset';
   }
 }
 
@@ -529,6 +538,7 @@ function checkClaims(state: GameState, p: PlayerState): void {
 
 /** Evaluate one action for the UI. */
 export function describeAction(state: GameState, playerId: string, action: Action): ActionOption {
+  if (state.config.ruleset === 'classic') return classicDescribeAction(state, playerId, action);
   const p = state.players[playerId];
   if (!p) return { action, label: '?', minutes: 0, cost: 0, enabled: false, reason: 'Unknown player' };
   const s = spec(state, p, action);
@@ -541,6 +551,7 @@ export function describeAction(state: GameState, playerId: string, action: Actio
 
 /** Everything a player could try here and now, including disabled options with reasons. */
 export function availableActions(state: GameState, playerId: string): ActionOption[] {
+  if (state.config.ruleset === 'classic') return classicAvailableActions(state, playerId);
   const p = state.players[playerId];
   if (!p) return [];
   const loc = locationOf(state, p);
@@ -583,6 +594,7 @@ export function availableActions(state: GameState, playerId: string): ActionOpti
  * Apply an action for a player. Returns a new state; the input is not mutated.
  */
 export function applyAction(state: GameState, playerId: string, action: Action): ActionResult | ActionError {
+  if (state.config.ruleset === 'classic') return classicApplyAction(state, playerId, action);
   if (state.phase !== 'playing') return { ok: false, reason: 'Game is over' };
   const cur = state.players[playerId];
   if (!cur) return { ok: false, reason: 'Unknown player' };

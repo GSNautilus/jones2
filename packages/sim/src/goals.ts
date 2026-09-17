@@ -1,3 +1,4 @@
+import { goalProgress as classicGoalProgress } from './classic/goals';
 import { jobOf, netWorth } from './helpers';
 import type { GameState, PlayerState } from './types';
 
@@ -27,6 +28,7 @@ function ratio(value: number, target: number): number {
 }
 
 export function goalProgress(state: GameState, p: PlayerState): GoalProgress {
+  if (state.config.ruleset === 'classic') return classicGoalProgress(state, p);
   const g = state.config.goals;
   const money = ratio(Math.max(0, netWorth(p)), g.money);
   const happiness = ratio(p.happiness, g.happiness);

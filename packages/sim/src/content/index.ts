@@ -9,3 +9,4 @@ export * from './housing';
 export * from './news';
 export * from './achievements';
 export * from './economy';
+export * as classic from './classic';

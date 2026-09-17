@@ -1,9 +1,11 @@
 /**
  * Headless balance runner.
  *   npm run balance -- --games 50 --weeks 60 --mode classic
+ *   npm run balance -- --ruleset classic --games 30 --weeks 60
  * Plays N games with one player per strategy and reports outcomes.
  */
 import { applyAction, createGame, goalProgress, resolveWeek, totalCredits, careerScore, netWorth, DEFAULT_GOALS, type GameState } from '@jones2/sim';
+import { runClassic } from './classic-run';
 import { STRATEGIES } from './strategies';
 
 function arg(name: string, def: string): string {
@@ -14,7 +16,13 @@ function arg(name: string, def: string): string {
 const GAMES = Number(arg('games', '30'));
 const MAX_WEEKS = Number(arg('weeks', '80'));
 const MODE = arg('mode', 'classic') as 'classic' | 'fixed';
+const RULESET = arg('ruleset', 'jones2') as 'classic' | 'jones2';
 const NAMES = Object.keys(STRATEGIES);
+
+if (RULESET === 'classic') {
+  runClassic(GAMES, MAX_WEEKS);
+  process.exit(0);
+}
 
 function mulberry(seed: number) {
   let s = seed >>> 0;

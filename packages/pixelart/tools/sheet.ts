@@ -11,15 +11,17 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { PALETTE, C, PLAYER_SHIRTS } from '../src/palette';
-import { drawText, measureText } from '../src/font';
+import { drawText, drawTextCentred, measureText } from '../src/font';
 import {
   blit,
+  box,
   createSurface,
   curve,
   dashedPolyline,
   dither,
   hline,
   put,
+  rect,
   strokePolyline,
   type Pt,
 } from '../src/surface';
@@ -29,7 +31,9 @@ import { LOCATION_RECIPES } from '../src/buildings/recipes';
 import { TILES } from '../src/tiles/catalogue';
 import { NATURE } from '../src/nature/catalogue';
 import { PROPS } from '../src/props/catalogue';
-import { UI } from '../src/ui/catalogue';
+import { BUTTON_INSETS, UI, type SliceInsets } from '../src/ui/catalogue';
+import { BUBBLE_INSETS, FRAME_INSETS, PLATE_INSETS, TOKENS } from '../src/ui/classic';
+import { PORTRAITS, PORTRAIT_H, PORTRAIT_KEYS, PORTRAIT_W } from '../src/portraits';
 import { CHARACTERS, tintCharacter } from '../src/characters/catalogue';
 import { blitRGBA, encodePNG, spriteToRGBA } from './png';
 
@@ -71,6 +75,7 @@ function groups(): Group[] {
     { title: 'PROPS', items: Object.entries(PROPS) as Item[] },
     { title: 'UI', items: Object.entries(UI) as Item[] },
     { title: 'CHARACTERS', items: characters },
+    { title: 'CLERK PORTRAITS', items: Object.entries(PORTRAITS) as Item[] },
   ];
 }
 
@@ -397,6 +402,176 @@ function renderTownStrip(): Surface {
   return s;
 }
 
+
+// ---------------------------------------------------------------- portraits
+
+/** Blit a sprite at an integer scale. */
+function scaleBlit(dst: Surface, s: Sprite, x: number, y: number, k: number): void {
+  for (let j = 0; j < s.height; j++) {
+    for (let i = 0; i < s.width; i++) {
+      const idx = s.pixels[j * s.width + i];
+      if (idx === 0) continue;
+      for (let dy = 0; dy < k; dy++) hline(dst, x + i * k, y + j * k + dy, k, idx);
+    }
+  }
+}
+
+/** The thirteen clerks at 2x with their ids, over a 1x strip to judge them at. */
+function renderPortraits(): Surface {
+  const COLS = 5;
+  const CELL_W = PORTRAIT_W * 2 + 12;
+  const CELL_H = PORTRAIT_H * 2 + 12 + LABEL_H;
+  const rows = Math.ceil(PORTRAIT_KEYS.length / COLS);
+  const W = COLS * CELL_W + PAD * 2;
+  const H = PAD + 22 + PORTRAIT_H + 14 + rows * CELL_H + PAD;
+  const s = createSurface(W, H, BG);
+  dither(s, 0, 0, W, H, C.pavingDark, C.paving, 0, 8);
+  drawText(s, PAD, PAD, 'CLERK PORTRAITS - 1X STRIP, THEN 2X', C.ink, { spacing: 1 });
+
+  let x = PAD;
+  for (const key of PORTRAIT_KEYS) {
+    scaleBlit(s, PORTRAITS[key], x, PAD + 14, 1);
+    x += PORTRAIT_W + 4;
+  }
+
+  const top = PAD + 22 + PORTRAIT_H;
+  PORTRAIT_KEYS.forEach((key, i) => {
+    const cx = PAD + (i % COLS) * CELL_W + 6;
+    const cy = top + Math.floor(i / COLS) * CELL_H + 8;
+    box(s, cx - 2, cy - 2, PORTRAIT_W * 2 + 4, PORTRAIT_H * 2 + 4, -1, C.ink);
+    scaleBlit(s, PORTRAITS[key], cx, cy, 2);
+    drawText(s, cx, cy + PORTRAIT_H * 2 + 4, key.toUpperCase(), C.ink, { spacing: 1 });
+  });
+  return s;
+}
+
+// ---------------------------------------------------------------- classic ui
+
+/** Paint a 9-slice sprite into a w x h box, tiling the edges and the centre. */
+function nine(dst: Surface, s: Sprite, ins: SliceInsets, x: number, y: number, w: number, h: number): void {
+  const cw = s.width - ins.left - ins.right;
+  const ch = s.height - ins.top - ins.bottom;
+  for (let j = 0; j < h; j++) {
+    const sy = j < ins.top ? j : j >= h - ins.bottom ? s.height - (h - j) : ins.top + ((j - ins.top) % ch);
+    for (let i = 0; i < w; i++) {
+      const sx = i < ins.left ? i : i >= w - ins.right ? s.width - (w - i) : ins.left + ((i - ins.left) % cw);
+      const idx = s.pixels[sy * s.width + sx];
+      if (idx !== 0) put(dst, x + i, y + j, idx);
+    }
+  }
+}
+
+/** The centre window as the client will assemble it, at 1x. */
+function locationWindow(dst: Surface, x: number, y: number, w: number, h: number): void {
+  nine(dst, UI.window_frame, FRAME_INSETS, x, y, w, h);
+  nine(dst, UI.title_plate, PLATE_INSETS, x + 40, y + 4, w - 80, 20);
+  drawTextCentred(dst, x + 40, y + 10, w - 80, 'MONOLITH BURGER', C.cream, { spacing: 1 });
+
+  const px = x + w - 16 - PORTRAIT_W;
+  const py = y + 32;
+  box(dst, px - 2, py - 2, PORTRAIT_W + 4, PORTRAIT_H + 4, -1, C.ink);
+  box(dst, px - 1, py - 1, PORTRAIT_W + 2, PORTRAIT_H + 2, -1, C.goldDark);
+  blit(dst, PORTRAITS.monolith, px, py);
+
+  const bw = w - 34 - PORTRAIT_W - 18;
+  nine(dst, UI.bubble, BUBBLE_INSETS, x + 16, y + 36, bw, 52);
+  blit(dst, UI.bubble_tail_r, x + 16 + bw - 1, y + 40);
+  const lines = ['WELCOME TO MONOLITH', 'BURGER. NEXT WEEK COME', 'MEET MONNY THE CLOWN!'];
+  lines.forEach((line, i) => drawText(dst, x + 24, y + 44 + i * 10, line, C.ink, { spacing: 1 }));
+
+  const menu: Array<[string, string]> = [
+    ['BURGER', '$1.30'],
+    ['FRIES', '$0.68'],
+    ['SHAKE', '$1.07'],
+    ['COLA', '$0.72'],
+  ];
+  menu.forEach(([item, price], i) => {
+    const my = y + 104 + i * 10;
+    drawText(dst, x + 20, my, item, C.ink, { spacing: 1 });
+    const from = x + 20 + measureText(item) + 3;
+    const to = x + w - 24 - measureText(price);
+    for (let dx = from; dx < to; dx += 2) put(dst, dx, my + 6, C.slateDark);
+    drawText(dst, to + 2, my, price, C.ink, { spacing: 1 });
+  });
+
+  for (const [label, dx] of [
+    ['WORK', 24],
+    ['MORE', 106],
+    ['DONE', 188],
+  ] as Array<[string, number]>) {
+    const bx = x + dx;
+    const by = y + h - 32;
+    nine(dst, label === 'DONE' ? UI.button_hover : UI.button_normal, BUTTON_INSETS, bx, by, 64, 20);
+    drawTextCentred(dst, bx, by + 7, 64, label, C.ink, { spacing: 1 });
+  }
+}
+
+function renderClassicUI(): Surface {
+  const W = 700;
+  const H = 500;
+  const s = createSurface(W, H, C.grass);
+  tileGround(s, [TILES.grass_0, TILES.grass_1, TILES.grass_2]);
+  drawText(s, PAD, PAD, 'CLASSIC UI - WINDOW FRAME, BUBBLE, TITLE PLATE, TOKENS, CLOSED', C.ink, { spacing: 1 });
+
+  locationWindow(s, PAD, 24, 340, 230);
+
+  let x = 366;
+  for (const [name, sprite] of [
+    ['window_frame', UI.window_frame],
+    ['bubble', UI.bubble],
+    ['title_plate', UI.title_plate],
+  ] as Array<[string, Sprite]>) {
+    rect(s, x - 3, 21, sprite.width * 3 + 6, sprite.height * 3 + 6 + LABEL_H, C.paving);
+    scaleBlit(s, sprite, x, 24, 3);
+    drawText(s, x, 24 + sprite.height * 3 + 3, name.toUpperCase(), C.ink, { spacing: 1 });
+    x += sprite.width * 3 + 12;
+  }
+  x = 366;
+  for (const [name, sprite] of [
+    ['bubble_tail_r', UI.bubble_tail_r],
+    ['bubble_tail_l', UI.bubble_tail_l],
+  ] as Array<[string, Sprite]>) {
+    rect(s, x - 3, 137, sprite.width * 3 + 6, sprite.height * 3 + 6 + LABEL_H, C.paving);
+    scaleBlit(s, sprite, x, 140, 3);
+    drawText(s, x, 140 + sprite.height * 3 + 3, name.toUpperCase(), C.ink, { spacing: 1 });
+    x += sprite.width * 3 + 12;
+  }
+
+  nine(s, UI.bubble, BUBBLE_INSETS, 510, 140, 130, 46);
+  blit(s, UI.bubble_tail_l, 498, 146);
+  drawText(s, 518, 150, 'NOTHING IS TOO', C.ink, { spacing: 1 });
+  drawText(s, 518, 160, 'HOT FOR US TO', C.ink, { spacing: 1 });
+  drawText(s, 518, 170, 'HANDLE.', C.ink, { spacing: 1 });
+  blit(s, PORTRAITS.pawn, 436, 140);
+
+  drawText(s, 366, 210, 'TOKENS 1X / 3X ON GRASS', C.ink, { spacing: 1 });
+  let tx = 366;
+  for (const key of Object.keys(TOKENS)) {
+    blit(s, TOKENS[key], tx, 224);
+    scaleBlit(s, TOKENS[key], tx, 244, 3);
+    tx += 52;
+  }
+
+  const closed = UI.sign_closed;
+  const stadium = buildFromRef('stadium', LOCATION_RECIPES.stadium.params);
+  blit(s, stadium, 380, 300);
+  blit(s, closed, 380 + (stadium.width >> 1) - (closed.width >> 1), 300 + 44);
+  scaleBlit(s, closed, 380, 300 + stadium.height + 6, 3);
+  drawText(s, 380, 300 + stadium.height + closed.height * 3 + 10, 'SIGN_CLOSED', C.ink, { spacing: 1 });
+
+  let qx = PAD;
+  let qy = 264;
+  for (const key of PORTRAIT_KEYS) {
+    blit(s, PORTRAITS[key], qx, qy);
+    qx += PORTRAIT_W + 2;
+    if (qx + PORTRAIT_W > 350) {
+      qx = PAD;
+      qy += PORTRAIT_H + 2;
+    }
+  }
+  return s;
+}
+
 // ---------------------------------------------------------------- output
 
 function writeSurface(surface: Surface, file: string, scale: number): void {
@@ -417,3 +592,5 @@ mkdirSync(OUT, { recursive: true });
 writeSurface(renderContact(), resolve(OUT, 'contact.png'), 1);
 writeSurface(renderScene(), resolve(OUT, 'scene.png'), 3);
 writeSurface(renderTownStrip(), resolve(OUT, 'town-strip.png'), 2);
+writeSurface(renderPortraits(), resolve(OUT, 'portraits.png'), 1);
+writeSurface(renderClassicUI(), resolve(OUT, 'ui-classic.png'), 1);

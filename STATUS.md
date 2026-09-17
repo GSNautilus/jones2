@@ -187,12 +187,24 @@ Known weaknesses: the stadium crowd reads as
 confetti at 1×; the satellite dish part is a white blob at 1×; the CLOSED sign/board treatment
 on the sprites is still to do.
 
-## NEXT SESSION STARTS HERE — classic ruleset (see docs/PLAN.md)
-All seven plan decisions are made (2026-09-16). First batch to propose to the user before launching:
-- Classic content extraction from docs/original-rules.md → packages/sim/src/content/classic/ (Sonnet, ~150–250k)
-- ~~Map retune: whole-hour travel, ~1920×1152, district ladder~~ DONE, see Phases D and E. Still to do: the CLOSED treatment (sign/board, 'Closed' note) for the 20 non-classic buildings.
-- Clerk portraits (13) + window frame/bubble/player tokens in packages/pixelart (Opus, ~250–400k)
-Then: classic ruleset in the sim (Opus), interface rebuild around the centre window + pie clock + hover tooltips (Opus).
+## Milestone 2c — classic ruleset (IN PROGRESS, started 2026-09-16)
+Steps 1–3 of the plan's work breakdown are built (three agents, ~276k + 266k + 364k tokens), all verified by the parent session:
+
+- **Classic content tables** — `packages/sim/src/content/classic/` (14 tables, exported as the `classic` namespace): time costs, 13 locations with clerk quotes, 39 jobs, 11 degrees, 19 items, 5 clothes, 9 foods + lottery, housing/rent rules, bank/loans/6 stocks, 65 happiness entries, goal formulas + dependability, 60 weekend texts + doctor/Willy data, 45 headlines. Every entry cites `docs/original-rules.md` lines; contradictions are resolved in comments (the more specific section wins). 41 tests in `test/classic-content.test.ts`.
+- **Interface art** — `packages/pixelart/src/portraits/` (13 clerk portraits, 56×64, `PORTRAITS`), `src/ui/classic.ts` (`window_frame` 9-slice with `FRAME_INSETS` 12, `bubble` + `bubble_tail_l/r`, `title_plate`, `TOKENS` 1–4 at 14px, `sign_closed` 28×14). Sheets: `art/sheets/portraits.png`, `art/sheets/ui-classic.png` (a mock location window assembled from the slices). 76 new tests. Known: faces are flat (two skin tones per ramp); token numerals have no margin at 14px.
+- **Classic ruleset** — `packages/sim/src/classic/` (context, actions, turnStart, week, economy, goals, state, effects, config, game), dispatched on `GameConfig.ruleset` (`'classic' | 'jones2'`, default jones2 so nothing existing changes). State hangs off `PlayerState.classic` / `GameState.classic`. 13 additive `Action` variants. 60h weeks in minutes (3600); travel charged as `routeHours × 60` while events keep route minutes for the replay; work 6h, apply/raise 4h, lesson 6h, relax 6h, loan 2h, broker 2h, newspaper 1h, everything else 0h. Start-of-week cards: weekend → lottery → starvation → stats → breakdown → spoilage → household → rent → loan → consumables → news; win check after, in `resolveWeek`, tie-break on goal excess then seat. No Wild Willy, no doctor (decision 6). Every number the wiki lacks is a marked GUESS in `classic/config.ts` (START_CASH 200, FIRED_HAPPINESS −5, boom/crash odds and deltas, stock volatility, DEFAULT_GOALS 50×4…). 38 tests in `test/classic.test.ts` + `classic-week.test.ts`.
+
+**Classic balance, first look** (30 games × 60 weeks; run it directly, npm swallows the flags):
+```powershell
+npx tsx apps/balance/src/run.ts --ruleset classic --games 30 --weeks 60
+```
+The student strategy wins 30/30 by week ~22 (career wk 8, education wk 12, happiness wk 16, money wk 23); the grinder gets money by wk 17 but never happiness or education; the shopper gets happiness by wk 10 and nothing else. Two things to act on before a human playthrough: **degrees are dominant** (10 lessons × 6h = one degree per week of study, +9 education and +5 dependability cap) and **clothes can softlock** a broke player whose uniform expires ($73 casual, 6 weeks). Neither is a map problem.
+
+## NEXT SESSION STARTS HERE
+The map is FINAL (commit 4513185). Content, art and the classic ruleset are built and green (Milestone 2c above, uncommitted at the time of writing). Remaining, in order:
+4. Interface rebuild: centre location window with clerk + bubble + priced menu (the mock in `art/sheets/ui-classic.png`), bottom bar with pie clock + cash readout, goals/stats screens, the `weekStart` cards, hover hour tooltips, remove side panels; character select with tokens (Opus, ~400–600k). Codes against the classic `availableActions` surface.
+5. CLOSED treatment on the map for the 22 non-classic buildings (`sign_closed` overlay; active set = the 13 classic ids under `ruleset: 'classic'`).
+6. Integration, screenshots, a full human playthrough, then balance (start with the two findings above).
 
 ## Milestone 3 — server + async multiplayer (NOT STARTED)
 ## Milestone 4 — art pass (NOT STARTED)

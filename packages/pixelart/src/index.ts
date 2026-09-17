@@ -10,4 +10,6 @@ export * from './tiles/catalogue';
 export * from './nature/catalogue';
 export * from './props/catalogue';
 export * from './ui/catalogue';
+export * from './ui/classic';
 export * from './characters/catalogue';
+export * from './portraits';

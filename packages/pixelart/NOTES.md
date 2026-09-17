@@ -10,8 +10,10 @@
 - `src/nature/` — `tree_round`, `tree_pine`, `tree_oak`, `bush`, `flowers`, `rock`.
 - `src/props/` — `PROPS`: lamp, bench, car_red/blue/green, bus, signpost, hydrant, mailbox, fence_h, fence_v, picnic_table, dock, bridge.
 - `src/ui/` — `UI` and `PANEL_INSETS` / `BUTTON_INSETS` / `ICON_KEYS`: a 9-slice panel, three button states, a 96×96 clock face with separate hand sprites, and twelve 12×12 stat icons.
+- `src/ui/classic.ts` — the classic location window set, spread into `UI`: `window_frame` (32×32, `FRAME_INSETS` 12), `bubble` (20×20, `BUBBLE_INSETS` 7, corner radius 5) with `bubble_tail_r` / `bubble_tail_l` (14×14, mirrored), `title_plate` (22×16, `PLATE_INSETS` 5/7), `sign_closed` (28×14, the CLOSED board the map hangs on shut buildings) and `TOKENS` — `token_1..4`, 14×14, an ink rim, a per-seat ring colour from `TOKEN_COLORS` and a dark numeral on a white disc.
+- `src/portraits/` — `PORTRAITS`, thirteen 56×64 clerk portraits keyed by classic location id, plus `PORTRAIT_KEYS`, `PORTRAIT_SPECS` and `buildPortrait(spec)`. `head.ts` is the geometry (row-by-row head half-widths, neck, ears), `features.ts` the face (brows, eyes, nose, mouth, facial hair, eyewear), `dress.ts` hair, hats and torsos.
 - `src/characters/` — `idle_<dir>` and `walk_<dir>_<0..2>` for `s n e w`, 12×20, plus `tintCharacter`.
-- `tools/png.ts` (zero-dep PNG encoder), `tools/sheet.ts` (grouped contact sheet, the 320×200 mock scene and the 640×200 town strip), `tools/zoom.ts` (dev aid: render named sprites large — it now finds props and UI sprites too).
+- `tools/png.ts` (zero-dep PNG encoder), `tools/sheet.ts` (grouped contact sheet, the 320×200 mock scene, the 640×200 town strip, `portraits.png` — the thirteen clerks at 1× and 2× — and `ui-classic.png`, which assembles a real location window out of the 9-slices and shows the tokens and CLOSED board on grass), `tools/zoom.ts` (dev aid: render named sprites large — it finds props, UI and, with a `p:` prefix, portraits: `npx tsx packages/pixelart/tools/zoom.ts p:bank p:pawn 6`).
 
 ## Conventions
 - Sprite names: `kind` for buildings, `name_variant` for tiles (`grass_0`), `walk_<dir>_<frame>` / `idle_<dir>` for animation, `icon_<stat>` for HUD icons.
@@ -19,6 +21,12 @@
 - Light is always top-left. Right edges and undersides take the `shade` tone; outlines are `C.ink` (never pure black).
 - Buildings are 40–110px on each side. The tests enforce that envelope, an ink silhouette ratio above 0.75, a ground shadow and determinism.
 - `noUncheckedIndexedAccess` is off for this package only — pixel buffers are indexed on every line. Bounds are checked in `surface.ts`.
+
+## Adding a portrait
+1. A portrait is a `PortraitSpec` in `src/portraits/catalogue.ts`: a background, a two-tone skin ramp, head proportions, then hair / brows / eyes / nose / mouth / facial hair / glasses / hat / torso picked from the enums in `features.ts` and `dress.ts`. Peculiarities (earrings, a headset, a cigar) go in the spec's `extra` callback.
+2. Every portrait is exactly `PORTRAIT_W` × `PORTRAIT_H` and **fully opaque** — the background is a flat colour, and the tests enforce both plus a unique background per clerk.
+3. Distinctness comes from silhouette first (hats, hair mass), then colour. Two clerks may share a shirt but never a face; there is a test for that.
+4. Anything painted over the face must be guarded: hair streaks and partings check what is already under them, or they land on bare skin as freckles.
 
 ## Adding a building
 1. New file in `src/buildings/`. Call `frame(width, height, { topPad, roofH })` for the layout (it reserves the shadow rows and returns `x/w/cx/roofY/wallY/groundY`).
@@ -41,3 +49,6 @@
 - `roofHip` looks nearly flat on wide, shallow roofs — it needs a real ridge highlight rather than the current shade band.
 - No night variants beyond per-window `lit` flags, and no interiors.
 - `tools/zoom.ts` writes `art/sheets/zoom.png`, which is scratch — do not commit it.
+- The portraits are flat: most use only 9–12 palette entries, because the skin ramp is two tones and the palette has no mid-tones between them. Faces read as characters at 1× and 2×, but they have no real form; a third skin tone per ramp is the fix if it ever matters.
+- `monolith`, `university` and `blacks_market` are the palest faces and have the least modelling. `rent_office`'s comb-over is deliberately unpleasant but at 5× the parting reads as dotty rather than greasy.
+- The speech-bubble tail is one fixed wedge, not a set of angles: it only works pointing up-and-out from a bubble's left or right edge, not from the top or bottom.

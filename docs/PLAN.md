@@ -15,8 +15,10 @@ did not have is parked behind a ruleset flag, not deleted.
 The facts the plan is built on. Numbers are the wiki's.
 
 - **Turn = 60 Hours.** Every action costs whole hours: Work 6h (pays 8× wage), Apply/Raise 4h,
-  Relax 6h, a University lesson 6h, Loan application 2h, Stocks 2h, Newspaper 1h, small
-  purchases 1h. Moving around the board costs hours by distance. Turn ends at 0h.
+  Relax 6h, a University lesson 6h, Loan application 2h, Stocks 2h, Newspaper 1h. Ordinary
+  purchases cost 0h (corrected 2026-09-16 from the per-location sections; the extracted table is
+  `packages/sim/src/content/classic/time.ts`). Moving around the board costs hours by distance.
+  Turn ends at 0h.
 - **Turn start sequence:** Weekend event (random text, costs $5–$100) → Starvation check
   (no food last turn: −20h, −2 Happiness, 25% Doctor) → Relaxation/Doctor check → Wild Willy
   apartment robbery (Low-Cost only, chance 1/(Relaxation+1)) → appliance breakdowns → food
@@ -31,8 +33,9 @@ The facts the plan is built on. Numbers are the wiki's.
   Black's Market, Rent Office. Each has Experience, Dependability, Degree and Uniform
   (casual/dress/business) requirements. Applications can randomly fail ("No openings").
   Wages fluctuate with the economy; raises at the Employment Office.
-- **Degrees (11):** Junior College, Trade School → Business Admin, Academic, Electronics,
-  Pre-Engineering → Graduate School, Engineering → Post-Doctoral → Research → Publishing.
+- **Degrees (11):** Junior College and Trade School are the starters; the wiki's degree table
+  (extracted to `content/classic/degrees.ts`) gives the exact prerequisites, e.g. Business Admin
+  needs Junior College. Then Graduate School, Engineering → Post-Doctoral → Research → Publishing.
 - **Money:** Bank (deposit/withdraw), Loans (monthly payments, default penalties), Stocks via the
   Broker (booms/crashes), Pawn Shop (sell items at a loss, −1 Happiness), Lottery (tickets at
   Black's Market).

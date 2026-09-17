@@ -6,3 +6,5 @@ export { resolveWeek, allPlayersDone } from './week';
 export { goalProgress, totalCredits, careerScore } from './goals';
 export * from './helpers';
 export { seedRng, nextFloat, nextInt, pick, chance } from './rng';
+export * from './classic';
+export { CLASSIC_DEFAULT_GOALS } from './classic/defaults';

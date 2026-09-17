@@ -5,6 +5,7 @@ import { ITEMS } from './content/items';
 import { JOBS } from './content/jobs';
 import { LOCATIONS } from './content/locations';
 import { addForecasts } from './actions';
+import { resolveWeek as classicResolveWeek } from './classic/week';
 import { emptyCounters } from './game';
 import { goalProgress } from './goals';
 import { applyDelta, comfortHappiness, getGraph, homeOf, jobOf, savingsRate, weekBudget } from './helpers';
@@ -320,6 +321,7 @@ function checkWinner(state: GameState, notes: ResolutionNote[]): string | null {
 export function resolveWeek(input: GameState, force = false): { state: GameState; report: WeekReport } {
   if (input.phase !== 'playing') throw new Error('Game is over');
   if (!force && !allPlayersDone(input)) throw new Error('Not all players have ended the week');
+  if (input.config.ruleset === 'classic') return classicResolveWeek(input);
   // History is append-only and can get large; share the old reports by reference.
   const { history, ...rest } = input;
   const state: GameState = { ...structuredClone(rest), history: [...history] };

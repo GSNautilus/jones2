@@ -1,5 +1,6 @@
 import type { LocationId, NodeId, TransportMode } from '@jones2/town';
 import type { RngState } from './rng';
+import type { ClassicGameState, ClassicPlayerState } from './classic/state';
 
 export type PlayerId = string;
 export type JobId = string;
@@ -22,6 +23,16 @@ export type Minutes = number;
 
 export type GameMode = 'classic' | 'fixed';
 
+/**
+ * Which rulebook the game plays by. 'jones2' is the original Jones 2 design (health, careers,
+ * achievements, property, transport, news sources, ...). 'classic' reproduces Jones in the Fast
+ * Lane from `docs/original-rules.md`. Absent means 'jones2', so existing callers are unaffected.
+ */
+export type Ruleset = 'classic' | 'jones2';
+
+/** Clothing categories in the classic ruleset; also the uniform ordering (casual < dress < business). */
+export type ClassicClothingTier = 'casual' | 'dress' | 'business';
+
 export interface GoalTargets {
   /** Net worth in dollars (cash + savings - loan). */
   money: number;
@@ -40,6 +51,8 @@ export interface PlayerSetup {
 
 export interface GameConfig {
   mode: GameMode;
+  /** Defaults to 'jones2'. */
+  ruleset?: Ruleset;
   /** Fixed mode only: number of weeks to play. */
   weeks?: number;
   goals: GoalTargets;
@@ -147,6 +160,8 @@ export interface PlayerState {
   weekDone: boolean;
   /** Ordered log of what the player did this week. Cleared at resolution. */
   log: PlayerEvent[];
+  /** Classic ruleset only: dependability, clothes, rent, loans, stocks, degrees... */
+  classic?: ClassicPlayerState;
 }
 
 // ---------------------------------------------------------------------------
@@ -217,6 +232,8 @@ export interface GameState {
   winner: PlayerId | null;
   /** Reports from each resolved week, newest last. */
   history: WeekReport[];
+  /** Classic ruleset only: the economic index, stock prices, headline and pawn shop. */
+  classic?: ClassicGameState;
 }
 
 // ---------------------------------------------------------------------------
@@ -246,13 +263,36 @@ export type Action =
   | { type: 'buyInsurance' }
   | { type: 'clinic' }
   | { type: 'lottery' }
-  | { type: 'endWeek' };
+  | { type: 'endWeek' }
+  // --- classic ruleset only (additive; the Jones 2 ruleset rejects these) ---
+  /** Ask for a raise in your current job, at the Employment Office. */
+  | { type: 'raise' }
+  /** Pay Hi-Tech U's one-time enrolment fee for a course. */
+  | { type: 'enroll'; degreeId: DegreeId }
+  /** Buy weeks of a clothing category. */
+  | { type: 'buyClothing'; tier: ClassicClothingTier; store: 'qt_clothing' | 'zmart' }
+  /** Pay rent debt if any, else a month of rent (in advance if not yet due). */
+  | { type: 'payRent' }
+  /** Ask the Rent Officer for a one-week extension. */
+  | { type: 'rentExtension' }
+  | { type: 'applyLoan' }
+  | { type: 'loanPayment' }
+  /** See the Broker: opens the stock market for the rest of the week. */
+  | { type: 'broker' }
+  | { type: 'buyStock'; stockId: string; units: number }
+  | { type: 'sellStock'; stockId: string; units: number }
+  /** Buy and read the Daily News. */
+  | { type: 'newspaper' }
+  /** Redeem your own pawned item. */
+  | { type: 'redeemItem'; itemId: ItemId }
+  /** Buy an item another player left at the Pawn Shop. */
+  | { type: 'buyPawned'; itemId: ItemId };
 
 export type ActionType = Action['type'];
 
 /** A change to a numeric stat, for logs and UI. */
 export interface Delta {
-  stat: 'cash' | 'savings' | 'loan' | 'happiness' | 'health' | 'credits' | 'experience';
+  stat: 'cash' | 'savings' | 'loan' | 'happiness' | 'health' | 'credits' | 'experience' | 'dependability' | 'relaxation' | 'stocks';
   amount: number;
   note?: string;
 }

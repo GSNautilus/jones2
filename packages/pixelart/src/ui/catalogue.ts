@@ -26,6 +26,7 @@ import { C } from '../palette';
 import type { Sprite, SpriteMap } from '../types';
 import { box, createSprite, fillCircle, hline, line, put, rect, spriteFromRows, vline } from '../surface';
 import { drawTextCentred } from '../font';
+import { CLASSIC_UI } from './classic';
 
 // ---------------------------------------------------------------- 9-slice
 
@@ -383,6 +384,8 @@ function fromRows(key: string): Sprite {
 // ---------------------------------------------------------------- catalogue
 
 export const UI: SpriteMap = {
+  ...CLASSIC_UI,
+
   panel: panel(),
   button_normal: button(C.gold, C.goldDark, C.yellow, false),
   button_hover: button(C.yellow, C.goldDark, C.white, false),
