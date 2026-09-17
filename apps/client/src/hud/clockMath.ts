@@ -130,6 +130,36 @@ export function previewArc(minutesLeft: number, minutesBudget: number, previewMi
   return { from, to, clipped: after < 0 };
 }
 
+/**
+ * PIE FILL (PLAN §4). The original's clock fills clockwise as the week is
+ * spent, so the time LEFT is the unfilled remainder of the face. This is the
+ * complement of `ringFraction`, kept as its own function because the ring
+ * drain (which the Jones 2 screen still reads) means the opposite.
+ */
+export function pieFraction(minutesLeft: number, minutesBudget: number): number {
+  if (!(minutesBudget > 0)) return 1;
+  return 1 - ringFraction(minutesLeft, minutesBudget);
+}
+
+/** Degrees clockwise from 12 that the filled pie sweeps. */
+export function pieSweep(minutesLeft: number, minutesBudget: number): number {
+  return pieFraction(minutesLeft, minutesBudget) * 360;
+}
+
+/**
+ * The wedge an action would ADD to the filled pie: it starts where the fill
+ * currently ends and runs clockwise by the action's cost. `clipped` marks a
+ * cost that does not fit in what is left, and the wedge is cut at 12 o'clock.
+ */
+export function previewWedge(minutesLeft: number, minutesBudget: number, previewMinutes: number): PreviewArc | null {
+  if (!(minutesBudget > 0) || !(previewMinutes > 0)) return null;
+  const from = pieFraction(minutesLeft, minutesBudget);
+  if (from >= 1) return null;
+  const spent = minutesBudget - Math.max(0, Math.min(minutesLeft, minutesBudget));
+  const after = (spent + previewMinutes) / minutesBudget;
+  return { from, to: Math.min(1, after), clipped: after > 1 };
+}
+
 /** "54h 36m" — the digital readout's body (the caller adds "left" / the arrow). */
 export function formatHM(minutes: number): string {
   const m = Math.max(0, Math.round(minutes));

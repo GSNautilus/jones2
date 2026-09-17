@@ -8,7 +8,7 @@
  * plate, so the town never has holes while the catalogue grows.
  */
 import type { TownNode } from '@jones2/town';
-import { CHARACTERS, LOCATION_RECIPES, NATURE, PALETTE, PROPS, TILES, buildFromRef, tintCharacter, walkFrame } from '@jones2/pixelart';
+import { CHARACTERS, LOCATION_RECIPES, NATURE, PALETTE, PROPS, TILES, UI, buildFromRef, tintCharacter, walkFrame } from '@jones2/pixelart';
 import type { Palette, PixelBuildingRef, Sprite } from './pixelart';
 
 export type TileKind = 'grass' | 'water' | 'path' | 'plaza';
@@ -21,6 +21,11 @@ export interface ArtSet {
   tile(kind: TileKind, variant: number): Sprite;
   nature(kind: string): Sprite;
   character(dir: Direction, frame: number, tintIndex: number): Sprite;
+  /**
+   * A UI sprite by catalogue name (`token_1`, `sign_closed`, ...). Optional so
+   * hand-rolled test art sets stay valid; see the MARKERS note in `figures.ts`.
+   */
+  ui?(name: string): Sprite | undefined;
 }
 
 /**
@@ -69,6 +74,9 @@ function realArt(): ArtSet {
         chars.set(key, s);
       }
       return s;
+    },
+    ui(name) {
+      return UI[name];
     },
   };
 }

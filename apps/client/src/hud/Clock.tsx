@@ -14,7 +14,8 @@ import { useEffect, useMemo, useRef } from 'react';
 import {
   formatHM,
   formatTimeOfDay,
-  previewArc,
+  pieSweep,
+  previewWedge,
   readClock,
   type ClockReading,
 } from './clockMath';
@@ -47,6 +48,8 @@ const ZONE: Record<ClockReading['zone'], Rgba> = {
   amber: hexToRgba(HUD.amber),
   red: hexToRgba(HUD.red),
 };
+/** The spent sector of the face: a dark wash the ticks and numerals read through. */
+const SPENT = hexToRgba('#3a3242', 150);
 const PREVIEW = hexToRgba('#ffffff', 190);
 const PREVIEW_OVER = hexToRgba('#ffd9c8', 235);
 
@@ -69,21 +72,10 @@ export function paintClock(buf: PixelBuffer, input: PaintInput): void {
   arc(buf, CX, CY, R_RING_IN - 2, R_OUTER - 2, 200, 360, BRASS);
   arc(buf, CX, CY, R_OUTER - 3, R_OUTER - 1, 270, 360, BRASS_LIGHT);
 
-  // Drain ring: unspent time clockwise from 12.
+  // The ring is now plain track: the week's state is told by the pie on the face.
   arc(buf, CX, CY, R_RING_IN, R_RING_OUT, 0, 360, TRACK);
-  const sweep = reading.ringFraction * 360;
-  if (sweep > 0.5) {
-    arc(buf, CX, CY, R_RING_IN, R_RING_OUT, 0, sweep, ZONE[reading.zone]);
-    arc(buf, CX, CY, R_RING_OUT - 1, R_RING_OUT, 0, sweep, hexToRgba('#ffffff', 60));
-  }
-
-  // Preview: the slice the candidate action would take, hatched.
-  const arcPreview = input.preview != null ? previewArc(input.actualLeft, reading.budget, input.preview) : null;
-  if (arcPreview) {
-    const from = arcPreview.from * 360;
-    const to = arcPreview.to * 360;
-    arc(buf, CX, CY, R_RING_IN, R_RING_OUT, from, to, arcPreview.clipped ? PREVIEW_OVER : PREVIEW, { hatch: true });
-  }
+  const sweep = pieSweep(reading.left, reading.budget);
+  if (sweep > 0.5) arc(buf, CX, CY, R_RING_IN, R_RING_OUT, 0, sweep, ZONE[reading.zone]);
 
   // Face.
   if (skin.face) {
@@ -108,6 +100,18 @@ export function paintClock(buf: PixelBuffer, input: PaintInput): void {
     }
   }
 
+  // PIE FILL (PLAN §4): the face fills clockwise as the week is spent, so the
+  // bright remainder IS the time left. Drawn over the face so the ticks show.
+  if (sweep > 0.5) arc(buf, CX, CY, 0, R_FACE - 2, 0, sweep, SPENT);
+
+  // Preview: the wedge the candidate action would add, hatched, just past the fill.
+  const wedge = input.preview != null ? previewWedge(input.actualLeft, reading.budget, input.preview) : null;
+  if (wedge) {
+    const from = wedge.from * 360;
+    const to = wedge.to * 360;
+    arc(buf, CX, CY, 0, R_FACE - 2, from, to, wedge.clipped ? PREVIEW_OVER : PREVIEW, { hatch: true });
+  }
+
   // Hands. Sprite hands would be rotated by the art package; until then, lines.
   hand(buf, CX, CY, reading.hourAngle, 20, 3, INK, 5);
   hand(buf, CX, CY, reading.minuteAngle, 29, 1, INK, 4);
@@ -122,9 +126,15 @@ export interface ClockProps {
   week: number;
   /** Integer magnification of the 96px art. 2 => 192 css px. */
   scale?: number;
+  /**
+   * `full` is the Jones 2 screen's clock (day/time plates and the LED readout).
+   * `classic` is the original's: the face with WEEK #N under it and nothing
+   * else — the cash/hours readout lives in the bottom-right corner instead.
+   */
+  variant?: 'full' | 'classic';
 }
 
-export function Clock({ minutesLeft, minutesBudget, week, scale = 2 }: ClockProps) {
+export function Clock({ minutesLeft, minutesBudget, week, scale = 2, variant = 'full' }: ClockProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const offRef = useRef<HTMLCanvasElement | null>(null);
   const imageRef = useRef<ImageData | null>(null);
@@ -207,6 +217,23 @@ export function Clock({ minutesLeft, minutesBudget, week, scale = 2 }: ClockProp
   const reading = readClock(minutesLeft, minutesBudget);
   const after = preview != null ? Math.max(0, minutesLeft - preview) : null;
   const over = preview != null && minutesLeft - preview < 0;
+
+  if (variant === 'classic') {
+    return (
+      <div className="hud-clock hud-clock-classic">
+        <canvas
+          ref={canvasRef}
+          width={px}
+          height={px}
+          className="hud-clock-face"
+          style={{ width: px, height: px }}
+          aria-label={`${formatHM(reading.left)} left this week, week ${week}`}
+          role="img"
+        />
+        <div className="hud-week-plate">{`WEEK #${week}`}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="hud-clock">

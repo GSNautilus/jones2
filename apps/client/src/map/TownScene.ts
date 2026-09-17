@@ -467,7 +467,9 @@ class PixelTownScene implements TownScene {
   private drawRoute(frame: Surface, ox: number, oy: number): void {
     const path = this.route;
     if (!path) return;
-    const colour = this.pal.index('route', [255, 210, 74]);
+    // White, not yellow: the roads already carry yellow centre lines, and a
+    // yellow route overlay was invisible on top of them.
+    const colour = this.pal.index('route', [255, 255, 255]);
     for (let i = 1; i < path.length; i++) {
       const from = path[i - 1]!;
       const to = path[i]!;
@@ -497,12 +499,17 @@ class PixelTownScene implements TownScene {
     if (resolved.length === 0) return;
     resolved.sort((a, b) => a.ny - b.ny || a.nx - b.nx);
 
-    for (const f of resolved) drawFigure(frame, this.art, this.pal, f, ox, oy);
+    // Markers (player tokens, CLOSED boards) are overlays, not inhabitants:
+    // they go on top of everything, after the occlusion pass.
+    const walkers = resolved.filter((f) => !f.marker);
+    const markers = resolved.filter((f) => f.marker);
+
+    for (const f of walkers) drawFigure(frame, this.art, this.pal, f, ox, oy);
 
     // Occlusion: re-blit any building standing in front of a figure (larger
     // anchor y) whose sprite overlaps it. Cheap, and visually identical to
     // compositing the whole band.
-    const minY = resolved[0]!.ny;
+    const minY = walkers.length ? walkers[0]!.ny : Infinity;
     for (const p of g.placements) {
       if (!p.id || p.ny <= minY) continue;
       const left = p.nx - p.sprite.anchorX;
@@ -510,11 +517,13 @@ class PixelTownScene implements TownScene {
       const right = left + p.sprite.width;
       const bottom = top + p.sprite.height;
       if (right < ox || left > ox + frame.width || bottom < oy || top > oy + frame.height) continue;
-      const hides = resolved.some(
+      const hides = walkers.some(
         (f) => f.ny < p.ny && f.nx > left - 12 && f.nx < right + 12 && f.ny > top - 24 && f.ny < bottom + 24,
       );
       if (hides) blitAnchored(frame, p.sprite, p.nx - ox, p.ny - oy);
     }
+
+    for (const f of markers) drawFigure(frame, this.art, this.pal, f, ox, oy);
 
     // Name plates are 3x5 text: below zoom 2 they are noise, so they go away.
     if (this.view.zoom >= LABEL_MIN_ZOOM) {

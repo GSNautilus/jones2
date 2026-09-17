@@ -23,6 +23,11 @@ sprites blit straight in and nothing is ever anti-aliased.
   (by arc length, direction-aware, sampled off the chain) and `edgePolyline`
   (so the route overlay sits exactly on the drawn road).
 - `figures.ts` — pose → position/facing/walk frame, plus the 3x5 name plate.
+  Also the **MARKERS** convention: a figure whose `FigureStyle.label` starts
+  `#N ` is drawn as player N's numbered token and one labelled `@closed` as the
+  CLOSED board, so the classic screen can put tokens and shut-shop signs on the
+  map without widening `api.ts`. Markers are overlays: they are drawn after the
+  occlusion pass and are never hidden by a building.
 - `TownScene.ts` — per frame: copy the visible window out of the static layer,
   add highlights, route, figures (buildings in front are re-blitted so they
   occlude), labels, editor handles; flatten to one `ImageData`; `drawImage` at

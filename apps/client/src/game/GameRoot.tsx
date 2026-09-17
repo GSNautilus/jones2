@@ -12,6 +12,8 @@ import type { PickResult, TownScene } from '../map/api';
 import '../hud/hud.css';
 import { MapControls } from '../hud/MapControls';
 import { TimePreviewProvider } from '../hud/preview';
+import { ClassicScreen } from '../classic/ClassicScreen';
+import '../classic/classic.css';
 import { useGameStore } from './store';
 import { SetupScreen } from './SetupScreen';
 import { PlayScreen } from './PlayScreen';
@@ -47,6 +49,8 @@ export function GameRoot({ scene, mapSlot, pickRef, hoverRef, ReplayView }: Game
             <MapControls scene={scene} />
             <ResolveScreen store={store} scene={scene} ReplayView={ReplayView} onExit={() => setResolving(false)} />
           </>
+        ) : state.config.ruleset === 'classic' ? (
+          <ClassicScreen store={store} scene={scene} pickRef={pickRef} hoverRef={hoverRef} />
         ) : (
           <PlayScreen store={store} scene={scene} pickRef={pickRef} hoverRef={hoverRef} />
         )}

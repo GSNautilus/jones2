@@ -23,6 +23,52 @@ import {
 /** One walk frame every 150 ms. */
 export const WALK_FRAME_MS = 150;
 
+/**
+ * MARKERS — how a figure can be something other than a walking person without
+ * widening `api.ts` (THE CONTRACT). A marker is a prefix on `FigureStyle.label`:
+ *
+ *   "#2 Bob"   a numbered player token (`UI.token_2`), name plate "Bob"
+ *   "@closed"  the CLOSED board, hung at that node, no name plate
+ *
+ * Nothing else changes: a marked figure still has a pose, is still depth
+ * sorted, and still ghosts. Built by `src/classic/tokens.ts`.
+ */
+export type FigureMarker =
+  | { kind: 'token'; n: number; name: string }
+  | { kind: 'closed'; name: '' }
+  | null;
+
+export function parseMarker(label: string): FigureMarker {
+  const token = /^#([1-9])(?:\s+(.*))?$/.exec(label);
+  if (token) return { kind: 'token', n: Number(token[1]), name: token[2] ?? '' };
+  if (label === '@closed') return { kind: 'closed', name: '' };
+  return null;
+}
+
+/** The label that makes a figure draw as player `n`'s token. */
+export function tokenLabel(n: number, name: string): string {
+  return `#${n} ${name}`.trim();
+}
+
+/** The label that makes a figure draw as a CLOSED board. */
+export const CLOSED_LABEL = '@closed';
+
+/**
+ * A node is a building's DOOR, at the bottom edge of its sprite. A token is
+ * therefore drawn just BELOW the node, standing on the pavement in front of the
+ * shop where it reads against the ground rather than against the façade; the
+ * CLOSED board is hung above it, on the building's face.
+ */
+export const TOKEN_DROP = 8;
+export const CLOSED_LIFT = 22;
+/** Seats stand side by side so four players at one node all show. */
+export const TOKEN_SPREAD = 15;
+
+/** Horizontal offset, in native pixels, of seat `n`'s token from the node. */
+export function tokenOffset(n: number): number {
+  return Math.round((n - 2.5) * TOKEN_SPREAD);
+}
+
 export interface FigureState {
   id: string;
   style: FigureStyle;
@@ -40,6 +86,8 @@ export interface ResolvedFigure {
   ghost: boolean;
   mode: TransportMode | undefined;
   tint: string;
+  /** Non-null when this figure is a token or a CLOSED board rather than a walker. */
+  marker: FigureMarker;
 }
 
 function nodeAt(town: Town, id: NodeId) {
@@ -52,12 +100,14 @@ export function resolveFigure(
   fig: FigureState,
   timeMs: number,
 ): ResolvedFigure | null {
+  const marker = parseMarker(fig.style.label);
   const base = {
     id: fig.id,
-    label: fig.style.label,
+    label: marker ? marker.name : fig.style.label,
     tint: fig.style.color,
     ghost: fig.pose.ghost === true,
     mode: fig.pose.mode,
+    marker,
   };
   if (fig.pose.kind === 'at') {
     const n = nodeAt(town, fig.pose.node);
@@ -109,6 +159,21 @@ export function drawFigure(
   const x = f.nx - ox;
   const y = f.ny - oy;
   const ink = pal.index('ink', [29, 26, 36]);
+
+  const marker = f.marker;
+  if (marker) {
+    // Markers are UI sprites, not characters: a numbered token floating over
+    // the node, or a CLOSED board hung on the building's face.
+    const token = marker.kind === 'token';
+    const sprite = art.ui?.(token ? `token_${marker.n}` : 'sign_closed');
+    if (sprite) {
+      const dy = token ? TOKEN_DROP : -CLOSED_LIFT;
+      const dx = token ? tokenOffset(marker.n) : 0;
+      blitAnchored(s, sprite, x + dx, y + dy, { ghost: f.ghost });
+    }
+    return;
+  }
+
   const tint = pal.hex(f.tint);
   const sprite = art.character(f.dir, f.frame, tint);
 

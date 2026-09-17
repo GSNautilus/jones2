@@ -127,12 +127,19 @@ export interface Bounds {
   maxY: number;
 }
 
-/** Clamp the origin so at least some of the layer stays on screen. */
+/**
+ * Clamp the origin so the layer stays on screen. The slack is deliberately
+ * small: the board is meant to fill the screen (PLAN §2), and a camera that
+ * follows a player standing at the town's edge would otherwise show half a
+ * screen of backdrop.
+ */
+export const PAN_SLACK = 0;
+
 export function clampOrigin(view: View, layerW: number, layerH: number): void {
   const visW = view.width / view.zoom;
   const visH = view.height / view.zoom;
-  const slackX = Math.max(0, visW * 0.5);
-  const slackY = Math.max(0, visH * 0.5);
+  const slackX = Math.max(0, visW * PAN_SLACK);
+  const slackY = Math.max(0, visH * PAN_SLACK);
   view.originX = Math.max(-slackX, Math.min(layerW - visW + slackX, view.originX));
   view.originY = Math.max(-slackY, Math.min(layerH - visH + slackY, view.originY));
 }

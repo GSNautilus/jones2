@@ -5,13 +5,20 @@ The map fills the stage (`game/GameRoot.tsx` mounts it); the HUD overlays it in
 top-left, camera buttons top-right. Under 1000px the panel becomes a sheet.
 
 ## Files
-- `clockMath.ts` — pure: minutes → day index, hand angles, ring fraction, zone,
-  preview arc, `formatHM`. Tested in `test/hud/clockMath.test.ts`.
+- `clockMath.ts` — pure: minutes → day index, hand angles, zone, `formatHM`,
+  and BOTH readings of the week: the drain `ringFraction` / `previewArc` the
+  Jones 2 screen grew up with, and the `pieFraction` / `pieSweep` /
+  `previewWedge` the classic clock fills by (PLAN §4). Tested in
+  `test/hud/clockMath.test.ts` and `test/hud/pieClock.test.ts`.
 - `raster.ts` — tiny RGBA rasteriser (disc / annulus sector / Bresenham hand);
   canvas arcs are anti-aliased, these are not, so magnifying keeps pixels.
 - `Clock.tsx` — 96×96 art blitted from an offscreen canvas at integer scale
   (default 2 ⇒ 192 css px), `imageSmoothingEnabled = false`; animates old → new
-  minutes over 400 ms (rAF + refs). `paintClock()` is exported for Node.
+  minutes over 400 ms (rAF + refs). `paintClock()` is exported for Node. The
+  FACE fills clockwise as the week is spent and a hovered action's cost is
+  hatched on past the fill. `variant="classic"` drops the day/time plates and
+  the LED for a bare face with WEEK #N under it (the classic screen keeps the
+  cash/hours readout in the bottom-right corner instead).
 - `preview.tsx` — the time preview store. `useSetTimePreview()` is write-only
   (never re-renders the caller), `useTimePreview()` reads (the clock does),
   `usePreviewHandlers(minutes)` spreads onto a hover target. Action buttons

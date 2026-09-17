@@ -194,6 +194,9 @@ Steps 1–3 of the plan's work breakdown are built (three agents, ~276k + 266k +
 - **Interface art** — `packages/pixelart/src/portraits/` (13 clerk portraits, 56×64, `PORTRAITS`), `src/ui/classic.ts` (`window_frame` 9-slice with `FRAME_INSETS` 12, `bubble` + `bubble_tail_l/r`, `title_plate`, `TOKENS` 1–4 at 14px, `sign_closed` 28×14). Sheets: `art/sheets/portraits.png`, `art/sheets/ui-classic.png` (a mock location window assembled from the slices). 76 new tests. Known: faces are flat (two skin tones per ramp); token numerals have no margin at 14px.
 - **Classic ruleset** — `packages/sim/src/classic/` (context, actions, turnStart, week, economy, goals, state, effects, config, game), dispatched on `GameConfig.ruleset` (`'classic' | 'jones2'`, default jones2 so nothing existing changes). State hangs off `PlayerState.classic` / `GameState.classic`. 13 additive `Action` variants. 60h weeks in minutes (3600); travel charged as `routeHours × 60` while events keep route minutes for the replay; work 6h, apply/raise 4h, lesson 6h, relax 6h, loan 2h, broker 2h, newspaper 1h, everything else 0h. Start-of-week cards: weekend → lottery → starvation → stats → breakdown → spoilage → household → rent → loan → consumables → news; win check after, in `resolveWeek`, tie-break on goal excess then seat. No Wild Willy, no doctor (decision 6). Every number the wiki lacks is a marked GUESS in `classic/config.ts` (START_CASH 200, FIRED_HAPPINESS −5, boom/crash odds and deltas, stock volatility, DEFAULT_GOALS 50×4…). 38 tests in `test/classic.test.ts` + `classic-week.test.ts`.
 
+- **Classic interface** — `apps/client/src/classic/` (pure modules: locations, menu, cards, tooltip, tokens, layout, screens, paint; React: `PixelPanel.tsx`, `ClassicScreen.tsx`), dispatched from `GameRoot` on `config.ruleset`; the Jones 2 screen is untouched. Board full-screen with numbered tokens (marker convention on `FigureStyle.label`, contract unchanged), hover tooltip "Bank · 2h" with the not-enough-time reason, pie clock (`pieFraction`/`pieSweep`/`previewWedge` in `clockMath.ts`), WEEK #N, cash readout, the framed centre window (title plate, clerk portrait, greeting bubble, priced menu from `availableActions`, DONE + verb buttons), start-of-week cards from `weekStart`, GOALS and STATISTICS screens, CLOSED boards on the 22 shut buildings, resolve → replay kept. 66 new tests (206 client). Screenshots: `art/sheets/ui-play.png`, `ui-window.png`, `ui-cards.png`, `ui-goals.png`, `ui-hover.png`, `ui-stats.png`, `ui-setup.png` (headless Edge via a cached playwright-core; not a dependency). Known: card dismissal and greeting rotation are per-session; bank amounts are all-in and stock buys one unit (the sim offers no quantities); the window is a fixed 380px native at ×2; no keyboard control; no player portraits yet.
+- Wanted from the sim (additive, not done yet): `ActionOption.price?/payout?` so the client stops parsing labels; `ActionOption.kind?: 'verb' | 'item'` so the sim decides buttons vs rows.
+
 **Classic balance, first look** (30 games × 60 weeks; run it directly, npm swallows the flags):
 ```powershell
 npx tsx apps/balance/src/run.ts --ruleset classic --games 30 --weeks 60
@@ -202,9 +205,10 @@ The student strategy wins 30/30 by week ~22 (career wk 8, education wk 12, happi
 
 ## NEXT SESSION STARTS HERE
 The map is FINAL (commit 4513185). Content, art and the classic ruleset are built and green (Milestone 2c above, uncommitted at the time of writing). Remaining, in order:
-4. Interface rebuild: centre location window with clerk + bubble + priced menu (the mock in `art/sheets/ui-classic.png`), bottom bar with pie clock + cash readout, goals/stats screens, the `weekStart` cards, hover hour tooltips, remove side panels; character select with tokens (Opus, ~400–600k). Codes against the classic `availableActions` surface.
-5. CLOSED treatment on the map for the 22 non-classic buildings (`sign_closed` overlay; active set = the 13 classic ids under `ruleset: 'classic'`).
-6. Integration, screenshots, a full human playthrough, then balance (start with the two findings above).
+4. ~~Interface rebuild~~ DONE (Milestone 2c). ~~CLOSED treatment~~ DONE.
+5. A full human playthrough of a classic week in the client (`npm run dev -w @jones2/client`, http://localhost:5174), then fix what it turns up.
+6. Balance: degrees dominant, clothes softlock, and check the wiki's food prices ($79 hamburger against a $200 start) against wages in play.
+7. Additive sim tweaks the client wants (price/payout and kind on `ActionOption`), quantities for bank/stock actions, player portraits at setup.
 
 ## Milestone 3 — server + async multiplayer (NOT STARTED)
 ## Milestone 4 — art pass (NOT STARTED)

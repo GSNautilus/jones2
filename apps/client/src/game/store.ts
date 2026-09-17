@@ -33,10 +33,27 @@ interface Persisted {
   lastReport: WeekReport | null;
 }
 
+/**
+ * Bump when the persisted shape changes so a game saved by an older build is
+ * dropped instead of crashing the screen that reads it.
+ */
+const STORE_VERSION = 2;
+
 function load(): Persisted | null {
   try {
+    if (new URLSearchParams(location.search).has('new')) {
+      // `/?new` always starts at setup, whatever is saved.
+      localStorage.removeItem(STORAGE);
+      return null;
+    }
     const raw = localStorage.getItem(STORAGE);
-    return raw ? (JSON.parse(raw) as Persisted) : null;
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as Persisted & { version?: number };
+    if (parsed.version !== STORE_VERSION || !parsed.state?.config) {
+      localStorage.removeItem(STORAGE);
+      return null;
+    }
+    return parsed;
   } catch {
     return null;
   }
@@ -44,7 +61,7 @@ function load(): Persisted | null {
 
 function save(p: Persisted | null): void {
   try {
-    if (p) localStorage.setItem(STORAGE, JSON.stringify(p));
+    if (p) localStorage.setItem(STORAGE, JSON.stringify({ version: STORE_VERSION, ...p }));
     else localStorage.removeItem(STORAGE);
   } catch {
     /* ignore */
