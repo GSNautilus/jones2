@@ -13,7 +13,7 @@ import { Clock } from '../hud/Clock';
 import { MapControls } from '../hud/MapControls';
 import { useSetTimePreview } from '../hud/preview';
 import type { GameStore } from '../game/store';
-import { cardsFrom, currentCard, deckKey } from './cards';
+import { cardSound, cardsFrom, currentCard, deckKey } from './cards';
 import { CLOSED_LABEL, assignTokens, tokenLabel } from './tokens';
 import { closedNodes, isArrivalLocation, isClassicLocation, locationName } from './locations';
 import { planWalk, walkPose, type WalkPlan } from './walk';
@@ -22,6 +22,7 @@ import type { PanelModel } from './layout';
 import { PixelPanel } from './PixelPanel';
 import { goalsModel, statsModel } from './screens';
 import { hoursLeft, hoursOf, travelTooltip } from './tooltip';
+import { audio, sfxForEvent, type SfxKey } from '../audio';
 
 export interface ClassicScreenProps {
   store: GameStore;
@@ -84,6 +85,15 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
     }
   }, [wantDeck, deck]);
   const card = deck === wantDeck ? currentCard(cards, dismissed) : cards[0] ?? null;
+  const cardKey = card ? `${deck}:${card.index}` : null;
+  useEffect(() => {
+    if (!card || !cardKey) return;
+    const key = cardSound(card);
+    // Week one opens with the theme instead of the start-of-turn music.
+    if (key === 'startTurn' && state?.week === 1) return;
+    if (key) audio.play(key as SfxKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cardKey]);
 
   // A walk in progress: the token moves along the route over real time and
   // the window opens when it arrives. Input is blocked meanwhile.
@@ -128,6 +138,51 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
     scene.panTo(n.x, n.y);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scene, currentPid]);
+
+  // ---- audio ----------------------------------------------------------------
+  const [muted, setMuted] = useState(() => audio.current.muted);
+  useEffect(() => {
+    let live = true;
+    void audio.load().then(() => {
+      if (live) audio.start();
+    });
+    return () => {
+      live = false;
+      audio.stop();
+    };
+  }, []);
+
+  // The game refused something: no time, no money, wrong place.
+  useEffect(() => {
+    if (store.error) audio.play('cannot');
+  }, [store.error]);
+
+  // The theme, once, when a game begins.
+  const themedRef = useRef(false);
+  useEffect(() => {
+    if (!state || themedRef.current) return;
+    if (state.week === 1) {
+      themedRef.current = true;
+      void audio.load().then(() => audio.play('theme'));
+    }
+  }, [state]);
+
+  // A sound for every new entry in the current player's log.
+  const heardRef = useRef<{ pid: string | null; len: number }>({ pid: null, len: 0 });
+  useEffect(() => {
+    if (!state || !currentPid) return;
+    const log = state.players[currentPid]!.log;
+    const heard = heardRef.current;
+    if (heard.pid !== currentPid) {
+      heardRef.current = { pid: currentPid, len: log.length };
+      return;
+    }
+    for (let i = heard.len; i < log.length; i++) {
+      const key = sfxForEvent(log[i]!);
+      if (key) audio.play(key);
+    }
+    heard.len = log.length;
+  }, [state, currentPid]);
 
   // The walk loop: move the token each frame, then open the window on arrival.
   useEffect(() => {
@@ -180,6 +235,7 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
     setVisits((v) => ({ ...v, [loc]: (v[loc] ?? 0) + 1 }));
     setGroup(null);
     setOpenLoc(loc);
+    audio.play(loc === 'university' ? 'university' : 'door');
   }, []);
   const openRef = useRef(openWindow);
   openRef.current = openWindow;
@@ -275,6 +331,7 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
         const plan = planWalk(route.path, (id) => graph.node(id), route.minutes);
         // Leave the route on the ground until the token has walked it.
         scene.setRoute(route.path);
+        audio.play('travel');
         setWalking({ pid: currentPid, plan, startedAt: performance.now(), then: loc });
       } else {
         openRef.current(loc);
@@ -373,6 +430,18 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
       </div>
 
       <div className="classic-readout">
+        <button
+          type="button"
+          className="classic-mute"
+          title={muted ? 'Sound off. Click for sound.' : 'Sound on. Click to mute.'}
+          onClick={() => {
+            const next = !muted;
+            setMuted(next);
+            audio.update({ muted: next });
+          }}
+        >
+          {muted ? 'SOUND OFF' : 'SOUND ON'}
+        </button>
         <span className="classic-readout-value">{`$${cash.toLocaleString()}`}</span>
         {clockHover && <span className="classic-readout-time">{`${left}H LEFT`}</span>}
       </div>

@@ -1,4 +1,6 @@
 /** New game form, in the same bevelled frame style as the HUD. */
+import { useEffect } from 'react';
+import { audio } from '../audio';
 import { useState } from 'react';
 import { CLASSIC_DEFAULT_GOALS, DEFAULT_GOALS, type GoalTargets, type Ruleset } from '@jones2/sim';
 import { Frame, FrameButton } from '../hud/Frame';
@@ -12,6 +14,21 @@ const CLASSIC_GOAL_MIN = 10;
 const CLASSIC_GOAL_MAX = 100;
 
 export function SetupScreen({ store }: { store: GameStore }) {
+  // Browsers only allow sound after a click; the first click on this screen starts the music.
+  useEffect(() => {
+    let done = false;
+    const onFirst = () => {
+      if (done) return;
+      done = true;
+      void audio.load().then(() => audio.play('newGame'));
+    };
+    window.addEventListener('pointerdown', onFirst, { once: true });
+    return () => {
+      window.removeEventListener('pointerdown', onFirst);
+      audio.stop();
+    };
+  }, []);
+
   const [ruleset, setRuleset] = useState<Ruleset>('classic');
   const [names, setNames] = useState(['Ann', 'Bob', '', '']);
   const [mode, setMode] = useState<'classic' | 'fixed'>('classic');

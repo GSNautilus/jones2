@@ -1,0 +1,13 @@
+{
+  "name": "@jones2/sci",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "spessasynth_core": "^4.3.22"
+  }
+}

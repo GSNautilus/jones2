@@ -8,3 +8,5 @@ Thumbs.db
 apps/balance/out/
 .claude/settings.local.json
 *.stackdump
+tools/sci/soundfont/
+art/audio/wav/

@@ -88,3 +88,28 @@ export function currentCard(cards: readonly WeekCard[], dismissed: number): Week
 export function deckKey(week: number, playerId: string): string {
   return `${week}:${playerId}`;
 }
+
+/**
+ * The sound for a card: the step decides, with the news card reading its own
+ * text for a boom or a crash, and wear-and-tear only ringing when clothes are
+ * the problem. The first card of a week is the start-of-turn music instead.
+ */
+export function cardSound(card: { step: string; text: string; index: number }): string | null {
+  if (card.index === 0) return 'startTurn';
+  switch (card.step) {
+    case 'starvation':
+      return 'starving';
+    case 'rent':
+      return 'rentDue';
+    case 'consumables':
+      return /cloth|uniform|worn/i.test(card.text) ? 'clothes' : null;
+    case 'news':
+      if (/crash|recession|slump|layoff|cut|plunge|collapse/i.test(card.text)) return 'economyBad';
+      if (/boom|surge|rally|soar|growth|upturn|record high/i.test(card.text)) return 'economyGood';
+      return null;
+    case 'weekend':
+      return 'weekend';
+    default:
+      return null;
+  }
+}

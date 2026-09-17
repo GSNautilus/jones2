@@ -150,3 +150,19 @@
   font-size: 12px;
   color: #1f1b24;
 }
+
+.classic-mute {
+  align-self: flex-end;
+  margin-bottom: 4px;
+  font: 11px/1 var(--hud-font, monospace);
+  letter-spacing: 1px;
+  padding: 3px 6px;
+  background: #2a2633;
+  color: #e8dcc0;
+  border: 1px solid #6b5a3a;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.classic-mute:hover {
+  background: #3a3446;
+}
