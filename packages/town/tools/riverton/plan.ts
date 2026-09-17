@@ -145,6 +145,7 @@ export const STREETS: StreetSpec[] = [
       { x: 1570, y: 792 },
       { x: 1700, y: 798 },
       { x: 1800, y: 772 },
+      { x: 1880, y: 748 },
     ],
   },
   {
@@ -183,14 +184,14 @@ export const STREETS: StreetSpec[] = [
     ],
   },
   {
-    // The lane up to the water meadows on the poor bank.
+    // The lane up from the poor bank to the footbridge turn and on to the
+    // Research Lab, which closes it.
     id: 'park_ln',
     kind: 'street',
     start: { street: 'mill_rd', s: 620, side: 1, stub: 80, id: 'j_park' },
     pts: [
       { x: 800, y: 700 },
-      { x: 772, y: 620 },
-      { x: 755, y: 560 },
+      { x: 776, y: 636 },
     ],
   },
   {
@@ -234,7 +235,7 @@ export const STREETS: StreetSpec[] = [
     // to the high street. The rich half's second grade separation.
     id: 'ridge_path',
     kind: 'path',
-    start: { street: 'campus_rd', s: 480, side: -1, stub: 70, id: 'j_ridge' },
+    start: { street: 'campus_rd', s: 590, side: -1, stub: 70, id: 'j_ridge' },
     pts: [{ x: 1660, y: 600 }],
     end: { street: 'main_st', s: 1150, side: 1, stub: 70, id: 'j_fork' },
   },
@@ -242,10 +243,10 @@ export const STREETS: StreetSpec[] = [
     // The lake lane: over the lower river to the cottage. A dead end.
     id: 'lake_ln',
     kind: 'street',
-    start: { street: 'campus_rd', s: { x: 1700, y: 798 }, side: 1, stub: 90, id: 'j_lake' },
+    start: { street: 'campus_rd', s: { x: 1790, y: 775 }, side: 1, stub: 90, id: 'j_lake' },
     pts: [
-      { x: 1705, y: 960 },
-      { x: 1712, y: 1000 },
+      { x: 1795, y: 950 },
+      { x: 1802, y: 1000 },
     ],
   },
 ];
@@ -254,7 +255,7 @@ export const STREETS: StreetSpec[] = [
 
 const HOUSE_PARAMS: Record<string, Record<string, string | number | boolean>> = {
   house_elm: { wall: 'cream', roof: 'brick' },
-  house_lake: { roofShape: 'hip', wall: 'blue', roof: 'greenDark' },
+  house_lake: { style: 'modern', wall: 'white', roof: 'slate', garage: true },
   house_hill: { storeys: 2, garage: true, wall: 'white', roof: 'blueDark' },
 };
 
@@ -280,23 +281,27 @@ function loc(
 }
 
 /**
- * Every sim location. `bus_depot` and `employment` share `j_center`, the
- * crossroads at the heart of the centre wedge, because other packages hardcode
- * the two-edge walk bus_depot -> j_center -> employment.
+ * Every sim location. Employment and Monolith stand on the poor bank at the
+ * town bridge; the Rent Office and the Clinic face each other across the high
+ * street on the rich side; the Bus Depot (where everyone starts) is beside
+ * Low-Cost Housing. Nothing hangs off `j_center` any more: it is a plain
+ * crossroads.
  */
 export const LOCATIONS: LocSpec[] = [
-  // --- the centre wedge. The four buildings at the crossroads hang straight
-  //     off `j_center`, so the centre is one address and the hour ladder does
-  //     not care which of them a trip starts at. ---------------------------
-  loc('employment', 'Employment Office', 'main_st', 1, undefined, 'j_center', -70),
-  loc('bus_depot', 'Bus Depot', 'main_st', -1, undefined, 'j_center', -115),
-  loc('monolith', 'Monolith Burgers', 'main_st', -1, undefined, 'j_center', 125),
-  loc('rent_office', 'Rent Office', 'main_st', -1, undefined, 'j_center', 0),
+  // --- the high street (rich bank) ------------------------------------------
+  loc('theme_park', 'Theme Park', 'main_st', -1, 60),
   loc('cinema', 'Bijou Cinema', 'main_st', 1, 340),
   loc('gym', 'Flex Factory Gym', 'main_st', -1, 430),
   loc('newsstand', 'Corner Newsstand', 'main_st', 1, 560),
-  loc('cafe', 'Java Hut', 'main_st', -1, 1250),
-  loc('clinic', "Doc's Walk-In Clinic", 'main_st', -1, 1060),
+  loc('rent_office', 'Rent Office', 'main_st', 1, 790),
+  loc('government', 'Government', 'main_st', -1, 790),
+  loc('clinic', "Doc's Walk-In Clinic", 'main_st', -1, 1000),
+  // The north-east stretch runs beside the highway: the three closed lots
+  // line it.
+  loc('corpo', 'Corpo Ltd.', 'main_st', -1, 1160),
+
+  loc('cafe', 'Java Hut', 'main_st', -1, 1270),
+  loc('stadium', 'Stadium', 'main_st', -1, 1375),
   // --- uptown, up the hill (rich) ------------------------------------------
   loc('bank', 'First Jones Bank', 'uptown_rd', -1, 120),
   loc('qt_clothing', 'QT Clothing', 'uptown_rd', 1, 185),
@@ -305,13 +310,21 @@ export const LOCATIONS: LocSpec[] = [
   loc('house_hill', 'Hilltop Manor', 'hill_rd', 1, 380),
   // --- campus, under the highway (rich) ------------------------------------
   loc('university', 'Hi-Tech University', 'campus_rd', -1, 300),
-  loc('security_apts', 'Security Apartments', 'campus_rd', -1, 420),
-  loc('gilded_fork', 'The Gilded Fork', 'ridge_path', 1, 120),
+  { id: 'bus_station', name: 'Bus Station', street: 'campus_rd', s: 410, side: -1, pixel: { kind: 'bus_depot' } },
+  loc('security_apts', 'Security Apartments', 'campus_rd', -1, 520),
+  loc('park', 'Riverside Park', 'ridge_path', -1, 100),
+  loc('gilded_fork', 'The Gilded Fork', 'ridge_path', 1, 210),
   loc('house_lake', 'Lakeside Cottage', 'lake_ln', 1, 150),
-  // --- the mill wedge, west across the bridge (poor) -----------------------
+  // --- the south bank at the bridge (poor) ---------------------------------
+  loc('employment', 'Employment Office', 'mill_rd', 1, 330),
+  loc('monolith', 'Monolith Burgers', 'mill_rd', -1, 400),
+  loc('pet_store', 'Pet Store', 'mill_rd', -1, 580),
+
+  // --- the mill wedge, west along the poor bank ----------------------------
   loc('factory', 'Consolidated Widgets', 'mill_rd', -1, 780),
   loc('lowcost', 'Low-Cost Housing', 'mill_rd', -1, 900),
-  loc('park', 'Riverside Park', 'park_ln', -1, 170),
+  loc('bus_depot', 'Bus Depot', 'mill_rd', -1, 1010),
+  loc('research_lab', 'Research Lab', 'park_ln', -1, 150),
   loc('lookout', 'Lookout Point', 'lookout_path', -1, 740),
   loc('auto', "Honest Al's Autos", 'works_rd', 1, 300),
   loc('house_elm', '12 Elm Street', 'elm_ln', -1, 160),
@@ -331,6 +344,7 @@ export const BUS_LINES: Array<{ id: string; to: string }> = [
   { id: 'bus_2', to: 'lowcost' },
   { id: 'bus_2', to: 'auto' },
   { id: 'bus_3', to: 'chez_cholesterol' },
+  { id: 'bus_4', to: 'bus_station' },
   { id: 'bus_4', to: 'house_lake' },
   { id: 'bus_5', to: 'house_hill' },
 ];
@@ -344,7 +358,6 @@ export const PONDS: Array<[number, number, number, number]> = [
 
 /** Paved squares and greens. */
 export const AREAS: Array<{ kind: string; x: number; y: number; w: number; h: number }> = [
-  { kind: 'plaza', x: 1246, y: 430, w: 116, h: 70 },
   { kind: 'plaza', x: 1078, y: 1044, w: 96, h: 58 },
   { kind: 'grass', x: 852, y: 226, w: 128, h: 84 },
   { kind: 'grass', x: 520, y: 900, w: 130, h: 82 },

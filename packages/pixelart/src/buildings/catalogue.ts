@@ -27,6 +27,12 @@ import { shadyAcres } from './shady_acres';
 import { lowcost } from './lowcost';
 import { securityApts } from './security_apts';
 import { rentOffice } from './rent_office';
+import { petStore } from './pet_store';
+import { themePark } from './theme_park';
+import { stadium } from './stadium';
+import { corpo } from './corpo';
+import { government } from './government';
+import { researchLab } from './research_lab';
 
 export const BUILDINGS: Record<string, BuildingGenerator> = {
   // phase A heroes
@@ -61,6 +67,13 @@ export const BUILDINGS: Record<string, BuildingGenerator> = {
   shady_acres: shadyAcres,
   lowcost,
   security_apts: securityApts,
+  // closed lots: no interior yet, but they stand on the map like everything else
+  theme_park: themePark,
+  stadium,
+  corpo,
+  government,
+  research_lab: researchLab,
+  pet_store: petStore,
 };
 
 /** Build a sprite from a town node's `pixel` recipe. Unknown kinds fall back to a house. */

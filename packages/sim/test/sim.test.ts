@@ -64,7 +64,10 @@ describe('actions', () => {
     expect(s0.players.a!.node).toBe('bus_depot');
     expect(s1.players.a!.node).toBe('employment');
     expect(s1.players.a!.minutesLeft).toBeLessThan(s0.players.a!.minutesLeft);
-    expect(s1.players.a!.log[0]!.path).toEqual(['bus_depot', 'j_center', 'employment']);
+    const path = s1.players.a!.log[0]!.path!;
+    expect(path[0]).toBe('bus_depot');
+    expect(path[path.length - 1]).toBe('employment');
+    expect(path.length).toBeGreaterThan(2);
   });
 
   it('rejects actions at the wrong place with a reason', () => {

@@ -92,33 +92,44 @@ highway cuts each half in two, so the town is four wedges meeting at the crossin
   roads, so the shoreline comes from the outline of the water mask the way kerbs come from the
   asphalt mask. The rectangle-chain river goes away.
 
-**Where things live**
-- **Centre (the crossing):** Employment Office, Monolith Burgers, Rent Office. Everyone starts
-  here; it is at most 2h from anywhere. Monolith sits here so the poor side is not 3h from lunch.
-- **Poor half, mill wedge:** Factory, Low-Cost Housing. A starting player can live and work here
-  without crossing water.
-- **Poor half, strip wedge:** Z-Mart, Black's Market, Pawn Shop — the original's low-tier employers.
-- **Rich half, uptown wedge:** Bank, QT Clothing, Socket City.
-- **Rich half, campus wedge:** Hi-Tech U with **Security Apartments beside it**, so the higher rent
-  buys a short walk to lessons and a short hop to the centre. Education is what rent buys.
+**Where things live (final layout, decided 2026-09-16 after seeing it rendered)**
+- **The bridgehead (poor bank, at the town bridge):** Employment Office and Monolith Burgers. The
+  Research Lab (closed) closes the lane that runs up from the mill road past the footbridge turn. Jobs and cheap food are on the poor side; rich-side
+  players cross the river to apply.
+- **Mill district (poor, west along the river road):** Consolidated Widgets, Low-Cost Housing, and
+  the **Bus Depot beside it, where everyone starts**. A starting player lives, eats, applies and
+  works without crossing water.
+- **The strip (poor, south under the highway):** Z-Mart, Black's Market, Pawn Shop.
+- **The high street (rich bank):** Rent Office south of the road and the Clinic north of it at the
+  town-bridge junction, which is a plain crossroads (no plaza, nothing hangs off the junction
+  itself); Bank, QT Clothing, Socket City up the hill. The north-east stretch runs beside the
+  highway and carries two closed lots, Corpo Ltd. and the Stadium, on its north side. The
+  Government building (closed) stands on the open ground opposite the Rent Office. The Theme Park
+  (closed) closes the road's west end.
+- **Campus (rich, under the highway):** Hi-Tech U, the second Bus Station (closed; depot art),
+  Security Apartments, with Riverside Park just north of the apartments and the modern house
+  on the lake lane beyond.
+- **Closed placeholders on the map:** bus_station, corpo, stadium, government, research_lab,
+  theme_park, pet_store (south of the mill road between Monolith and Honest Al's), plus the 14
+  Jones 2 locations. All have sim location ids with no actions.
 
 **The hour ladder (the target; encoded as a test)**
 
 Edges keep minutes (the sim budget and the replay timeline use them). The classic ruleset charges
-whole hours per trip, rounded up, minimum 1h. Street rates are tuned until this table passes:
+whole hours per trip, rounded up, minimum 1h. The spec is `packages/town/tools/ladder-table.ts`,
+asserted by `packages/town/test/scheme.test.ts` and printed by `tools/ladder.ts`. In short:
 
-| From                | Same wedge | Centre | Other wedge, same half | Across the river |
-|---------------------|-----------:|-------:|-----------------------:|-----------------:|
-| Low-Cost Housing    | 1h         | 2h     | 2h                     | 3h               |
-| Security Apartments | 1h         | 1h     | 2h                     | 3h               |
+| From                | 1h                                   | 2h                              | 3h                     |
+|---------------------|--------------------------------------|---------------------------------|------------------------|
+| Low-Cost Housing    | Factory, Employment, Monolith, Depot | Strip, Rent Office              | Uptown, campus         |
+| Security Apartments | Hi-Tech U                            | Rent Office, uptown, Employment | Factory, strip         |
+| Employment Office   | Monolith, Rent Office, Factory, Strip| Uptown, Hi-Tech U               |                        |
+| Bus Depot (start)   | Low-Cost, Factory                    | Employment                      |                        |
 
-The rich side is nearer the centre than the poor side (1h vs 2h), which is the asymmetry rent
-buys. Across-the-river trips are 3h from every wedge; 4h is impossible once the centre is 2h from
-one side and 1h from the other, because a route through the centre caps it. The full wedge-pair
-table is the test in `packages/town/test/scheme.test.ts`.
-
-Number to watch first in the balance runner: a poor-side player's university lesson costs 3h each
-way plus 6h in class, a fifth of the week.
+Arriving costs two hours to reach the jobs board once; after that the poor side is a one-hour
+world. The campus is its own world: lessons next door, everything else two hours, the poor side
+three. Walking rate is 10.5 px/min on streets (8 on paths) in `tools/riverton/spec.ts`. The earlier "centre wedge" table (Employment, Monolith and Rent Office at the crossing) is
+superseded.
 
 **Build order for the map**
 1. Amend this plan (done) and write the hour-table test, failing, as the target.

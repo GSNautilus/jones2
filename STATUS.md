@@ -115,7 +115,7 @@ npx tsx apps/client/tools/town-png.ts 1 "1300,580,230,180" 3   # shrink, crop x,
 npm test
 ```
 
-**Achieved hour ladder** (walking minutes; the bands are `<=60` = 1h, `61..120` = 2h, `121..180` = 3h):
+**Achieved hour ladder at the end of Phase D** (superseded by Phase E; walking minutes, bands `<=60` = 1h, `61..120` = 2h, `121..180` = 3h):
 
 | pair                | minutes  | hours |
 |---------------------|---------:|------:|
@@ -157,10 +157,40 @@ Known weaknesses (from the art agent's own critique): QT Clothing palm trees rea
 
 Suggested next: a human plays a full week in the client on the new map; editor curve handles; UI sprites adopted by the HUD skin (currently CSS fallbacks); the interiors (location screens with clerks) as the next art chunk.
 
+Phase E — final layout and the new buildings (DONE 2026-09-16):
+The layout was revised after seeing Phase D rendered, and is now FINAL (DESIGN.md decision log,
+docs/PLAN.md §1 "Where things live"):
+- Employment Office and Monolith Burgers moved to the poor bank at the town bridge; the Research
+  Lab (closed) closes the lane up from the mill road past the footbridge turn. The old star junction is a plain crossroads with the
+  Rent Office south of the high street and the Clinic north of it; the centre plaza is gone.
+- Everyone starts at the Bus Depot, now beside Low-Cost Housing. A second Bus Station (closed,
+  depot art) stands between Hi-Tech U and Security Apartments; Riverside Park is just north of
+  the apartments; the lake-lane house is the new `modern` house style (flat slate roof, glass
+  band, garage wing).
+- Closed placeholders with their own art: Theme Park (west end of the high street, the widest
+  sprite in town), Corpo Ltd. (the tallest), Riverton Stadium, Government (two-storey civic hall
+  on the open ground opposite the Rent Office), Research Lab. Honest Al's sign board now sizes to
+  its text; the Bijou blade reads MOVIES. Pet Store (closed) added between Monolith and Honest
+  Al's on the mill road. 35 sim locations. 34 sim locations now; every one has a
+  node and a pixelart recipe (`MAX_SPAN` raised to 150, `MAX_HEIGHT` 110).
+- Hour ladder is now a trip table, `packages/town/tools/ladder-table.ts`, shared by
+  `test/scheme.test.ts` and `tools/ladder.ts`: Low-Cost is 1h from Factory/Employment/Monolith/
+  Depot, 2h from the strip and Rent Office, 3h from the rich bank; Security Apartments is 1h from
+  Hi-Tech U, 2h from the Rent Office, uptown and the jobs board, 3h from the poor side; the Depot
+  is 2h from the jobs board once. Walking rate raised to 10.5 px/min on streets (8 on paths) to
+  land it; the thinnest margins are Low-Cost→Employment (56 min) and mill→strip (63 min).
+- Props are placed by their real sprite footprint against building boxes, so trees no longer
+  stand in front of doors or over signs.
+- Tests: pixelart 393, sim 15, town 44, client 140. Generator: no warnings; overlap checker clean.
+
+Known weaknesses: the stadium crowd reads as
+confetti at 1×; the satellite dish part is a white blob at 1×; the CLOSED sign/board treatment
+on the sprites is still to do.
+
 ## NEXT SESSION STARTS HERE — classic ruleset (see docs/PLAN.md)
 All seven plan decisions are made (2026-09-16). First batch to propose to the user before launching:
 - Classic content extraction from docs/original-rules.md → packages/sim/src/content/classic/ (Sonnet, ~150–250k)
-- ~~Map retune: whole-hour travel, ~1920×1152, district ladder~~ DONE, see Phase D. Still to do: the CLOSED treatment for the 15 non-classic buildings.
+- ~~Map retune: whole-hour travel, ~1920×1152, district ladder~~ DONE, see Phases D and E. Still to do: the CLOSED treatment (sign/board, 'Closed' note) for the 20 non-classic buildings.
 - Clerk portraits (13) + window frame/bubble/player tokens in packages/pixelart (Opus, ~250–400k)
 Then: classic ruleset in the sim (Opus), interface rebuild around the centre window + pie clock + hover tooltips (Opus).
 

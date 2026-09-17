@@ -6,23 +6,23 @@ import { buildTimeline } from '../../src/replay/timeline';
 const TOWN = riverton as Town;
 const GRAPH = new TownGraph(TOWN);
 
-// Real riverton nodes/edges: bus_depot and employment both hang off j_center,
-// the crossroads at the town centre, on a 5-minute driveway each.
+// Real riverton nodes/edges: the depot's driveway meets the mill road at
+// a_bus_depot (5 min), and the next node west along the road is j_elm (6 min).
 const aEvents: PlayerEvent[] = [
   {
     minute: 0,
     duration: 30,
-    action: { type: 'travel', to: 'employment', mode: 'walk' },
-    node: 'employment',
-    path: ['bus_depot', 'j_center', 'employment'],
+    action: { type: 'travel', to: 'j_elm', mode: 'walk' },
+    node: 'j_elm',
+    path: ['bus_depot', 'a_bus_depot', 'j_elm'],
     deltas: [],
-    text: 'Travelled to Employment Office by walk',
+    text: 'Travelled to j_elm by walk',
   },
   {
     minute: 30,
     duration: 60,
     action: { type: 'work' },
-    node: 'employment',
+    node: 'j_elm',
     deltas: [],
     text: 'Worked a shift as Fry Cook',
   },
@@ -30,7 +30,7 @@ const aEvents: PlayerEvent[] = [
     minute: 90,
     duration: 0,
     action: { type: 'endWeek' },
-    node: 'employment',
+    node: 'j_elm',
     deltas: [],
     text: 'Ended the week',
   },
@@ -40,9 +40,9 @@ const bEvents: PlayerEvent[] = [
   {
     minute: 0,
     duration: 10,
-    action: { type: 'travel', to: 'j_center', mode: 'walk' },
-    node: 'j_center',
-    path: ['bus_depot', 'j_center'],
+    action: { type: 'travel', to: 'a_bus_depot', mode: 'walk' },
+    node: 'a_bus_depot',
+    path: ['bus_depot', 'a_bus_depot'],
     deltas: [],
     text: 'Travelled to j_center by walk',
   },
@@ -71,14 +71,14 @@ describe('buildTimeline', () => {
 
   it('is between the right segment part-way through a travel event', () => {
     const timeline = buildTestTimeline();
-    // The two legs cost the same, so minute 15 lands exactly on j_center;
-    // sample past it to be unambiguously on the second leg.
+    // The legs cost 5 and 6 minutes, so the 30-minute trip passes a_bus_depot
+    // near minute 14; sample past it to be unambiguously on the second leg.
     const frame = timeline.at(20);
     const pose = frame.poses.a!;
     expect(pose.kind).toBe('between');
     if (pose.kind === 'between') {
-      expect(pose.from).toBe('j_center');
-      expect(pose.to).toBe('employment');
+      expect(pose.from).toBe('a_bus_depot');
+      expect(pose.to).toBe('j_elm');
       expect(pose.t).toBeGreaterThan(0);
       expect(pose.t).toBeLessThan(1);
       expect(pose.mode).toBe('walk');
@@ -88,32 +88,32 @@ describe('buildTimeline', () => {
   it('is at the destination exactly at the end of travel', () => {
     const timeline = buildTestTimeline();
     const frame = timeline.at(30);
-    expect(frame.poses.a).toEqual({ kind: 'at', node: 'employment' });
+    expect(frame.poses.a).toEqual({ kind: 'at', node: 'j_elm' });
   });
 
   it('shows the event text as caption during a held (non-travel) event', () => {
     const timeline = buildTestTimeline();
     const frame = timeline.at(60); // within the 30..90 work event
     expect(frame.captions.a).toBe('Worked a shift as Fry Cook');
-    expect(frame.poses.a).toEqual({ kind: 'at', node: 'employment' });
+    expect(frame.poses.a).toEqual({ kind: 'at', node: 'j_elm' });
   });
 
   it('ends at the final node with an empty caption, including at the zero-duration endWeek marker', () => {
     const timeline = buildTestTimeline();
     const atEnd = timeline.at(90);
-    expect(atEnd.poses.a).toEqual({ kind: 'at', node: 'employment' });
+    expect(atEnd.poses.a).toEqual({ kind: 'at', node: 'j_elm' });
     expect(atEnd.captions.a).toBe('');
 
     const pastEnd = timeline.at(500);
     expect(pastEnd.minute).toBe(90);
-    expect(pastEnd.poses.a).toEqual({ kind: 'at', node: 'employment' });
+    expect(pastEnd.poses.a).toEqual({ kind: 'at', node: 'j_elm' });
     expect(pastEnd.captions.a).toBe('');
   });
 
   it('keeps a player idle at their last node once their own log runs out', () => {
     const timeline = buildTestTimeline();
     const frame = timeline.at(80); // b has nothing running after minute 10
-    expect(frame.poses.b).toEqual({ kind: 'at', node: 'j_center' });
+    expect(frame.poses.b).toEqual({ kind: 'at', node: 'a_bus_depot' });
     expect(frame.captions.b).toBe('');
   });
 

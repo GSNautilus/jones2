@@ -17,7 +17,7 @@ export const MARGIN = 16;
 export const HALF: Record<RoadKind, number> = { highway: 10, street: 7, busline: 7, path: 4 };
 
 /** Pixels of arc length per minute on foot. The hour ladder lives on these. */
-export const PER_MINUTE: Record<RoadKind, number> = { street: 9, busline: 9, path: 7, highway: 14 };
+export const PER_MINUTE: Record<RoadKind, number> = { street: 10.5, busline: 10.5, path: 8, highway: 14 };
 
 /** Kerb-to-facade gap: an anchor starts at half the road width plus this. */
 export const SETBACK = 12;

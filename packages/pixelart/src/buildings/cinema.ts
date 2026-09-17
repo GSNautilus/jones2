@@ -15,7 +15,7 @@ import { bulbRun } from '../parts/details';
 import { frame, str, type Params } from './common';
 
 export function cinema(params?: Params): Sprite {
-  const name = str(params, 'sign', 'BIJOU');
+  const name = str(params, 'sign', 'MOVIES');
   const now = str(params, 'sign2', 'NOW SHOWING');
   const f = frame(92, 88, { topPad: 26, roofH: 10 });
   const t = f.sprite;

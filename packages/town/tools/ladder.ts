@@ -11,23 +11,10 @@
 import { TownGraph, routeHours } from '../src/graph';
 import type { Town } from '../src/types';
 import town from '../src/towns/riverton.json';
+import { DISTRICTS, LADDER } from './ladder-table';
 
-const WEDGES = {
-  centre: ['employment', 'monolith', 'rent_office'],
-  mill: ['factory', 'lowcost'],
-  strip: ['zmart', 'blacks_market', 'pawn'],
-  uptown: ['bank', 'qt_clothing', 'socket_city'],
-  campus: ['university', 'security_apts'],
-} as const;
+const WEDGES = DISTRICTS;
 type Wedge = keyof typeof WEDGES;
-
-const HOURS: Record<Wedge, Record<Wedge, number>> = {
-  centre: { centre: 1, mill: 2, strip: 2, uptown: 1, campus: 1 },
-  mill: { centre: 2, mill: 1, strip: 2, uptown: 3, campus: 3 },
-  strip: { centre: 2, mill: 2, strip: 1, uptown: 3, campus: 3 },
-  uptown: { centre: 1, mill: 3, strip: 3, uptown: 1, campus: 2 },
-  campus: { centre: 1, mill: 3, strip: 3, uptown: 2, campus: 1 },
-};
 
 const T = town as unknown as Town;
 const g = new TownGraph(T);
@@ -64,25 +51,21 @@ for (const a of CLASSIC) {
 }
 
 console.log('\nstart node:', T.startNode);
-for (const c of WEDGES.centre) {
+for (const c of [...WEDGES.bridgehead, ...WEDGES.mill]) {
   const r = g.route(T.startNode, nodeOf(c).id, 'walk');
   console.log(`  -> ${short(c)} ${r ? `${r.minutes} min (${routeHours(r.minutes)}h)` : 'unreachable'}`);
 }
 
 const wrong: string[] = [];
-for (let i = 0; i < CLASSIC.length; i++) {
-  for (let j = i + 1; j < CLASSIC.length; j++) {
-    const a = CLASSIC[i]!;
-    const b = CLASSIC[j]!;
-    const m = minutes.get(`${a}|${b}`)!;
-    const want = HOURS[wedgeOf.get(a)!][wedgeOf.get(b)!];
-    const got = routeHours(m);
-    if (got !== want) wrong.push(`${a} -> ${b} (${wedgeOf.get(a)}/${wedgeOf.get(b)}): ${got}h (${m} min), wanted ${want}h`);
-  }
+for (const [a, b, want] of LADDER) {
+  const r = g.route(nodeOf(a).id, nodeOf(b).id, 'walk');
+  const m = r ? r.minutes : Infinity;
+  const got = routeHours(m);
+  if (got !== want) wrong.push(`${a} -> ${b}: ${got}h (${m} min), wanted ${want}h`);
 }
 
 console.log('');
-if (!wrong.length) console.log('every pair lands in its band');
+if (!wrong.length) console.log('every ladder trip lands in its hour');
 else {
   console.log(`${wrong.length} offenders:`);
   for (const w of wrong) console.log('  ' + w);
@@ -100,10 +83,7 @@ for (let i = 0; i < CLASSIC.length; i++) {
     groups.set(key, list);
   }
 }
-console.log('\nband ranges (min..max minutes, target hours):');
+console.log('\ndistrict-pair ranges (min..max minutes):');
 for (const [key, list] of [...groups].sort()) {
-  const [x, y] = key.split('-') as [Wedge, Wedge];
-  console.log(
-    `  ${key.padEnd(16)} ${String(Math.min(...list)).padStart(4)}..${String(Math.max(...list)).padEnd(4)}  want ${HOURS[x][y]}h (<=${HOURS[x][y] * 60}, >${(HOURS[x][y] - 1) * 60})`,
-  );
+  console.log(`  ${key.padEnd(22)} ${String(Math.min(...list)).padStart(4)}..${String(Math.max(...list)).padEnd(4)}`);
 }

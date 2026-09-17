@@ -32,7 +32,7 @@ describe('riverton — sim location coverage', () => {
       list.push(n.id);
       owners.set(n.location, list);
     }
-    expect(owners.size, 'expected all 28 sim locations on the map').toBe(28);
+    expect(owners.size, 'expected all 35 sim locations on the map').toBe(35);
     for (const id of LOCATION_IDS) {
       expect(owners.get(id), `location "${id}" is missing a node`).toBeDefined();
       expect(owners.get(id)!.length, `location "${id}" used by more than one node`).toBe(1);
@@ -61,14 +61,11 @@ describe('riverton — graph integrity', () => {
     expect(town.startNode).toBe('bus_depot');
   });
 
-  it('keeps the two-edge walk bus_depot -> j_center -> employment', () => {
-    // apps/client hardcodes this path in its replay tests.
-    const has = (a: string, b: string) => town.edges.some((e) => (e.a === a && e.b === b) || (e.a === b && e.b === a));
-    expect(nodeById.has('j_center')).toBe(true);
-    expect(has('bus_depot', 'j_center'), 'no edge bus_depot - j_center').toBe(true);
-    expect(has('j_center', 'employment'), 'no edge j_center - employment').toBe(true);
-    const route = g.route('bus_depot', 'employment', 'walk')!;
-    expect(route.path).toEqual(['bus_depot', 'j_center', 'employment']);
+  it('the depot stands beside Low-Cost Housing on the mill road', () => {
+    const r = g.route('bus_depot', 'lowcost', 'walk')!;
+    expect(r).not.toBeNull();
+    expect(r.minutes).toBeLessThanOrEqual(30);
+    expect(nodeById.has('j_center'), 'the town-bridge crossroads keeps its id').toBe(true);
   });
 
   it('every location is reachable on foot from bus_depot', () => {
@@ -229,17 +226,9 @@ describe('riverton — geometry', () => {
 });
 
 describe('riverton — travel times', () => {
-  /** The centre wedge: the crossroads at the town bridge and the blocks round it. */
-  const CENTRE = { x0: 1140, y0: 300, x1: 1480, y1: 660 };
-  const inCentre = (id: string): boolean => {
-    const p = pos(id);
-    return p.x >= CENTRE.x0 && p.x <= CENTRE.x1 && p.y >= CENTRE.y0 && p.y <= CENTRE.y1;
-  };
-
-  it('puts the whole centre wedge round one crossroads', () => {
-    for (const id of ['j_center', 'bus_depot', 'employment', 'monolith', 'rent_office']) {
-      expect(inCentre(id), `${id} should stand in the centre wedge`).toBe(true);
-    }
+  it('the town-bridge crossroads is a plain junction with nothing hanging off it', () => {
+    const at = DRAWN.filter((e) => e.a === 'j_center' || e.b === 'j_center');
+    for (const e of at) expect(e.street!.startsWith('dwy_'), `${e.street} hangs a building off j_center`).toBe(false);
   });
 
   it('a hop along the high street is 4 to 18 minutes on foot', () => {
@@ -259,9 +248,9 @@ describe('riverton — travel times', () => {
     expect(r.minutes).toBeGreaterThanOrEqual(120);
   });
 
-  it('the far corners cost much more than a centre errand', () => {
-    const near = g.route('bus_depot', 'clinic', 'walk')!.minutes;
-    for (const far of ['lookout', 'house_elm', 'pawn', 'lowcost']) {
+  it('the far corners cost much more than a walk next door', () => {
+    const near = g.route('bus_depot', 'factory', 'walk')!.minutes;
+    for (const far of ['lookout', 'house_lake', 'shady_acres', 'cafe', 'pawn']) {
       const r = g.route('bus_depot', far, 'walk')!;
       expect(r.minutes, `${far} should be far from the depot`).toBeGreaterThan(near * 2.5);
     }

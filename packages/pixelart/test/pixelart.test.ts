@@ -80,6 +80,12 @@ function countPixels(s: Sprite): number {
   return n;
 }
 
+function countRowPixels(s: Sprite, y: number): number {
+  let n = 0;
+  for (let x = 0; x < s.width; x++) if (s.pixels[y * s.width + x] !== 0) n++;
+  return n;
+}
+
 function usesIndex(s: Sprite, index: number): boolean {
   for (let i = 0; i < s.pixels.length; i++) if (s.pixels[i] === index) return true;
   return false;
@@ -160,11 +166,24 @@ const SIM_LOCATION_IDS = [
   'house_hill',
   'house_lake',
   'lookout',
+  // closed placeholders
+  'bus_station',
+  'corpo',
+  'stadium',
+  'government',
+  'research_lab',
+  'theme_park',
+  'pet_store',
 ];
 
-/** Smallest and largest side any building sprite may have. */
+/**
+ * Smallest and largest side any building sprite may have. The theme park gate
+ * and the stadium bowl are the two allowed to run past 110 wide; nothing is
+ * allowed to be taller than 110.
+ */
 const MIN_SPAN = 40;
-const MAX_SPAN = 110;
+const MAX_SPAN = 150;
+const MAX_HEIGHT = 110;
 
 describe('buildings', () => {
   const entries = Object.entries(BUILDINGS);
@@ -187,7 +206,7 @@ describe('buildings', () => {
     expect(s.width).toBeGreaterThanOrEqual(MIN_SPAN);
     expect(s.width).toBeLessThanOrEqual(MAX_SPAN);
     expect(s.height).toBeGreaterThanOrEqual(MIN_SPAN);
-    expect(s.height).toBeLessThanOrEqual(MAX_SPAN);
+    expect(s.height).toBeLessThanOrEqual(MAX_HEIGHT);
     expect(countPixels(s)).toBeGreaterThan(s.width * s.height * 0.3);
     expect(s.anchorX).toBeGreaterThanOrEqual(0);
     expect(s.anchorX).toBeLessThan(s.width);
@@ -220,6 +239,62 @@ describe('buildings', () => {
       expect(s.width / s.height, `${name} is an implausible shape`).toBeGreaterThan(0.35);
       expect(s.width / s.height, `${name} is an implausible shape`).toBeLessThan(2.6);
     }
+  });
+
+  it('draws the modern house wider and flat-topped', () => {
+    const classic = BUILDINGS.house({ storeys: 2, garage: true });
+    const modern = BUILDINGS.house({ style: 'modern', garage: true });
+    expect(modern.width).toBeGreaterThan(classic.width);
+    expect(modern.height).toBeLessThanOrEqual(classic.height);
+  });
+
+  // --- the five closed lots ------------------------------------------------
+
+  it('makes the theme park gate the widest building in town', () => {
+    const gate = BUILDINGS.theme_park();
+    for (const [name, gen] of entries) {
+      if (name === 'theme_park') continue;
+      expect(gate.width, `${name} is as wide as the theme park`).toBeGreaterThan(gen().width);
+    }
+  });
+
+  it('shows a crowd and a strip of pitch inside the stadium bowl', () => {
+    const s = BUILDINGS.stadium();
+    expect(s.width).toBeGreaterThan(110);
+    expect(usesIndex(s, C.green)).toBe(true);
+    expect(usesIndex(s, C.slateDark)).toBe(true);
+    // the floodlights and the scoreboard stand clear above the roofline
+    expect(countRowPixels(s, 3)).toBeGreaterThan(20);
+  });
+
+  it('builds Corpo taller than anything else and taller than it is wide', () => {
+    const c = BUILDINGS.corpo();
+    expect(c.height).toBeGreaterThan(c.width);
+    for (const [name, gen] of entries) {
+      if (name === 'corpo') continue;
+      expect(c.height, `${name} is as tall as Corpo`).toBeGreaterThan(gen().height);
+    }
+  });
+
+  it('caps the government hall with a dome that clears the parapet', () => {
+    const g = BUILDINGS.government();
+    expect(usesIndex(g, C.teal)).toBe(true);
+    // the dome is drawn in the top pad, well above the roof band
+    expect(countRowPixels(g, 8)).toBeGreaterThan(8);
+    expect(countRowPixels(g, 8)).toBeLessThan(g.width / 2);
+  });
+
+  it('gives the pet store a teal front, an orange awning and a lit tank', () => {
+    const p = BUILDINGS.pet_store();
+    expect(usesIndex(p, C.teal)).toBe(true);
+    expect(usesIndex(p, C.orange)).toBe(true);
+    expect(usesIndex(p, C.glassDark)).toBe(true);
+  });
+
+  it('gives the research lab hazard stripes and a lit interior', () => {
+    const r = BUILDINGS.research_lab();
+    expect(usesIndex(r, C.yellow)).toBe(true);
+    expect(usesIndex(r, C.teal)).toBe(true);
   });
 
   it('honours house parameters', () => {
@@ -259,7 +334,7 @@ describe('location recipes', () => {
     expect(s.width).toBeGreaterThanOrEqual(MIN_SPAN);
     expect(s.width).toBeLessThanOrEqual(MAX_SPAN);
     expect(s.height).toBeGreaterThanOrEqual(MIN_SPAN);
-    expect(s.height).toBeLessThanOrEqual(MAX_SPAN);
+    expect(s.height).toBeLessThanOrEqual(MAX_HEIGHT);
     expect(countPixels(s)).toBeGreaterThan(s.width * s.height * 0.3);
   });
 

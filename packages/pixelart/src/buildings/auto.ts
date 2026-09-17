@@ -9,7 +9,7 @@
 import { C } from '../palette';
 import type { Sprite } from '../types';
 import { box, hline, put, rect, vline } from '../surface';
-import { drawTextCentred } from '../font';
+import { drawTextCentred, measureText } from '../font';
 import { groundShadow, haloBlit } from '../parts/common';
 import { plinth, wall } from '../parts/walls';
 import { roofFlat } from '../parts/roofs';
@@ -65,7 +65,8 @@ export function auto(params?: Params): Sprite {
   // --- the big sign on its pole over the lot -------------------------------
   const poleX = f.x + 20;
   const boardH = 22;
-  const boardW = lotW - 4;
+  // wide enough for the name and its slogan, whatever the lot is
+  const boardW = Math.min(f.w, Math.max(lotW - 4, measureText(name, { spacing: 1 }) + 10, measureText('NO LEMONS', { spacing: 1 }) + 10));
   rect(t, poleX, boardH, 3, lotY - boardH + 2, C.metalDark);
   vline(t, poleX, boardH, lotY - boardH + 2, C.metal);
   vline(t, poleX + 2, boardH, lotY - boardH + 2, C.ink);

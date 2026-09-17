@@ -14,6 +14,7 @@ import type { PixelBuildingRef } from '../types';
 export const LOCATION_RECIPES: Record<string, PixelBuildingRef> = {
   // --- civic and transport -------------------------------------------------
   bus_depot: { kind: 'bus_depot', params: { sign: 'BUS' } },
+  bus_station: { kind: 'bus_depot', params: { sign: 'BUS' } },
   employment: { kind: 'employment', params: { sign: 'EMPLOYMENT' } },
   rent_office: { kind: 'rent_office', params: { sign: 'RENT', sign2: 'OFFICE' } },
   bank: { kind: 'bank', params: { sign: 'BANK' } },
@@ -38,7 +39,7 @@ export const LOCATION_RECIPES: Record<string, PixelBuildingRef> = {
   // --- leisure -------------------------------------------------------------
   park: { kind: 'park', params: { sign: 'RIVERSIDE', sign2: 'PARK' } },
   gym: { kind: 'gym', params: { sign: 'FLEX FACTORY' } },
-  cinema: { kind: 'cinema', params: { sign: 'BIJOU', sign2: 'NOW SHOWING' } },
+  cinema: { kind: 'cinema', params: { sign: 'MOVIES', sign2: 'NOW SHOWING' } },
   lookout: { kind: 'lookout', params: { sign: 'LOOKOUT' } },
 
   // --- work ----------------------------------------------------------------
@@ -56,12 +57,21 @@ export const LOCATION_RECIPES: Record<string, PixelBuildingRef> = {
   },
   house_lake: {
     kind: 'house',
-    params: { wall: 'white', roof: 'blue', roofShape: 'hip', storeys: 1, garage: false },
+    params: { style: 'modern', wall: 'white', roof: 'slate', garage: true },
   },
   house_hill: {
     kind: 'house',
     params: { wall: 'white', roof: 'blueDark', roofShape: 'hip', storeys: 2, garage: true },
   },
+
+  // --- closed lots ---------------------------------------------------------
+  // No interior in the sim yet; on the map they are finished buildings.
+  corpo: { kind: 'corpo', params: { sign: 'CORPO', sign2: 'CORPO LTD.' } },
+  stadium: { kind: 'stadium', params: { sign: 'RIVERTON', sign2: 'STADIUM' } },
+  government: { kind: 'government', params: { sign: 'GOVERNMENT' } },
+  research_lab: { kind: 'research_lab', params: { sign: 'RESEARCH LAB' } },
+  theme_park: { kind: 'theme_park', params: { sign: 'THEME PARK' } },
+  pet_store: { kind: 'pet_store', params: { sign: 'PET STORE' } },
 };
 
 /** The recipe for a location id, falling back to a plain house. */

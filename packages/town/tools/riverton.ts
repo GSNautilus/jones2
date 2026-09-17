@@ -32,7 +32,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { buildFromRef } from '../../pixelart/src/index';
+import { NATURE, PROPS, buildFromRef } from '../../pixelart/src/index';
 import type { Decor, RoadKind, Town, TownEdge, TownNode } from '../src/types';
 import { type Pt, type Rect, frange, mulberry32, resample, sampleCurve } from './geom';
 import {
@@ -522,15 +522,27 @@ function inCanvas(p: Pt, pad = 10): boolean {
   return p.x >= pad && p.x <= W - pad && p.y >= pad && p.y <= H - pad;
 }
 
-function onBuilding(p: Pt): boolean {
-  return BUILDING_BOXES.some((b) => p.x >= b.x - 4 && p.x <= b.x + b.w + 4 && p.y >= b.y - 4 && p.y <= b.y + b.h + 4);
+/**
+ * The box a prop sprite covers when anchored at `p`. Props are anchored at
+ * their base, so a tree's canopy rises well above its anchor and a point
+ * test alone lets trees stand in front of doors and over signs.
+ */
+function propBox(kind: string, p: Pt): Rect {
+  const s = NATURE[kind] ?? PROPS[kind];
+  if (!s) return { x: p.x - 2, y: p.y - 2, w: 4, h: 4 };
+  return { x: p.x - s.anchorX, y: p.y - s.anchorY, w: s.width, h: s.height };
 }
 
-function isFree(p: Pt): boolean {
+function onBuilding(p: Pt, kind = ''): boolean {
+  const box = inflate(propBox(kind, p), 3);
+  return BUILDING_BOXES.some((b) => rectsOverlap(box, b));
+}
+
+function isFree(p: Pt, kind = ''): boolean {
   return (
     inCanvas(p) &&
     !pointNearRoad({ x: p.x, y: p.y, w: 1, h: 1 }) &&
-    !onBuilding(p) &&
+    !onBuilding(p, kind) &&
     !inWater(courses, p, 6) &&
     !inPond(p)
   );
@@ -540,13 +552,13 @@ function inPond(p: Pt): boolean {
   return PONDS.some(([x, y, w, h]) => p.x >= x - 4 && p.x <= x + w + 4 && p.y >= y - 4 && p.y <= y + h + 4);
 }
 
-function nearestFree(p: Pt, maxRadius = 64): Pt | null {
-  if (isFree(p)) return p;
+function nearestFree(p: Pt, kind = '', maxRadius = 64): Pt | null {
+  if (isFree(p, kind)) return p;
   for (let r = 4; r <= maxRadius; r += 4) {
     for (let a = 0; a < 360; a += 20) {
       const rad = (a * Math.PI) / 180;
       const cand = { x: p.x + Math.cos(rad) * r, y: p.y + Math.sin(rad) * r };
-      if (isFree(cand)) return cand;
+      if (isFree(cand, kind)) return cand;
     }
   }
   return null;
@@ -560,7 +572,7 @@ for (const [x, y, w, h] of PONDS) decor.push({ kind: 'water', x, y, w, h });
 for (const a of AREAS) decor.push({ kind: a.kind, x: a.x, y: a.y, w: a.w, h: a.h });
 
 function pushProp(kind: string, x: number, y: number): boolean {
-  const p = nearestFree({ x, y });
+  const p = nearestFree({ x, y }, kind);
   if (!p) return false;
   decor.push({ kind, x: Math.round(p.x), y: Math.round(p.y) });
   return true;
@@ -690,7 +702,7 @@ let attempts = 0;
 while (fillers < FILLER_TARGET && attempts < FILLER_TARGET * 80) {
   attempts++;
   const p = { x: frange(rng, MARGIN, W - MARGIN), y: frange(rng, MARGIN, H - MARGIN) };
-  if (!isFree(p)) continue;
+  if (!isFree(p, 'tree_round')) continue;
   decor.push({ kind: pickFiller(), x: Math.round(p.x), y: Math.round(p.y) });
   fillers++;
 }
