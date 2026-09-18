@@ -10,3 +10,5 @@ apps/balance/out/
 *.stackdump
 tools/sci/soundfont/
 art/audio/wav/
+Jones3x/
+art/audio/voice/wav/

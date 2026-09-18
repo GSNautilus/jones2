@@ -11,7 +11,7 @@
  *
  * Only what the sound extraction needs is implemented: stored and LZW1.
  */
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { unpackLZW1 } from './lzw1';
 
@@ -28,6 +28,10 @@ export const TYPE_NAMES: Record<number, string> = {
   9: 'patch',
   10: 'bitmap',
   11: 'palette',
+  12: 'cdaudio',
+  13: 'audio',
+  14: 'sync',
+  15: 'message',
 };
 
 export const SOUND = 4;
@@ -48,14 +52,20 @@ export interface ResourceHeader {
   method: number;
 }
 
-export function readMap(bytes: Uint8Array): MapEntry[] {
+/**
+ * The location word packs the volume number into its top bits: 6 of them
+ * (26-bit offsets) in the floppy release, 4 (28-bit offsets) in the CD
+ * release. `offsetBits` picks which.
+ */
+export function readMap(bytes: Uint8Array, offsetBits: 26 | 28 = 26): MapEntry[] {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  const mask = offsetBits === 26 ? 0x3ffffff : 0xfffffff;
   const out: MapEntry[] = [];
   for (let i = 0; i + 6 <= bytes.length; i += 6) {
     const id = view.getUint16(i, true);
     const loc = view.getUint32(i + 2, true);
     if (id === 0xffff && loc === 0xffffffff) break;
-    out.push({ type: id >> 11, number: id & 0x7ff, volume: loc >>> 26, offset: loc & 0x3ffffff });
+    out.push({ type: id >> 11, number: id & 0x7ff, volume: loc >>> offsetBits, offset: loc & mask });
   }
   return out;
 }
@@ -75,13 +85,38 @@ export function readHeader(vol: Uint8Array, offset: number): ResourceHeader {
 /** A game directory opened once: the map and every volume it names. */
 export class GameFiles {
   readonly entries: MapEntry[];
-  private readonly volumes = new Map<number, Uint8Array>();
+  private volumes = new Map<number, Uint8Array>();
 
   constructor(readonly dir: string) {
-    this.entries = readMap(new Uint8Array(readFileSync(join(dir, 'RESOURCE.MAP'))));
-    for (const v of new Set(this.entries.map((e) => e.volume))) {
-      this.volumes.set(v, new Uint8Array(readFileSync(join(dir, `RESOURCE.${String(v).padStart(3, '0')}`))));
+    const mapBytes = new Uint8Array(readFileSync(join(dir, 'RESOURCE.MAP')));
+    // Pick the offset width whose volumes all exist and whose headers agree.
+    let chosen: MapEntry[] | null = null;
+    for (const bits of [26, 28] as const) {
+      const entries = readMap(mapBytes, bits);
+      const vols = new Map<number, Uint8Array>();
+      let ok = true;
+      for (const v of new Set(entries.map((e) => e.volume))) {
+        const path = join(dir, `RESOURCE.${String(v).padStart(3, '0')}`);
+        if (!existsSync(path)) {
+          ok = false;
+          break;
+        }
+        vols.set(v, new Uint8Array(readFileSync(path)));
+      }
+      if (!ok) continue;
+      const sample = entries.slice(0, 8);
+      if (!sample.every((e) => {
+        const vol = vols.get(e.volume)!;
+        if (e.offset + 8 > vol.length) return false;
+        const h = readHeader(vol, e.offset);
+        return h.type === e.type && h.number === e.number;
+      })) continue;
+      chosen = entries;
+      this.volumes = vols;
+      break;
     }
+    if (!chosen) throw new Error(`${dir}: could not read RESOURCE.MAP with 26- or 28-bit offsets`);
+    this.entries = chosen;
   }
 
   ofType(type: number): MapEntry[] {

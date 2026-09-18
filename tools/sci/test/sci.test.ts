@@ -124,3 +124,33 @@ describe.skipIf(!existsSync(GAME))('the real game files', () => {
     }
   });
 });
+
+describe('CD speech', () => {
+  it('reads the 10-byte audio map entries and stops at the terminator', async () => {
+    const { readAudioMap, wav8 } = await import('../src/voices');
+    const bytes = Uint8Array.from([
+      0x0a, 0x00, 0x00, 0x00, 0x00, 0x20, 0x0c, 0xe1, 0x00, 0x00, // number 10, offset 0, flag 0x20, size 57612
+      0x0b, 0x00, 0x00, 0xe8, 0x00, 0x21, 0x76, 0xb1, 0x00, 0x00, // number 11, offset 59392, flag 0x21, size 45430
+      0xff, 0xff, 0, 0, 0, 0, 0, 0, 0, 0,
+    ]);
+    expect(readAudioMap(bytes)).toEqual([
+      { number: 10, offset: 0, flag: 0x20, size: 57612 },
+      { number: 11, offset: 59392, flag: 0x21, size: 45430 },
+    ]);
+    const wav = wav8(Uint8Array.from([0x80, 0x90, 0x70]), 11025);
+    expect(Buffer.from(wav.subarray(0, 4)).toString('latin1')).toBe('RIFF');
+    expect(wav.length).toBe(44 + 3);
+    expect(new DataView(wav.buffer).getUint32(24, true)).toBe(11025);
+    expect(new DataView(wav.buffer).getUint16(34, true)).toBe(8);
+  });
+});
+
+const CD = 'C:/Users/Nautilus/Projects/Jones 2/Jones3x/CD';
+
+describe.skipIf(!existsSync(CD))('the CD edition files', () => {
+  it('opens the map with 28-bit offsets and finds the text resources', () => {
+    const game = new GameFiles(CD);
+    expect(game.ofType(3).length).toBe(41);
+    expect(game.unpack(game.ofType(3)[0]!).length).toBeGreaterThan(0);
+  });
+});
