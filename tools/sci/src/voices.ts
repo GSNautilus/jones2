@@ -1,7 +1,10 @@
 /**
  * The CD-ROM edition's speech: `audio001.map` lists every spoken line as a
- * 10-byte entry (number u16, offset u32 whose top byte is a flag, size u32)
- * into `audio001.002`, which is raw 8-bit unsigned mono PCM. The map ends
+ * 10-byte entry (number u16, offset u32 whose top nibble is a flag and whose
+ * low 28 bits are the offset, size u32) into `audio001.002`, which is raw
+ * 8-bit unsigned mono PCM. The volume is 23 MB, so bit 24 of the offset is in
+ * use: reading only 24 bits sliced lines 516+ from the wrong place (they came
+ * out as other clerks' speech cut mid-sentence). The map ends
  * with an 0xFFFF number. `cdaudio.map` is the same list in Redbook frames for
  * playing from the disc; the hard-disk copy is what we read.
  *
@@ -30,7 +33,7 @@ export function readAudioMap(bytes: Uint8Array): VoiceEntry[] {
     const number = view.getUint16(i, true);
     if (number === 0xffff) break;
     const raw = view.getUint32(i + 2, true);
-    out.push({ number, offset: raw & 0xffffff, flag: raw >>> 24, size: view.getUint32(i + 6, true) });
+    out.push({ number, offset: raw & 0x0fffffff, flag: raw >>> 28, size: view.getUint32(i + 6, true) });
   }
   return out;
 }

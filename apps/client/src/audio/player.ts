@@ -8,9 +8,12 @@
  * as soon as it mounts.
  */
 import { STINGERS, fileFor, resolveMap, type NamesFile, type SfxKey, type SoundMap } from './map';
+import { EMPTY_VOICES, voiceFile, type VoicesFile } from './voices';
 
 export const FADE_SECONDS = 2;
 export const REST_SECONDS = 5;
+/** Music volume while a clerk speaks, as a fraction of the music setting. */
+export const DUCK = 0.4;
 const STORAGE = 'jones2-audio';
 
 export interface AudioSettings {
@@ -19,9 +22,11 @@ export interface AudioSettings {
   music: number;
   /** 0..1 */
   sfx: number;
+  /** 0..1, the clerks' spoken lines */
+  voice: number;
 }
 
-const DEFAULTS: AudioSettings = { muted: false, music: 0.5, sfx: 0.8 };
+const DEFAULTS: AudioSettings = { muted: false, music: 0.5, sfx: 0.8, voice: 0.9 };
 
 export function loadSettings(): AudioSettings {
   try {
@@ -72,6 +77,7 @@ export interface AudioLike {
 
 export class AudioPlayer {
   private map: SoundMap = { sfx: {}, music: [], unmatched: [] };
+  private voiceMap: VoicesFile = EMPTY_VOICES;
   private settings = loadSettings();
   /** The one music element: a rotation piece or a stinger. Never two. */
   private music: AudioLike | null = null;
@@ -81,6 +87,10 @@ export class AudioPlayer {
   private fadeTimer: ReturnType<typeof setInterval> | null = null;
   private fadeStart = 0;
   private stopped = true;
+  /** The one voice element; a new line cuts the old. */
+  private voice: AudioLike | null = null;
+  /** A stinger that arrived while a clerk was speaking; plays when the line ends. */
+  private pendingStinger: number | null = null;
   private readonly random: () => number;
   private readonly createAudio: (src: string) => AudioLike;
 
@@ -90,8 +100,8 @@ export class AudioPlayer {
   }
 
   /** What is playing now, for tests and the report. */
-  get state(): { phase: Phase; src: string | null } {
-    return { phase: this.phase, src: this.music?.src ?? null };
+  get state(): { phase: Phase; src: string | null; voice: string | null } {
+    return { phase: this.phase, src: this.music?.src ?? null, voice: this.voice?.src ?? null };
   }
 
   /** Stop and drop the current music element, whatever it is. */
@@ -119,6 +129,22 @@ export class AudioPlayer {
     return this.map;
   }
 
+  /** Load `voices.json` (the labelled spoken lines). Silent on failure. */
+  async loadVoices(url = 'audio/voices.json'): Promise<VoicesFile> {
+    try {
+      const res = await fetch(url, { cache: 'no-cache' });
+      if (!res.ok) throw new Error(String(res.status));
+      this.voiceMap = { ...EMPTY_VOICES, ...((await res.json()) as Partial<VoicesFile>) };
+    } catch {
+      this.voiceMap = EMPTY_VOICES;
+    }
+    return this.voiceMap;
+  }
+
+  get voices(): VoicesFile {
+    return this.voiceMap;
+  }
+
   get current(): AudioSettings {
     return { ...this.settings };
   }
@@ -131,7 +157,60 @@ export class AudioPlayer {
   }
 
   private musicVolume(): number {
-    return this.settings.muted ? 0 : this.settings.music;
+    if (this.settings.muted) return 0;
+    return this.settings.music * (this.voice ? DUCK : 1);
+  }
+
+  // ---- speech --------------------------------------------------------------
+
+  /**
+   * A clerk's spoken line: one at a time (a new line cuts the old), the music
+   * ducked to DUCK while it plays and restored when it ends. Silent while
+   * muted. A stinger asked for during the line waits for it.
+   */
+  speak(line: number | number[]): void {
+    if (this.settings.muted) return;
+    const [first, ...rest] = Array.isArray(line) ? line : [line];
+    if (first === undefined) return;
+    this.dropVoice();
+    const a = this.createAudio(voiceFile(first));
+    a.volume = this.settings.voice;
+    this.voice = a;
+    this.applyMusicVolume();
+    const done = () => {
+      if (this.voice !== a) return;
+      this.voice = null;
+      if (rest.length) {
+        this.speak(rest); // the next sentence of the same answer
+        return;
+      }
+      this.applyMusicVolume();
+      const n = this.pendingStinger;
+      this.pendingStinger = null;
+      if (n !== null) this.stinger(n);
+    };
+    a.addEventListener('ended', done);
+    a.addEventListener('error', done);
+    void a.play().catch(done);
+  }
+
+  /** Stop the clerk mid-sentence (the window closed). */
+  hush(): void {
+    this.dropVoice();
+    this.applyMusicVolume();
+  }
+
+  private dropVoice(): void {
+    if (!this.voice) return;
+    const a = this.voice;
+    this.voice = null;
+    a.pause();
+    a.src = '';
+  }
+
+  /** Re-apply the music level after a duck or un-duck, without touching a fade. */
+  private applyMusicVolume(): void {
+    if (this.music && this.phase === 'playing' && !this.fadeTimer) this.music.volume = this.musicVolume();
   }
 
   // ---- sound effects -------------------------------------------------------
@@ -156,6 +235,10 @@ export class AudioPlayer {
    * after the usual rest. While a stinger plays nothing else may start.
    */
   private stinger(n: number): void {
+    if (this.voice) {
+      this.pendingStinger = n;
+      return;
+    }
     this.clearTimers();
     this.dropMusic();
     this.phase = 'stinger';
@@ -192,6 +275,8 @@ export class AudioPlayer {
     this.stopped = true;
     this.clearTimers();
     this.dropMusic();
+    this.dropVoice();
+    this.pendingStinger = null;
     this.phase = 'idle';
   }
 

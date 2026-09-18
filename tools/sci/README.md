@@ -28,19 +28,21 @@ needs `ffmpeg` on the PATH for the OGG encode.
 
 The 1992 CD-ROM release adds what the floppy lacks:
 
-- **Speech.** `audio001.map` (10-byte entries: number, offset with a flag byte, size) into
-  `audio001.002`, raw 8-bit unsigned mono PCM; `cdaudio.map` is the same list in Redbook frames.
-  533 lines, 34 minutes. `voices.ts` writes them out:
+- **Speech.** `audio001.map` (10-byte entries: number u16, offset u32 whose low 28 bits are the
+  offset and top nibble a flag, size u32) into `audio001.002`, raw 8-bit unsigned mono PCM at
+  11025 Hz (not stored; confirmed by transcription); `cdaudio.map` is the same list in Redbook
+  frames. 533 lines, 34 minutes. `voices.ts` writes them out:
 
   ```powershell
   npx tsx tools/sci/src/voices.ts "C:\Users\Nautilus\Projects\Jones 2\Jones3x\CD" art\audio\voice
-  Start-Process art\audio\voice\runs.html
+  Start-Process art\audio\voice\labels.html
   ```
 
-  The sample rate is not stored; 11025 Hz is assumed (pass another rate as the third argument).
-  Most clerk greetings exist only as speech on the CD (no text), so `runs.html` groups the lines by
-  consecutive number, one clerk per run, for naming by ear. The `sync` resources (type 14, one per
-  line) are lip-sync data for the portraits, not used yet.
+  The lines are labelled (which clerk, which greeting or response) in
+  `apps/client/public/audio/voices.json`; `voices/` holds the transcribe-and-match pipeline that
+  produced it and `docs/VOICES.md` explains the numbering. `labels.html` lists every line with its
+  transcript and label for a spot-check by ear. The `sync` resources (type 14, one per line) are
+  lip-sync data for the portraits, not used yet.
 - **General MIDI music.** The CD ships the sounds as `NNNN.snd` patch files (1000 + number) with a
   GM track, so `extract.ts` run on the CD directory with `gm` layers better arrangements over the
   floppy set (sound 100 exists only on the floppy).
@@ -55,7 +57,11 @@ The 1992 CD-ROM release adds what the floppy lacks:
 - `src/midi.ts` — type 1 SMF writer at 60 PPQ / 1 s per quarter (one pulse =
   one SCI tick), and the MT-32 preset → General MIDI program map.
 - `src/extract.ts`, `src/render.ts`, `src/voices.ts` — the commands. `src/probe*.ts` dump
-  parsed events, the CD's text resources and the .snd files, for debugging.
+  parsed events, the CD's text resources and the .snd files, for debugging; `src/dump-text.ts`
+  writes the CD's text resources as JSON.
+- `voices/transcribe.py`, `match.py`, `build.py` — the speech labelling pipeline (Python, `codex`
+  env with `faster-whisper` and `rapidfuzz`): whisper transcripts → fuzzy match to the wiki and CD
+  texts → run-structure inference → `overrides.json` hand labels → `voices.json` + `labels.html`.
 - `art/audio/midi/*.mid` + `manifest.json`, `art/audio/ogg/*.ogg`,
   `art/audio/index.html` (audition page), `art/audio/names.json` (your names).
 

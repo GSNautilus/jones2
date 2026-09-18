@@ -1,137 +1,125 @@
-# Voice lines from the CD-ROM edition — handoff
+# Voice lines from the CD-ROM edition
 
-Brief for a new session or agent. Goal: label the 533 spoken lines extracted from the 1992
-CD-ROM release of *Jones in the Fast Lane* and wire them into the classic client so the clerk
-speaks the greeting shown in the bubble, plus the responses (hired, refused, bought, and so on).
+The 1992 CD-ROM release of *Jones in the Fast Lane* has 533 spoken lines. They are extracted,
+labelled and wired into the classic client: the clerk speaks the greeting the bubble shows, answers
+each action (hired, refused, bought, rent paid…), and the weekend and news cards are read aloud.
+This document records how the numbering works, how the labels were made, and what is left.
 
-Written 2026-09-18. State of play, what is known about the data, and three ways to label the
-lines without listening to all 533 by hand.
+Labelled 2026-09-18 (transcribe-and-match, see below). Nothing is unresolved; a human has not yet
+spot-checked the lines by ear.
 
 ## Where things are
 
 - `Jones3x/CD/` — the installed CD-ROM edition (git-ignored, Activision copyright, never commit).
-  `audio001.map` + `audio001.002` hold the speech; `cdaudio.map` is the same list in Redbook
-  frames; `resource.map` + `resource.001` hold scripts, texts, views, and 543 `sync` resources
-  (type 14) — lip-sync timing, one per spoken line.
-- `tools/sci/` — the extractor workspace (`@jones2/sci`). `src/voices.ts` reads the audio map
-  (10-byte entries: number u16, offset u24 + flag byte, size u32; terminator 0xFFFF) and slices
-  raw 8-bit unsigned mono PCM out of the volume. `src/resources.ts` reads the map/volumes (both
-  offset widths), `src/lzw1.ts` decompresses (the CD is all stored, method 0). `README.md` there
-  has the commands. `src/probe-cd.ts` lists text resources and audio runs; `src/probe-snd.ts`
-  the CD's music files.
-- `art/audio/voice/` — the output: `ogg/line_NNN.ogg` (533 files, 11 MB, committed),
-  `wav/` (git-ignored), `manifest.json` (number, file, seconds, flag), `index.html` (all lines)
-  and `runs.html` (lines grouped by consecutive-number run, with a location picker per run).
-- `apps/client/src/audio/` — the client's audio: `map.ts` (moments → sound numbers from
-  `public/audio/names.json`), `events.ts` (player-log event → moment), `player.ts` (SFX, music
-  rotation, stingers; one music element at a time). Speech is NOT wired yet.
-- `packages/sim/src/content/classic/locations.ts` — the wiki's clerk quotes per location
-  (`greetings: string[]`, `quotes: Record<string, string[]>`), extracted verbatim from
-  `docs/original-rules.md`. These are the texts the lines should be matched to.
+  `audio001.map` + `audio001.002` hold the speech; `resource.map` + `resource.001` the scripts,
+  texts and 543 `sync` (lip-sync) resources.
+- `tools/sci/src/voices.ts` — the extractor. Map entries are 10 bytes: number u16, **offset u32
+  whose low 28 bits are the offset and top nibble a flag (always 2)**, size u32. The volume is
+  23 MB, so bit 24 of the offset matters: the first extraction read only 24 bits and sliced lines
+  516–665 and the 900s from 16 MB too early (they came out as other clerks' speech cut
+  mid-sentence, which is what the old "flag 0x21" note was seeing). Fixed; the entries now tile the
+  volume exactly. `src/dump-text.ts` writes the CD's text resources as JSON.
+- `art/audio/voice/` — `ogg/line_NNN.ogg` (533 files, 11 MB), `manifest.json`, `transcripts.json`
+  (whisper), `labels.json` (every line: transcript, label, match score), `overrides.json` (the hand
+  labels), `cd-texts.json`, `locs.json` (the classic locations table as JSON, input to the
+  matcher), `labels.html` (every line with player, transcript and label: the spot-check page),
+  `index.html` (the plain audition page). `runs.html` is superseded by `labels.html`.
+- `tools/sci/voices/` — `transcribe.py`, `match.py`, `build.py`: the pipeline (commands below).
+- `apps/client/public/audio/voices.json` — the result the client loads; `public/audio/voice/` the
+  OGGs it serves (copied from `art/audio/voice/ogg`).
+- `apps/client/src/audio/voices.ts` — pure: `greetingLine`, `quoteLine`, `quoteGroupsFor`
+  (log event → quote groups), `refusalGroupFor` (sim refusal → group), `cardLine` (card text →
+  line). `player.ts` has `speak(line | line[])` and `hush()`: one voice at a time, music ducked to
+  40 % while a clerk talks, stingers wait for the line to end, silent while muted, a `voice` volume
+  setting. `ClassicScreen.tsx` speaks the greeting when a window opens, the answer for every new
+  log entry and every refusal while a window is open, and the weekend/news cards; closing the
+  window hushes.
 
-Re-extract if needed (PowerShell, repo root):
+## The numbering
 
-```powershell
-npx tsx tools/sci/src/voices.ts "C:\Users\Nautilus\Projects\Jones 2\Jones3x\CD" art\audio\voice
-```
+Consecutive numbers are one text list in order. Runs and what they are:
 
-## What is known about the 533 lines
+| lines | what | count |
+|---|---|---|
+| 10–18, 19–39, 40 | QT Clothing greetings, "Bought an Item", not enough cash | 9 + 21 + 1 |
+| 50–57 | Factory greetings | 8 |
+| 70–77, 78–85, 86–92 | Pawn Shop greetings, thanks, refusals/offer | 8 + 8 + 7 |
+| 100–115, 116–146, 147 | Socket City greetings, bought, not enough cash | 16 + 31 + 1 |
+| 160–167, 168–172, 173–177, 178–182 | Rent Office greetings, renting security, renting low-cost, pay rent | 8 + 5 + 5 + 5 |
+| 183–198 | Rent Office: not enough cash, extension approved (184, 186) / rejected (185, 187–190), no extension needed, already live here, prepaid rent, "your decision", pay promptly | 16 |
+| 210, 370 | "No time is left to relax" (Low-Cost, Security) | 2 |
+| 220–222 | Broker: T-bill fee, no shares, not enough cash | 3 |
+| 230–289 | the 60 weekend texts (CD text 232, in order) | 60 |
+| 300–309, 310–324 | Bank greetings; not enough cash, deposit/withdraw, loan offers/approved/rejected, no time | 10 + 15 |
+| 330–340, 341–356, 357 | Z-Mart greetings, bought, not enough cash | 11 + 16 + 1 |
+| 380–401, 402–409 | Hi-Tech U greetings; no time, enrol first, no more classes, enrolled, offer, pick a class, declined, not enough cash | 22 + 8 |
+| 420–437 | Employment: asking less/same, raise approved/rejected, got the job, closing, greetings (426–432), not hired + three reasons, no openings | 18 |
+| 460–522 | the 63 headlines (CD text 215, in order) | 63 |
+| 530–544, 545–576, 577, 578 | Black's Market greetings (15: the wiki has 14), bought, not enough cash, no time for the paper | 49 |
+| 590–593 | the four goal explanations (Wealth, Happiness, Education, Career) | 4 |
+| 600 | "Thank you for playing… play another game?" | 1 |
+| 610–629, 630–664, 665 | Monolith greetings, bought, not enough cash | 20 + 35 + 1 |
+| 900 + n, 920 + n, 940 + n, 960 + n, 980 + n | per-workplace work messages: not dressed, fired, work habits, no time to work, wages garnished; n = the location index in CD text 700 (1 Rent Office, 3 Black's, 4 Bank, 5 Factory, 7 Hi-Tech U, 8 Socket City, 9 QT, 10 Monolith, 11 Z-Mart) | 45 |
 
-- Numbers 10–991 with gaps. **Consecutive runs are one clerk or one kind of message**:
-  `10-40 (31), 50-57 (8), 70-92 (23), 100-147 (48), 160-198 (39), 210, 220-222, 230-289 (60),
-  300-324 (25), 330-357 (28), 370, 380-409 (30), 420-437 (18), 460-522 (63), 530-578 (49),
-  590-593, 600, 610-665 (56)`, then five groups in the 900s with the same shape
-  (`901, 903-905, 907-911` / `921…` / `941…` / `961…` / `981…`), likely per-player or
-  per-apartment variants.
-- Lines 516–665 and the 900s carry map flag `0x21` instead of `0x20`; the rest `0x20`. Unknown
-  meaning (maybe a later recording batch); worth checking whether those sound different.
-- **Sample rate is not stored.** 11025 Hz is assumed. Verify by ear on `index.html`: too deep
-  and slow means the true rate is higher (22050), too high and fast means lower. Re-run
-  `voices.ts` with the rate as the third argument if wrong.
-- **Text exists on the CD only for some clerks.** Text resources (type 3) hold: 209 QT Clothing
-  (31 strings), 210 Monolith (56), 205 Factory (8), 215 news headlines (65), 232 weekend events
-  (62), 700 items/food (87), 231 (22, job titles?), plus UI strings. Run lengths match those
-  counts exactly or nearly: **QT ↔ 10-40, Factory ↔ 50-57, Monolith ↔ 610-665, weekend ↔ 230-289,
-  news ↔ 460-522, text 700 ↔ 100-147 + 160-198, text 231 ↔ 70-92.** Order within a run follows
-  the text's order (non-spoken entries like "DUMMY"/"Filler"/format strings are skipped, which
-  explains the small count differences).
-- The greetings of Employment, Z-Mart, Socket City, Black's Market, Hi-Tech U, Bank, Pawn Shop
-  and Rent Office appear in NO text or script string on the CD: they are speech-only. Their
-  runs are among `300-324, 330-357, 380-409, 420-437, 530-578` and the singletons. The wiki
-  (and therefore `classic/locations.ts`) has their texts, in what is very probably the game's
-  own order: Employment 7 greetings, Z-Mart 11, Socket City 16, Black's 14, Hi-Tech U 22, Bank
-  4+, etc. Each run = greetings first, then that clerk's responses (the wiki's other quote
-  sections per location, e.g. "Pay Rent", "Extension Approved").
+`voices.json` keys the greetings by location id (index = the wiki's greeting index) and the
+responses by location id and group name: the wiki's subheadings where it has them ("Bought an
+Item", "Pay Rent", "Extension Approved"…) and the CD's own groups otherwise ("Got the Job", "No
+Openings", "Not Enough Cash", "No Time to Work", "Fired", "Thanks"…). Cards carry their text so
+the client can find the line for whatever the card shows.
 
-## Three ways to label without listening to everything
+## Speech that differs from the text
 
-### 1. Transcribe with a speech recogniser, then match to the wiki texts (recommended)
+Seven lines were recorded with a different joke from the on-screen text (position in the run is
+unambiguous; the transcript is confident). The bubble shows the wiki text, the voice says:
 
-The machine has an RTX 3060 (12 GB) and the `codex` conda env has `torch`, `librosa` and
-`soundfile`; it lacks `whisper`/`faster-whisper`/`rapidfuzz` (install them: `pip install
-faster-whisper rapidfuzz` in the env; `faster-whisper` downloads a model on first use).
+| line | shown | spoken |
+|---|---|---|
+| 14 | QT greeting 4: "open 24 hours...we never clothes!" | "…where you're sure to find something that suits you." |
+| 26 | QT bought 7: "You can't go wong at QT." | "Dress for success with our expert advice." |
+| 383 | Hi-Tech U greeting 3: "never be bored of education" | "A chalk mark on your blackboard of success." |
+| 386 | Hi-Tech U greeting 6: "genuine cheepskin" | "Where we prepare you for yesterday, tomorrow." |
+| 431 | Employment greeting 5: "your resume zits in our files" | "…where you can always spot a winner." |
+| 542, 543 | Black's greetings 12, 13: "the grosser grocer", "Hole Milk" | "Our prunes will eliminate all your problems.", "the store with a little cheesecake." |
+| 560 | Black's bought 15: "Next time, give peas a chance!" | "Remember, we're always at your disposal." |
 
-Plan:
-1. Load each `art/audio/voice/wav/line_NNN.wav`, resample 11025 → 16000 with `librosa`, run
-   `faster-whisper` (`large-v3` or `medium.en`, GPU) with `language='en'`, keep the text and the
-   average log-probability. Expect imperfect transcripts: the audio is 8-bit and the lines are
-   short jokes with made-up names (ACNE Employment, Monolith Burger, Howie Fitzhugh).
-2. Build the candidate text list: every greeting and quote in `classic/locations.ts` (tag each
-   with location + quote group + index), plus the CD text resources' strings (dump them with
-   `probe-cd.ts`, or extend it) for weekend/news/items.
-3. Match each transcript to the best candidate with `rapidfuzz` (token-set ratio on lowercased,
-   punctuation-stripped text). Accept ≥ 80; flag the rest.
-4. **Exploit the run structure to fix the misses**: within a run, lines are in text order, so
-   once a few confident matches anchor a run to a location's greeting list, the rest follow by
-   position (line = run start + index). Report every run as "location, offset of greeting 0,
-   count", and only the unresolved lines for a human.
-5. Write the result to `apps/client/public/audio/voices.json`:
-   ```json
-   {
-     "rate": 11025,
-     "greetings": { "employment": [301, 302, 303, 304, 305, 306, 307], "zmart": [...] },
-     "quotes": { "rent_office": { "Pay Rent": [345, 346], "Extension Approved": [347] } },
-     "unresolved": [370, 600]
-   }
-   ```
-   Keep line numbers, not filenames; `line_NNN.ogg` is derived.
+Black's Market has a 15th greeting with no wiki text, line 544 ("Mr. Schwader to six for check
+approval"), kept under `quotes.blacks_market["Extra Greeting"]` and never played. The weekend
+"baking oatmeal cookies" text differs by one word between the wiki and the CD; `cardLine`
+tolerates that. Decide later whether the bubble texts should follow the recordings.
 
-Verification that does not need ears: every location in `CLASSIC_LOCATIONS` with N greetings
-gets exactly N distinct line numbers; assigned numbers form contiguous runs; no line is used
-twice; the total assigned plus unresolved equals 533. Then a human spot-checks two lines per
-location on `runs.html`.
+## How the labels were made (reproducible)
 
-### 2. Structural inference alone (no recogniser)
+1. Extract: `npx tsx tools/sci/src/voices.ts "…\Jones3x\CD" art\audio\voice` (wav + ogg + manifest).
+2. Transcribe with faster-whisper `large-v3` on the GPU (`codex` env; `pip install faster-whisper
+   rapidfuzz`): `python tools\sci\voices\transcribe.py art\audio\voice\transcripts.json`. About
+   9 minutes for all 533; pass a comma-separated list of numbers as the third argument to redo a
+   few. Transcripts are near-perfect: the 8-bit audio is clean and the actor enunciates.
+3. Match: `python tools\sci\voices\match.py art\audio\voice`. Candidates are every greeting and
+   quote in `classic/locations.ts` (dumped to `locs.json`) plus the CD text resources 232, 215,
+   700, 108 (`cd-texts.json`). Score = 0.6 × token-set ratio + 0.4 × plain ratio; ≥ 78 is
+   confident. Within each run, confident matches vote for (list, offset) and the rest of the list
+   is assigned by position. 456 of 533 matched outright; the position rule and the transcripts
+   settled the rest.
+4. Hand labels for the lines the wiki has no text for (pawn, bank, university, employment, rent
+   office refusals, goals, work messages) are in `overrides.json`, written from the transcripts.
+5. Build: `python tools\sci\voices\build.py art\audio\voice .` writes `voices.json` and
+   `labels.html`.
 
-Match run lengths to quote counts: the text-resource runs are already pinned (list above). For
-the speech-only clerks, the wiki gives greeting counts; a run of length ≥ count whose first
-`count` lines are the greetings is the hypothesis; distinguish clerks with equal counts by
-listening to one line per run (`runs.html` dropdown). This is what `runs.html` is for and it
-needs about 15 listens, not 533. Weaker than method 1 for the response quotes, whose order in
-the run is a guess.
+`apps/client/test/audio/voices-file.test.ts` checks the file: every line used exactly once,
+nothing unresolved, greeting counts equal the wiki's, greeting runs contiguous, every wiki quote
+group fully voiced.
 
-### 3. Script decompilation (most exact, most work)
+## Still to do
 
-The scripts (type 2, uncompressed) call the interpreter's audio kernel with the line numbers,
-next to the text they show (for clerks with text) or the greeting index. Disassembling SCI1
-scripts (SCI Companion on Windows does it) gives the exact number ↔ meaning table, including
-which of the 900-series variants plays when. Worth it only if method 1 leaves many unresolved.
-
-## Wiring into the client (after labelling)
-
-- `player.ts`: add `speak(line: number)`: one voice element at a time (a new line cuts the old),
-  volume from a new `voice` setting, music ducked to ~40% while speech plays and restored after
-  (`timeupdate`/`ended`), never while muted. Stingers should not cut speech; queue them.
-- `ClassicScreen.tsx`: when the window bubble shows greeting `i` of location `loc`
-  (`menu.ts` → `greetingFor(loc, visit)` rotates by visit count), call
-  `audio.speak(voices.greetings[loc][i])`. For outcome text (`say` in `buildLocationWindow`),
-  map the sim's outcome to a quote group (`hired` → "Got the Job", `refused` → "No Openings",
-  rent paid → "Pay Rent", …) and pick the line by the same rotation. Load `voices.json` once
-  in `audio.load()`.
-- Lip sync later: the `sync` resources give mouth timing per line; the portraits would need a
-  mouth-open frame. Park it.
-- Tests: pure `voiceLineFor(loc, greetingIndex)` and the ducking state machine with the
-  fake-audio harness in `apps/client/test/audio/player.test.ts`.
+- A human listens to two lines per location on `labels.html` (the labels are by transcript and
+  position, not by ear).
+- Play a week with sound on: check the ducking level, that the answer lines fit the outcome texts,
+  and whether the reasons after "Sorry, you didn't get the job…" (433 then 434–436) sound right in
+  sequence.
+- Not wired: goal explanations (590–593) on the GOALS screen, "play another game?" (600), the
+  work-habits warning and garnish lines (the sim has no such events yet), the bank's loan-offer
+  lines (the sim has no confirm step), the Pawn Shop's item-specific refusals.
+- Lip sync from the `sync` resources; the portraits need a mouth-open frame.
 
 ## Legal note
 

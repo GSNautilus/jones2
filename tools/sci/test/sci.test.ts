@@ -130,12 +130,12 @@ describe('CD speech', () => {
     const { readAudioMap, wav8 } = await import('../src/voices');
     const bytes = Uint8Array.from([
       0x0a, 0x00, 0x00, 0x00, 0x00, 0x20, 0x0c, 0xe1, 0x00, 0x00, // number 10, offset 0, flag 0x20, size 57612
-      0x0b, 0x00, 0x00, 0xe8, 0x00, 0x21, 0x76, 0xb1, 0x00, 0x00, // number 11, offset 59392, flag 0x21, size 45430
+      0x0b, 0x00, 0x00, 0xe8, 0x00, 0x21, 0x76, 0xb1, 0x00, 0x00, // number 11, offset 0x0100e800 (bit 24 set), flag 2, size 45430
       0xff, 0xff, 0, 0, 0, 0, 0, 0, 0, 0,
     ]);
     expect(readAudioMap(bytes)).toEqual([
-      { number: 10, offset: 0, flag: 0x20, size: 57612 },
-      { number: 11, offset: 59392, flag: 0x21, size: 45430 },
+      { number: 10, offset: 0, flag: 2, size: 57612 },
+      { number: 11, offset: 0x0100e800, flag: 2, size: 45430 },
     ]);
     const wav = wav8(Uint8Array.from([0x80, 0x90, 0x70]), 11025);
     expect(Buffer.from(wav.subarray(0, 4)).toString('latin1')).toBe('RIFF');

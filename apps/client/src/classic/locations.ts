@@ -66,8 +66,15 @@ export function greetingFor(id: string, n: number): string {
   const loc = classic.CLASSIC_LOCATIONS[id as classic.ClassicLocationId];
   const lines = loc?.greetings ?? [];
   if (lines.length === 0) return FALLBACK_GREETING[id] ?? '';
-  const i = ((n % lines.length) + lines.length) % lines.length;
-  return lines[i]!;
+  return lines[greetingIndex(id, n)]!;
+}
+
+/** Which of the location's greetings visit `n` shows (the spoken line follows it). */
+export function greetingIndex(id: string, n: number): number {
+  const loc = classic.CLASSIC_LOCATIONS[id as classic.ClassicLocationId];
+  const len = loc?.greetings.length ?? 0;
+  if (len === 0) return 0;
+  return ((n % len) + len) % len;
 }
 
 /** Portrait key for a location (the portrait catalogue is keyed by location id). */

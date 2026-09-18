@@ -15,14 +15,14 @@ import { useSetTimePreview } from '../hud/preview';
 import type { GameStore } from '../game/store';
 import { cardSound, cardsFrom, currentCard, deckKey } from './cards';
 import { CLOSED_LABEL, assignTokens, tokenLabel } from './tokens';
-import { closedNodes, isArrivalLocation, isClassicLocation, locationName } from './locations';
+import { closedNodes, greetingIndex, isArrivalLocation, isClassicLocation, locationName } from './locations';
 import { planWalk, walkPose, type WalkPlan } from './walk';
 import { buildLocationWindow, locationPanel } from './menu';
 import type { PanelModel } from './layout';
 import { PixelPanel } from './PixelPanel';
 import { goalsModel, statsModel } from './screens';
 import { hoursLeft, hoursOf, travelTooltip } from './tooltip';
-import { audio, sfxForEvent, type SfxKey } from '../audio';
+import { audio, cardLine, greetingLine, quoteGroupsFor, quoteLine, refusalGroupFor, sfxForEvent, type SfxKey } from '../audio';
 
 export interface ClassicScreenProps {
   store: GameStore;
@@ -44,7 +44,31 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
   const [dismissed, setDismissed] = useState(0);
   const [deck, setDeck] = useState('');
   const [openLoc, setOpenLoc] = useState<string | null>(null);
+  const openLocRef = useRef(openLoc);
+  openLocRef.current = openLoc;
   const [visits, setVisits] = useState<Record<string, number>>({});
+  const visitsRef = useRef(visits);
+  visitsRef.current = visits;
+  /** How many times each location's quote group has been spoken, for rotation. */
+  const spokenRef = useRef<Record<string, number>>({});
+  /** The last action the window asked for, so a refusal can say what there was no time for. */
+  const lastActionRef = useRef<Action | null>(null);
+  const act = (a: Action) => {
+    lastActionRef.current = a;
+    store.act(a);
+  };
+  /** The clerk says one line per group, in order, rotating within each group. */
+  const speakGroups = (loc: string, groups: string[]) => {
+    const lines: number[] = [];
+    for (const group of groups) {
+      const k = `${loc}:${group}`;
+      const n = spokenRef.current[k] ?? 0;
+      spokenRef.current[k] = n + 1;
+      const line = quoteLine(audio.voices, loc, group, n);
+      if (line !== null) lines.push(line);
+    }
+    if (lines.length) audio.speak(lines);
+  };
   const [overlay, setOverlay] = useState<Overlay>('none');
   const [closedName, setClosedName] = useState('');
   const [tip, setTip] = useState<{ x: number; y: number; text: string } | null>(null);
@@ -92,6 +116,9 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
     // Week one opens with the theme instead of the start-of-turn music.
     if (key === 'startTurn' && state?.week === 1) return;
     if (key) audio.play(key as SfxKey);
+    const line = card.step === 'weekend' || card.step === 'news' ? cardLine(audio.voices, card.step, card.text) : null;
+    if (line !== null) audio.speak(line);
+    else audio.hush();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cardKey]);
 
@@ -143,6 +170,7 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
   const [muted, setMuted] = useState(() => audio.current.muted);
   useEffect(() => {
     let live = true;
+    void audio.loadVoices();
     void audio.load().then(() => {
       if (live) audio.start();
     });
@@ -151,11 +179,6 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
       audio.stop();
     };
   }, []);
-
-  // The game refused something: no time, no money, wrong place.
-  useEffect(() => {
-    if (store.error) audio.play('cannot');
-  }, [store.error]);
 
   // The theme, once, when a game begins.
   const themedRef = useRef(false);
@@ -180,9 +203,26 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
     for (let i = heard.len; i < log.length; i++) {
       const key = sfxForEvent(log[i]!);
       if (key) audio.play(key);
+      // The clerk answers the outcome aloud while the window is open.
+      const loc = openLocRef.current;
+      if (loc) speakGroups(loc, quoteGroupsFor(log[i]!));
     }
     heard.len = log.length;
   }, [state, currentPid]);
+
+  // The game refused something: no time, no money, wrong place.
+  useEffect(() => {
+    if (!store.error) return;
+    audio.play('cannot');
+    const loc = openLocRef.current;
+    const group = refusalGroupFor(store.error, lastActionRef.current?.type);
+    if (loc && group) speakGroups(loc, [group]);
+  }, [store.error]);
+
+  // The clerk stops talking when the window closes.
+  useEffect(() => {
+    if (openLoc === null) audio.hush();
+  }, [openLoc]);
 
   // The walk loop: move the token each frame, then open the window on arrival.
   useEffect(() => {
@@ -232,10 +272,14 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
     const s = stateRef.current;
     const pid = pidRef.current;
     setLogLenAtOpen(s && pid ? s.players[pid]!.log.length : 0);
+    const visit = visitsRef.current[loc] ?? 0;
     setVisits((v) => ({ ...v, [loc]: (v[loc] ?? 0) + 1 }));
     setGroup(null);
     setOpenLoc(loc);
     audio.play(loc === 'university' ? 'university' : 'door');
+    // The clerk speaks the greeting the bubble shows.
+    const line = greetingLine(audio.voices, loc, greetingIndex(loc, visit));
+    if (line !== null) audio.speak(line);
   }, []);
   const openRef = useRef(openWindow);
   openRef.current = openWindow;
@@ -486,13 +530,13 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
             onRow={(i) => {
               const row = windowActions.rows[i];
               if (!row) return;
-              if (row.action) store.act(row.action);
+              if (row.action) act(row.action);
               else if (row.group) setGroup(row.group);
             }}
             onButton={(i) => {
               const btn = windowActions.buttons[i];
               if (!btn) return;
-              if (btn.action) store.act(btn.action);
+              if (btn.action) act(btn.action);
               else if (btn.key === 'back') setGroup(null);
               else setOpenLoc(null);
             }}

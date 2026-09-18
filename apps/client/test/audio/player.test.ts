@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { AudioPlayer, FADE_SECONDS, REST_SECONDS, type AudioLike } from '../../src/audio/player';
+import { AudioPlayer, DUCK, FADE_SECONDS, REST_SECONDS, type AudioLike } from '../../src/audio/player';
 
 /** A fake audio element that records what was asked of it. */
 class FakeAudio implements AudioLike {
@@ -118,5 +118,82 @@ describe('AudioPlayer music', () => {
     expect(playing()).toHaveLength(0);
     vi.advanceTimersByTime(60_000);
     expect(playing()).toHaveLength(0);
+  });
+});
+
+describe('AudioPlayer speech', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date', 'performance'] });
+    (globalThis as { localStorage?: unknown }).localStorage = { getItem: () => null, setItem: () => undefined };
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('speaks one line at a time and ducks the music while it plays', async () => {
+    const { player, made, playing } = make();
+    await player.load();
+    player.start();
+    vi.advanceTimersByTime(REST_SECONDS * 1000 + FADE_SECONDS * 1000 + 100);
+    const piece = playing()[0]!;
+    expect(piece.volume).toBeCloseTo(0.5, 1);
+    player.speak(301);
+    const line = made[made.length - 1]!;
+    expect(line.src).toContain('audio/voice/line_301.ogg');
+    expect(line.playing).toBe(true);
+    expect(line.volume).toBeCloseTo(0.9, 2);
+    expect(piece.volume).toBeCloseTo(0.5 * DUCK, 2);
+    // a second line cuts the first
+    player.speak(302);
+    expect(line.playing).toBe(false);
+    expect(playing().map((a) => a.src)).toEqual([piece.src, 'audio/voice/line_302.ogg']);
+    made[made.length - 1]!.fire('ended');
+    expect(piece.volume).toBeCloseTo(0.5, 2);
+    expect(player.state.voice).toBeNull();
+  });
+
+  it('speaks a sequence one line after another', async () => {
+    const { player, made, playing } = make();
+    await player.load();
+    player.speak([433, 434]);
+    expect(playing().map((a) => a.src)).toEqual(['audio/voice/line_433.ogg']);
+    made[0]!.fire('ended');
+    expect(playing().map((a) => a.src)).toEqual(['audio/voice/line_434.ogg']);
+    made[1]!.fire('ended');
+    expect(playing()).toHaveLength(0);
+  });
+
+  it('does not speak while muted', async () => {
+    const { player, made } = make();
+    await player.load();
+    player.update({ muted: true });
+    player.speak(301);
+    expect(made).toHaveLength(0);
+  });
+
+  it('holds a stinger until the clerk has finished speaking', async () => {
+    const { player, made, playing } = make();
+    await player.load();
+    player.speak(301);
+    const line = made[0]!;
+    player.play('theme');
+    expect(line.playing).toBe(true);
+    expect(playing()).toHaveLength(1);
+    line.fire('ended');
+    expect(playing()).toHaveLength(1);
+    expect(playing()[0]!.src).toContain('sound_006');
+  });
+
+  it('hush() stops the line and restores the music', async () => {
+    const { player, playing } = make();
+    await player.load();
+    player.start();
+    vi.advanceTimersByTime(REST_SECONDS * 1000 + FADE_SECONDS * 1000 + 100);
+    const piece = playing()[0]!;
+    player.speak(301);
+    expect(piece.volume).toBeCloseTo(0.5 * DUCK, 2);
+    player.hush();
+    expect(playing()).toHaveLength(1);
+    expect(piece.volume).toBeCloseTo(0.5, 2);
   });
 });
