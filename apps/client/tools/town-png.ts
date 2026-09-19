@@ -3,29 +3,31 @@
  * decor and buildings — straight to a PNG, with no browser involved. This is
  * the cheapest honest look at what the map renderer actually produces.
  *
- *   npx tsx apps/client/tools/town-png.ts [shrink] [x,y,w,h]
+ *   npx tsx apps/client/tools/town-png.ts [shrink] [x,y,w,h] [zoom] [riverton|classic]
  *
  * `shrink` samples every Nth pixel (1 = full size). The optional crop is in
  * town units and is handy for looking closely at one bridge or underpass.
- * Writes art/sheets/riverton-client.png.
+ * Writes art/sheets/<town>-client.png.
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { riverton } from '@jones2/town';
-import type { Town } from '@jones2/town';
+import { TOWNS } from '@jones2/town';
 import { encodePNG } from '../../../packages/pixelart/tools/png';
 import { getArt } from '../src/map/art';
 import { buildGround } from '../src/map/ground';
 import { RenderPalette, toRGBA } from '../src/map/surface';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const OUT = resolve(HERE, '../../../art/sheets/riverton-client.png');
+const TOWN_ID = process.argv[5] ?? 'riverton';
+const town = TOWNS[TOWN_ID];
+if (!town) throw new Error(`Unknown town ${TOWN_ID}`);
+const OUT = resolve(HERE, `../../../art/sheets/${TOWN_ID}-client.png`);
 
 const art = getArt();
 const pal = new RenderPalette(art.palette);
-const ground = buildGround(riverton as unknown as Town, art, pal);
+const ground = buildGround(town, art, pal);
 
 const shrink = Math.max(1, Number(process.argv[2] ?? 1) | 0);
 const crop = (process.argv[3] ?? '').split(',').map(Number);

@@ -79,6 +79,17 @@ function tileKindFor(kind: Decor['kind']): 'water' | 'grass' | 'plaza' {
 
 /** Native world bounds covering nodes (with their sprites), decor and roads. */
 export function townBounds(town: Town, art: ArtSet): { x: number; y: number; w: number; h: number } {
+  // An authored canvas IS the map: roads that run off it (Riverton's exit
+  // stubs) are meant to be cut off by the edge, so nothing outside it grows
+  // the layer.
+  if (town.canvas) {
+    return {
+      x: -LAYER_MARGIN,
+      y: -LAYER_MARGIN,
+      w: Math.ceil(town.canvas.w * PX_PER_UNIT) + LAYER_MARGIN * 2,
+      h: Math.ceil(town.canvas.h * PX_PER_UNIT) + LAYER_MARGIN * 2,
+    };
+  }
   let minX = Infinity;
   let minY = Infinity;
   let maxX = -Infinity;
@@ -92,10 +103,12 @@ export function townBounds(town: Town, art: ArtSet): { x: number; y: number; w: 
   for (const n of town.nodes) {
     const nx = n.x * PX_PER_UNIT;
     const ny = n.y * PX_PER_UNIT;
-    if (n.building) {
+    if (n.building || n.pixel || n.location) {
       const s = art.building(pixelRef(n), n);
-      grow(nx - s.anchorX, ny - s.anchorY);
-      grow(nx - s.anchorX + s.width, ny - s.anchorY + s.height);
+      const ax = nx + (n.spriteOffset?.x ?? 0) * PX_PER_UNIT;
+      const ay = ny + (n.spriteOffset?.y ?? 0) * PX_PER_UNIT;
+      grow(ax - s.anchorX, ay - s.anchorY);
+      grow(ax - s.anchorX + s.width, ay - s.anchorY + s.height);
     } else {
       grow(nx - 8, ny - 8);
       grow(nx + 8, ny + 8);
@@ -116,11 +129,6 @@ export function townBounds(town: Town, art: ArtSet): { x: number; y: number; w: 
       grow(p.x - r, p.y - r);
       grow(p.x + r, p.y + r);
     }
-  }
-  // The authored canvas, so open ground at the rim is still part of the town.
-  if (town.canvas) {
-    grow(0, 0);
-    grow(town.canvas.w * PX_PER_UNIT, town.canvas.h * PX_PER_UNIT);
   }
   if (!Number.isFinite(minX)) return { x: 0, y: 0, w: TILE, h: TILE };
   return {
@@ -202,11 +210,13 @@ export function buildGround(town: Town, art: ArtSet, pal: RenderPalette): Ground
     if (!n.location && !n.pixel && !n.building) continue;
     const sprite = art.building(pixelRef(n), n);
     byId.set(n.id, n);
+    // The sprite may hang off the node (`spriteOffset`); the node itself is
+    // where figures stand, so only the placement moves.
     placements.push({
       id: n.id,
       sprite,
-      nx: n.x * PX_PER_UNIT,
-      ny: n.y * PX_PER_UNIT,
+      nx: (n.x + (n.spriteOffset?.x ?? 0)) * PX_PER_UNIT,
+      ny: (n.y + (n.spriteOffset?.y ?? 0)) * PX_PER_UNIT,
       order: order++,
     });
   }
@@ -244,8 +254,8 @@ export function buildGround(town: Town, art: ArtSet, pal: RenderPalette): Ground
  * too. Native world pixels.
  */
 export function pickRectFor(node: TownNode, sprite: Sprite): PickRect {
-  const nx = node.x * PX_PER_UNIT;
-  const ny = node.y * PX_PER_UNIT;
+  const nx = (node.x + (node.spriteOffset?.x ?? 0)) * PX_PER_UNIT;
+  const ny = (node.y + (node.spriteOffset?.y ?? 0)) * PX_PER_UNIT;
   const fx0 = nx - sprite.footprintW / 2;
   const fy0 = ny - sprite.footprintH / 2;
   const fx1 = fx0 + sprite.footprintW;

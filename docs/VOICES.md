@@ -30,8 +30,8 @@ spot-checked the lines by ear.
 - `apps/client/src/audio/voices.ts` — pure: `greetingLine`, `quoteLine`, `quoteGroupsFor`
   (log event → quote groups), `refusalGroupFor` (sim refusal → group), `cardLine` (card text →
   line). `player.ts` has `speak(line | line[])` and `hush()`: one voice at a time, music ducked to
-  40 % while a clerk talks, stingers wait for the line to end, silent while muted, a `voice` volume
-  setting. `ClassicScreen.tsx` speaks the greeting when a window opens, the answer for every new
+  5 % (about 26 dB down, stingers included) while a clerk talks, stingers wait for the line to end, silent while muted, a `voice` volume
+  setting; `leave()` fades a place's own music (Hi-Tech U) out in 0.6 s when its window closes. `ClassicScreen.tsx` speaks the greeting when a window opens, the answer for every new
   log entry and every refusal while a window is open, and the weekend/news cards; closing the
   window hushes.
 

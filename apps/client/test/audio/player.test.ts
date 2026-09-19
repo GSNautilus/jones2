@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { AudioPlayer, DUCK, FADE_SECONDS, REST_SECONDS, type AudioLike } from '../../src/audio/player';
+import { AudioPlayer, DUCK, FADE_SECONDS, LEAVE_SECONDS, REST_SECONDS, SILENCE_URI, migrateSettings, type AudioLike } from '../../src/audio/player';
 
 /** A fake audio element that records what was asked of it. */
 class FakeAudio implements AudioLike {
@@ -7,6 +7,7 @@ class FakeAudio implements AudioLike {
   muted = false;
   duration = 30;
   currentTime = 0;
+  loop = false;
   playing = false;
   private listeners = new Map<string, Array<() => void>>();
   constructor(public src: string) {}
@@ -26,7 +27,14 @@ class FakeAudio implements AudioLike {
   }
 }
 
-const NAMES = { '5': 'random music', '7': 'random music', '6': 'Main Theme', overrides: { music: [5, 7], theme: 6 } };
+const NAMES = {
+  '5': 'random music',
+  '7': 'random music',
+  '6': 'Main Theme',
+  '9': 'door',
+  '41': 'university',
+  overrides: { music: [5, 7], theme: 6, university: 41, door: 9 },
+};
 
 function make() {
   const made: FakeAudio[] = [];
@@ -37,7 +45,7 @@ function make() {
   });
   // feed the map without fetch
   (globalThis as { fetch?: unknown }).fetch = () => Promise.resolve({ ok: true, json: () => Promise.resolve(NAMES) });
-  return { player, made, playing: () => made.filter((a) => a.playing && a.src !== '') };
+  return { player, made, playing: () => made.filter((a) => a.playing && a.src !== '' && !a.src.startsWith('data:')) };
 }
 
 describe('AudioPlayer music', () => {
@@ -56,12 +64,12 @@ describe('AudioPlayer music', () => {
     expect(playing()).toHaveLength(0);
     vi.advanceTimersByTime(REST_SECONDS * 1000 + 10);
     expect(playing()).toHaveLength(1);
-    const first = made[0]!;
+    const first = playing()[0]!;
     first.fire('ended');
     expect(playing()).toHaveLength(0);
     vi.advanceTimersByTime(REST_SECONDS * 1000 + 10);
     expect(playing()).toHaveLength(1);
-    expect(made[1]!.src).not.toBe(first.src);
+    expect(playing()[0]!.src).not.toBe(first.src);
   });
 
   it('never lets the rotation start on top of a stinger, whichever comes first', async () => {
@@ -141,7 +149,7 @@ describe('AudioPlayer speech', () => {
     const line = made[made.length - 1]!;
     expect(line.src).toContain('audio/voice/line_301.ogg');
     expect(line.playing).toBe(true);
-    expect(line.volume).toBeCloseTo(0.9, 2);
+    expect(line.volume).toBeCloseTo(1, 2);
     expect(piece.volume).toBeCloseTo(0.5 * DUCK, 2);
     // a second line cuts the first
     player.speak(302);
@@ -161,6 +169,18 @@ describe('AudioPlayer speech', () => {
     expect(playing().map((a) => a.src)).toEqual(['audio/voice/line_434.ogg']);
     made[1]!.fire('ended');
     expect(playing()).toHaveLength(0);
+  });
+
+  it('ducks a stinger too, whichever starts first', async () => {
+    const { player, made, playing } = make();
+    await player.load();
+    player.play('theme');
+    const piece = playing()[0]!;
+    expect(piece.volume).toBeCloseTo(0.5, 2);
+    player.speak(380);
+    expect(piece.volume).toBeCloseTo(0.5 * DUCK, 3);
+    made[made.length - 1]!.fire('ended');
+    expect(piece.volume).toBeCloseTo(0.5, 2);
   });
 
   it('does not speak while muted', async () => {
@@ -195,5 +215,155 @@ describe('AudioPlayer speech', () => {
     player.hush();
     expect(playing()).toHaveLength(1);
     expect(piece.volume).toBeCloseTo(0.5, 2);
+  });
+});
+
+describe('AudioPlayer leaving a place', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date', 'performance'] });
+    (globalThis as { localStorage?: unknown }).localStorage = { getItem: () => null, setItem: () => undefined };
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('fades the university music out fast and the rotation picks up again', async () => {
+    const { player, playing } = make();
+    await player.load();
+    player.start();
+    player.play('university');
+    const piece = playing()[0]!;
+    expect(piece.src).toContain('sound_041');
+    player.leave();
+    vi.advanceTimersByTime(LEAVE_SECONDS * 500);
+    expect(piece.volume).toBeLessThan(0.5);
+    expect(piece.playing).toBe(true);
+    vi.advanceTimersByTime(LEAVE_SECONDS * 500 + 100);
+    expect(playing()).toHaveLength(0);
+    vi.advanceTimersByTime(REST_SECONDS * 1000 + 10);
+    expect(playing()).toHaveLength(1);
+    expect(playing()[0]!.src).not.toContain('sound_041');
+  });
+
+  it('leaves the theme and the rotation alone', async () => {
+    const { player, playing } = make();
+    await player.load();
+    player.play('theme');
+    player.leave();
+    vi.advanceTimersByTime(LEAVE_SECONDS * 1000 + 100);
+    expect(playing()).toHaveLength(1);
+    expect(playing()[0]!.volume).toBeCloseTo(0.5, 2);
+  });
+
+  it('drops a university stinger still waiting behind a spoken line', async () => {
+    const { player, made, playing } = make();
+    await player.load();
+    player.speak(380);
+    player.play('university');
+    player.leave();
+    made[0]!.fire('ended');
+    expect(playing()).toHaveLength(0);
+  });
+});
+
+describe('AudioPlayer channels', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date', 'performance'] });
+    (globalThis as { localStorage?: unknown }).localStorage = { getItem: () => null, setItem: () => undefined };
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('a muted sound channel silences effects and speech but leaves the music', async () => {
+    const { player, made, playing } = make();
+    await player.load();
+    player.update({ soundMuted: true });
+    player.speak(301);
+    player.play('door');
+    expect(made).toHaveLength(0);
+    player.play('theme');
+    expect(playing()).toHaveLength(1);
+    expect(playing()[0]!.src).toContain('sound_006');
+  });
+
+  it('a muted music channel silences the stingers and the rotation but not the clerk', async () => {
+    const { player, made, playing } = make();
+    await player.load();
+    player.update({ musicMuted: true });
+    player.play('theme');
+    expect(made).toHaveLength(0);
+    player.start();
+    vi.advanceTimersByTime(REST_SECONDS * 1000 + 10);
+    expect(playing()).toHaveLength(1);
+    expect(playing()[0]!.muted).toBe(true);
+    player.speak(301);
+    expect(playing().map((a) => a.src)).toContain('audio/voice/line_301.ogg');
+    player.play('door');
+    expect(made[made.length - 1]!.src).toContain('sound_009');
+  });
+
+  it('a volume or mute change reaches the piece that is playing', async () => {
+    const { player, playing } = make();
+    await player.load();
+    player.start();
+    vi.advanceTimersByTime(REST_SECONDS * 1000 + FADE_SECONDS * 1000 + 100);
+    const piece = playing()[0]!;
+    player.update({ music: 0.2 });
+    expect(piece.volume).toBeCloseTo(0.2, 2);
+    player.update({ musicMuted: true });
+    expect(piece.muted).toBe(true);
+    player.update({ musicMuted: false });
+    expect(piece.muted).toBe(false);
+  });
+});
+
+describe('migrateSettings', () => {
+  it('turns a saved master mute into both channel mutes, so OPTIONS can undo it', () => {
+    const s = migrateSettings({ muted: true, music: 0.3 });
+    expect(s.muted).toBe(false);
+    expect(s.musicMuted).toBe(true);
+    expect(s.soundMuted).toBe(true);
+    expect(s.music).toBe(0.3);
+  });
+
+  it('leaves settings without a master mute alone', () => {
+    const s = migrateSettings({ musicMuted: true });
+    expect(s.muted).toBe(false);
+    expect(s.musicMuted).toBe(true);
+    expect(s.soundMuted).toBe(false);
+  });
+});
+
+describe('AudioPlayer keeps the output awake', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'Date', 'performance'] });
+    (globalThis as { localStorage?: unknown }).localStorage = { getItem: () => null, setItem: () => undefined };
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('loops a silent track from start() until stop(), under the music as before', async () => {
+    const { player, made, playing } = make();
+    await player.load();
+    player.start();
+    const silent = made.find((a) => a.src.startsWith('data:audio/wav'))!;
+    expect(silent).toBeDefined();
+    expect(silent.loop).toBe(true);
+    expect(silent.playing).toBe(true);
+    vi.advanceTimersByTime(REST_SECONDS * 1000 + 10);
+    expect(playing().filter((a) => !a.src.startsWith('data:'))).toHaveLength(1);
+    player.stop();
+    expect(silent.playing).toBe(false);
+  });
+
+  it('is one second of 8-bit mono PCM silence', () => {
+    expect(SILENCE_URI.startsWith('data:audio/wav;base64,')).toBe(true);
+    const bytes = Buffer.from(SILENCE_URI.split(',')[1]!, 'base64');
+    expect(bytes.subarray(0, 4).toString('ascii')).toBe('RIFF');
+    expect(bytes.subarray(8, 12).toString('ascii')).toBe('WAVE');
+    expect(bytes.length).toBe(44 + 8000);
+    expect(bytes.subarray(44).every((v) => v === 128)).toBe(true);
   });
 });

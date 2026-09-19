@@ -2,7 +2,6 @@
  * Scripted strategies for the classic ruleset. Deliberately simple: they exist to expose
  * dominant lines, not to play well.
  */
-import { routeHours } from '@jones2/town';
 import {
   availableActions,
   classic,
@@ -15,6 +14,7 @@ import {
   type GameState,
   type PlayerState,
 } from '@jones2/sim';
+import { travelHourMultiplier } from '@jones2/town';
 
 export type Strategy = (state: GameState, pid: string, rng: () => number) => Action;
 
@@ -24,9 +24,10 @@ const HOUR = 60;
 function enabledAt(s: GameState, pid: string, node: string, action: Action): boolean {
   const p = s.players[pid]!;
   if (p.node === node) return describeAction(s, pid, action).enabled;
-  const route = getGraph(s.config.townId).bestRoute(p.node, node, ['walk']);
+  const graph = getGraph(s.config.townId);
+  const route = graph.bestRoute(p.node, node, ['walk']);
   if (!route) return false;
-  const minutesLeft = p.minutesLeft - routeHours(route.minutes) * HOUR;
+  const minutesLeft = p.minutesLeft - classic.travelHours(route.minutes, travelHourMultiplier(graph.town)) * HOUR;
   if (minutesLeft < 0) return false;
   const hypothetical: GameState = { ...s, players: { ...s.players, [pid]: { ...p, node, minutesLeft } } };
   return describeAction(hypothetical, pid, action).enabled;

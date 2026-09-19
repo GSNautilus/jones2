@@ -4,6 +4,8 @@
  * deliberately NOT included here — per docs/PLAN.md §0/§1, the map charges travel separately.
  */
 
+import { routeHours } from '@jones2/town';
+
 export const HOURS_PER_TURN = 60;
 /** Every 4 Weeks (i.e. every 4th player Turn in a single-player game) is a Month. "# Time" (25-31), "# Month" (397-452). */
 export const WEEKS_PER_MONTH = 4;
@@ -52,3 +54,15 @@ export const CLASSIC_ACTION_TIME_MAP: Record<string, ClassicActionTime> = Object
 // food.ts/weekend.ts so this file is the single place summarising ALL Hour costs in the ruleset.
 export const STARVATION_HOURS = 20; // food.ts STARVATION_HOUR_PENALTY
 export const DOCTOR_VISIT_HOURS = 10; // weekend.ts DOCTOR.hourPenalty
+
+/**
+ * Travel: the map's route minutes become whole hours (`routeHours`, rounded up, minimum one),
+ * then every trip is charged that many hours TIMES the town's `travelHourMultiplier`
+ * (`@jones2/town`'s `travelHourMultiplier(town)`). Riverton sets 2 (decided 2026-09-18: trips
+ * cost twice the ladder so the big map matters against the 60-hour week); the classic ring sets
+ * 1 so a lap is the original's ten hours. The replay and the walk animation keep the route's
+ * real minutes, so only the charge changes.
+ */
+export function travelHours(routeMinutes: number, hourMultiplier = 1): number {
+  return routeHours(routeMinutes) * hourMultiplier;
+}

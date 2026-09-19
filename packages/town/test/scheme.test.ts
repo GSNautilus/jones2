@@ -45,6 +45,7 @@ describe('scheme — canvas and water', () => {
   it('declares the 1920x1152 canvas and keeps every node inside it', () => {
     expect(town.canvas).toEqual(CANVAS);
     for (const n of town.nodes) {
+      if (n.id.startsWith('exit_')) continue; // road stubs that leave the map on purpose
       expect(n.x, `${n.id}.x`).toBeGreaterThanOrEqual(0);
       expect(n.x, `${n.id}.x`).toBeLessThanOrEqual(CANVAS.w);
       expect(n.y, `${n.id}.y`).toBeGreaterThanOrEqual(0);

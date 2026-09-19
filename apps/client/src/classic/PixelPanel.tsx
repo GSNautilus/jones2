@@ -111,11 +111,21 @@ export function PixelPanel({
     h: b.rect.h * scale,
   }));
 
+  // The same for the visible rows, keyed as the model keys them.
+  const rowMap = layout.rows.map((r) => ({
+    key: model.rows[r.index]?.key ?? String(r.index),
+    x: r.rect.x * scale,
+    y: r.rect.y * scale,
+    w: r.rect.w * scale,
+    h: r.rect.h * scale,
+  }));
+
   return (
     <canvas
       ref={canvasRef}
       className="classic-panel"
       data-buttons={JSON.stringify(buttonMap)}
+      data-rows={JSON.stringify(rowMap)}
       width={px}
       height={py}
       style={{ width: px, height: py }}

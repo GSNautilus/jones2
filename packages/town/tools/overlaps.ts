@@ -12,11 +12,15 @@
  *     Highway pairs are exempt: the highway is grade separated everywhere.
  *   - edges with no `street` id
  *
- *   npx tsx packages/town/tools/overlaps.ts
+ *   npx tsx packages/town/tools/overlaps.ts [riverton|classic]
  */
 import { buildFromRef } from '../../pixelart/src/index';
 import type { Town, TownEdge } from '../src/types';
-import town from '../src/towns/riverton.json';
+import riverton from '../src/towns/riverton.json';
+import classic from '../src/towns/classic.json';
+
+const TOWN_ID = process.argv[2] ?? 'riverton';
+const town = TOWN_ID === 'classic' ? classic : riverton;
 import { sampleCurve } from './geom';
 
 interface Box { id: string; x: number; y: number; w: number; h: number }
@@ -34,7 +38,9 @@ const boxes: Box[] = T.nodes
   .map((n) => {
     const ref = n.pixel ?? { kind: n.location! };
     const s = buildFromRef(ref.kind, ref.params);
-    return { id: n.id, x: n.x - s.anchorX, y: n.y - s.anchorY, w: s.width, h: s.height };
+    const ax = n.x + (n.spriteOffset?.x ?? 0);
+    const ay = n.y + (n.spriteOffset?.y ?? 0);
+    return { id: n.id, x: ax - s.anchorX, y: ay - s.anchorY, w: s.width, h: s.height };
   });
 
 /* ------------------------------------------------------------------ water */

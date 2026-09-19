@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { NodeId, Town, TownGraph } from '@jones2/town';
 import type { PlayerEvent, PlayerId } from '@jones2/sim';
 import type { FigureStyle, TownScene } from '../map/api';
+import { ZOOM_IN } from '../hud/MapControls';
 import { buildTimeline } from './timeline';
 import type { ReplayMarker } from './types';
 
@@ -20,7 +21,8 @@ export interface ReplayViewProps {
   graph: TownGraph;
   logs: Record<PlayerId, PlayerEvent[]>;
   starts: Record<PlayerId, NodeId>;
-  players: Record<PlayerId, { name: string; color: string }>;
+  /** `label` is the figure's map label (a token marker, say); the name when absent. */
+  players: Record<PlayerId, { name: string; color: string; label?: string }>;
   onDone?: () => void;
 }
 
@@ -54,15 +56,28 @@ export function ReplayView({ scene, town, graph, logs, starts, players, onDone }
   speedRef.current = speed;
   onDoneRef.current = onDone;
 
-  // Renderer only knows about figures that exist; declare them once per set.
-  useEffect(() => {
-    const figures: Record<string, FigureStyle> = {};
-    for (const id of playerIds) {
-      const p = players[id];
-      if (p) figures[id] = { color: p.color, label: p.name };
-    }
-    scene.setFigures(figures);
-  }, [scene, players, playerIds]);
+  // The figures, with what each player is doing right now as the caption
+  // bubble over their head. The renderer only knows about figures that exist,
+  // so the whole set is declared each time the captions change.
+  const styleFigures = useCallback(
+    (captions: Record<PlayerId, string>) => {
+      const figures: Record<string, FigureStyle> = {};
+      for (const id of playerIds) {
+        const p = players[id];
+        if (!p) continue;
+        figures[id] = { color: p.color, label: p.label ?? p.name };
+        const caption = captions[id];
+        if (caption) figures[id]!.caption = caption;
+      }
+      scene.setFigures(figures);
+    },
+    [scene, players, playerIds],
+  );
+  // The parent may hand over a fresh `players` object on any re-render (the
+  // store changes under it), which redeclares the figures: the current
+  // captions go back on, or the bubbles would vanish mid-recap.
+  const captionsRef = useRef<Record<PlayerId, string>>({});
+  useEffect(() => styleFigures(captionsRef.current), [styleFigures]);
 
   const applyMinute = useCallback(
     (m: number) => {
@@ -72,14 +87,33 @@ export function ReplayView({ scene, town, graph, logs, starts, players, onDone }
       const frame = timeline.at(clamped);
       scene.setPoses(frame.poses);
       setCaptions(frame.captions);
+      const before = JSON.stringify(captionsRef.current);
+      captionsRef.current = frame.captions;
+      if (JSON.stringify(frame.captions) !== before) styleFigures(frame.captions);
     },
-    [timeline, scene],
+    [timeline, scene, styleFigures],
   );
 
-  // Reset to the start whenever we get a new timeline (new scene/week).
+  // Reset to the start whenever we get a new timeline (new scene/week), and
+  // frame it: the whole town, one zoom step in so the name plates and caption
+  // bubbles are drawn (they hide below zoom 2), centred on where everyone starts.
   useEffect(() => {
     doneRef.current = false;
+    captionsRef.current = {};
     applyMinute(0);
+    scene.follow(null);
+    scene.fitAll();
+    scene.zoom(ZOOM_IN);
+    let sx = 0;
+    let sy = 0;
+    let n = 0;
+    for (const id of Object.keys(starts)) {
+      const node = graph.node(starts[id]!);
+      sx += node.x;
+      sy += node.y;
+      n++;
+    }
+    if (n > 0) scene.panTo(sx / n, sy / n);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeline]);
 

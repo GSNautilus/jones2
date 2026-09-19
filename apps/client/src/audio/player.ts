@@ -7,17 +7,28 @@
  * START GAME button is that click, so the game screen can start the music
  * as soon as it mounts.
  */
-import { STINGERS, fileFor, resolveMap, type NamesFile, type SfxKey, type SoundMap } from './map';
+import { PLACE_STINGERS, STINGERS, fileFor, resolveMap, type NamesFile, type SfxKey, type SoundMap } from './map';
 import { EMPTY_VOICES, voiceFile, type VoicesFile } from './voices';
 
 export const FADE_SECONDS = 2;
 export const REST_SECONDS = 5;
-/** Music volume while a clerk speaks, as a fraction of the music setting. */
-export const DUCK = 0.4;
+/** How fast a place's music goes when the player walks out of the door. */
+export const LEAVE_SECONDS = 0.6;
+/**
+ * Music volume while a clerk speaks, as a fraction of the music setting.
+ * Hearing is logarithmic: 0.05 is about 26 dB down, the music all but gone
+ * under the voice; 0.4 was barely a dip.
+ */
+export const DUCK = 0.05;
 const STORAGE = 'jones2-audio';
 
 export interface AudioSettings {
+  /** Everything off. */
   muted: boolean;
+  /** The music channel off: the rotation and the stingers. */
+  musicMuted: boolean;
+  /** The sound channel off: effects and the clerks' spoken lines. */
+  soundMuted: boolean;
   /** 0..1 */
   music: number;
   /** 0..1 */
@@ -26,15 +37,30 @@ export interface AudioSettings {
   voice: number;
 }
 
-const DEFAULTS: AudioSettings = { muted: false, music: 0.5, sfx: 0.8, voice: 0.9 };
+const DEFAULTS: AudioSettings = { muted: false, musicMuted: false, soundMuted: false, music: 0.5, sfx: 0.8, voice: 1 };
 
+/**
+ * The saved settings. A master `muted` left behind by the old SOUND OFF
+ * toggle (which no longer has a button) becomes both channel mutes, so the
+ * OPTIONS window can switch the sound back on.
+ */
 export function loadSettings(): AudioSettings {
   try {
     const raw = localStorage.getItem(STORAGE);
-    return raw ? { ...DEFAULTS, ...(JSON.parse(raw) as Partial<AudioSettings>) } : { ...DEFAULTS };
+    return migrateSettings(raw ? (JSON.parse(raw) as Partial<AudioSettings>) : {});
   } catch {
     return { ...DEFAULTS };
   }
+}
+
+export function migrateSettings(saved: Partial<AudioSettings>): AudioSettings {
+  const s: AudioSettings = { ...DEFAULTS, ...saved };
+  if (s.muted) {
+    s.muted = false;
+    s.musicMuted = true;
+    s.soundMuted = true;
+  }
+  return s;
 }
 
 export function saveSettings(s: AudioSettings): void {
@@ -70,10 +96,46 @@ export interface AudioLike {
   muted: boolean;
   duration: number;
   currentTime: number;
+  loop?: boolean;
   play(): Promise<void>;
   pause(): void;
   addEventListener(type: string, fn: () => void): void;
 }
+
+/**
+ * One second of silence as a WAV data URI (8 kHz, 8-bit, mono). Looped at
+ * full volume it is inaudible but keeps the browser's output stream open, so
+ * the sound device never idles between effects: on many outputs (HDMI,
+ * Bluetooth, some USB DACs) waking from idle costs a second or two, and the
+ * first effect after a quiet spell came late or clipped.
+ */
+export const SILENCE_URI: string = (() => {
+  const rate = 8000;
+  const samples = rate;
+  const bytes = new Uint8Array(44 + samples);
+  const view = new DataView(bytes.buffer);
+  const ascii = (off: number, s: string) => {
+    for (let i = 0; i < s.length; i++) bytes[off + i] = s.charCodeAt(i);
+  };
+  ascii(0, 'RIFF');
+  view.setUint32(4, 36 + samples, true);
+  ascii(8, 'WAVE');
+  ascii(12, 'fmt ');
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true); // PCM
+  view.setUint16(22, 1, true); // mono
+  view.setUint32(24, rate, true);
+  view.setUint32(28, rate, true);
+  view.setUint16(32, 1, true);
+  view.setUint16(34, 8, true);
+  ascii(36, 'data');
+  view.setUint32(40, samples, true);
+  bytes.fill(128, 44); // 8-bit PCM silence is the midpoint
+  let bin = '';
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]!);
+  const b64 = typeof btoa === 'function' ? btoa(bin) : Buffer.from(bin, 'binary').toString('base64');
+  return 'data:audio/wav;base64,' + b64;
+})();
 
 export class AudioPlayer {
   private map: SoundMap = { sfx: {}, music: [], unmatched: [] };
@@ -90,7 +152,13 @@ export class AudioPlayer {
   /** The one voice element; a new line cuts the old. */
   private voice: AudioLike | null = null;
   /** A stinger that arrived while a clerk was speaking; plays when the line ends. */
-  private pendingStinger: number | null = null;
+  private pendingStinger: { n: number; key: SfxKey } | null = null;
+  /** Which moment the playing (or pending) stinger is for. */
+  private stingerKey: SfxKey | null = null;
+  /** The silent loop that keeps the output stream open while the player runs. */
+  private keepAlive: AudioLike | null = null;
+  /** Effects fetched ahead of time, as object URLs, so a play never waits on the network. */
+  private preloaded = new Map<number, string>();
   private readonly random: () => number;
   private readonly createAudio: (src: string) => AudioLike;
 
@@ -129,6 +197,40 @@ export class AudioPlayer {
     return this.map;
   }
 
+  /**
+   * Fetch every effect (not the music, not the 533 voice lines) into memory
+   * once, so a play starts at once instead of after a round trip to the
+   * server. Browser only: needs `URL.createObjectURL`. Safe to call again.
+   */
+  async preload(): Promise<number> {
+    if (typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') return 0;
+    const numbers = new Set<number>();
+    for (const [key, list] of Object.entries(this.map.sfx)) {
+      if (STINGERS.has(key as SfxKey)) continue;
+      for (const n of list ?? []) numbers.add(n);
+    }
+    let done = 0;
+    await Promise.all(
+      [...numbers].map(async (n) => {
+        if (this.preloaded.has(n)) return;
+        try {
+          const res = await fetch(fileFor(n));
+          if (!res.ok) return;
+          this.preloaded.set(n, URL.createObjectURL(await res.blob()));
+          done++;
+        } catch {
+          // the effect streams from the server when it plays
+        }
+      }),
+    );
+    return done;
+  }
+
+  /** Where to play sound `n` from: memory if preloaded, else the server. */
+  private srcFor(n: number): string {
+    return this.preloaded.get(n) ?? fileFor(n);
+  }
+
   /** Load `voices.json` (the labelled spoken lines). Silent on failure. */
   async loadVoices(url = 'audio/voices.json'): Promise<VoicesFile> {
     try {
@@ -152,12 +254,21 @@ export class AudioPlayer {
   update(patch: Partial<AudioSettings>): void {
     this.settings = { ...this.settings, ...patch };
     saveSettings(this.settings);
-    if (this.music && this.phase === 'playing') this.music.volume = this.musicVolume();
-    if (this.music) this.music.muted = this.settings.muted;
+    this.applyMusicVolume();
+    if (this.music) this.music.muted = this.musicOff();
+    if (this.voice) this.voice.volume = this.settings.voice;
+  }
+
+  private musicOff(): boolean {
+    return this.settings.muted || this.settings.musicMuted;
+  }
+
+  private soundOff(): boolean {
+    return this.settings.muted || this.settings.soundMuted;
   }
 
   private musicVolume(): number {
-    if (this.settings.muted) return 0;
+    if (this.musicOff()) return 0;
     return this.settings.music * (this.voice ? DUCK : 1);
   }
 
@@ -169,7 +280,7 @@ export class AudioPlayer {
    * muted. A stinger asked for during the line waits for it.
    */
   speak(line: number | number[]): void {
-    if (this.settings.muted) return;
+    if (this.soundOff()) return;
     const [first, ...rest] = Array.isArray(line) ? line : [line];
     if (first === undefined) return;
     this.dropVoice();
@@ -185,9 +296,9 @@ export class AudioPlayer {
         return;
       }
       this.applyMusicVolume();
-      const n = this.pendingStinger;
+      const p = this.pendingStinger;
       this.pendingStinger = null;
-      if (n !== null) this.stinger(n);
+      if (p) this.stinger(p.n, p.key);
     };
     a.addEventListener('ended', done);
     a.addEventListener('error', done);
@@ -208,23 +319,25 @@ export class AudioPlayer {
     a.src = '';
   }
 
-  /** Re-apply the music level after a duck or un-duck, without touching a fade. */
+  /** Re-apply the music level after a duck, un-duck or setting change, to a piece or a stinger, without touching a fade. */
   private applyMusicVolume(): void {
-    if (this.music && this.phase === 'playing' && !this.fadeTimer) this.music.volume = this.musicVolume();
+    if (!this.music || this.fadeTimer) return;
+    if (this.phase === 'playing' || this.phase === 'stinger') this.music.volume = this.musicVolume();
   }
 
   // ---- sound effects -------------------------------------------------------
 
   play(key: SfxKey): void {
-    if (this.settings.muted) return;
+    // A stinger is music; everything else is sound. Each channel mutes alone.
+    if (STINGERS.has(key) ? this.musicOff() : this.soundOff()) return;
     const choices = this.map.sfx[key];
     if (!choices || choices.length === 0) return;
     const n = choices[Math.floor(this.random() * choices.length) % choices.length]!;
     if (STINGERS.has(key)) {
-      this.stinger(n);
+      this.stinger(n, key);
       return;
     }
-    const a = this.createAudio(fileFor(n));
+    const a = this.createAudio(this.srcFor(n));
     a.volume = this.settings.sfx;
     void a.play().catch(() => undefined);
   }
@@ -234,16 +347,18 @@ export class AudioPlayer {
    * stinger plays alone, and the rotation (if it is running) picks up again
    * after the usual rest. While a stinger plays nothing else may start.
    */
-  private stinger(n: number): void {
+  private stinger(n: number, key: SfxKey): void {
+    this.stingerKey = key;
     if (this.voice) {
-      this.pendingStinger = n;
+      this.pendingStinger = { n, key };
       return;
     }
     this.clearTimers();
     this.dropMusic();
     this.phase = 'stinger';
     const a = this.createAudio(fileFor(n));
-    a.volume = this.settings.music;
+    a.volume = this.musicVolume(); // ducked if a clerk is already talking
+    a.muted = this.musicOff();
     let done = false;
     const resume = () => {
       if (done || this.music !== a) return;
@@ -258,6 +373,29 @@ export class AudioPlayer {
     void a.play().catch(resume);
   }
 
+  /**
+   * The player has left the place whose music is playing (closed the Hi-Tech
+   * U window, say): that stinger fades out fast and the rotation, if it is
+   * running, picks up after the usual rest. Other stingers and the rotation
+   * itself are untouched.
+   */
+  leave(): void {
+    if (!this.stingerKey || !PLACE_STINGERS.has(this.stingerKey)) return;
+    this.stingerKey = null;
+    if (this.pendingStinger) {
+      this.pendingStinger = null;
+      return;
+    }
+    const a = this.music;
+    if (this.phase !== 'stinger' || !a) return;
+    this.fade(a, true, LEAVE_SECONDS, () => {
+      if (this.music !== a) return;
+      this.dropMusic();
+      this.phase = 'idle';
+      if (!this.stopped) this.rest();
+    });
+  }
+
   // ---- music ---------------------------------------------------------------
 
   /**
@@ -267,6 +405,7 @@ export class AudioPlayer {
   start(): void {
     if (!this.stopped) return;
     this.stopped = false;
+    this.startKeepAlive();
     if (this.phase === 'stinger') return;
     this.rest();
   }
@@ -278,6 +417,23 @@ export class AudioPlayer {
     this.dropVoice();
     this.pendingStinger = null;
     this.phase = 'idle';
+    if (this.keepAlive) {
+      this.keepAlive.pause();
+      this.keepAlive.src = '';
+      this.keepAlive = null;
+    }
+  }
+
+  /** The silent loop (see SILENCE_URI): the output stream stays open between sounds. */
+  private startKeepAlive(): void {
+    if (this.keepAlive) return;
+    const a = this.createAudio(SILENCE_URI);
+    a.loop = true;
+    a.volume = 1;
+    this.keepAlive = a;
+    void a.play().catch(() => {
+      if (this.keepAlive === a) this.keepAlive = null;
+    });
   }
 
   private clearTimers(): void {
@@ -304,7 +460,7 @@ export class AudioPlayer {
     this.lastTrack = n;
     this.dropMusic();
     const a = this.createAudio(fileFor(n));
-    a.muted = this.settings.muted;
+    a.muted = this.musicOff();
     a.volume = 0;
     this.music = a;
     this.phase = 'playing';
@@ -327,16 +483,17 @@ export class AudioPlayer {
     this.fade(a, true);
   }
 
-  private fade(a: AudioLike, out: boolean): void {
+  private fade(a: AudioLike, out: boolean, seconds = FADE_SECONDS, onDone?: () => void): void {
     if (this.fadeTimer) clearInterval(this.fadeTimer);
     this.fadeStart = performance.now();
     const tick = () => {
       const elapsed = (performance.now() - this.fadeStart) / 1000;
-      const g = fadeGain(elapsed, FADE_SECONDS, out);
+      const g = fadeGain(elapsed, seconds, out);
       a.volume = g * this.musicVolume();
-      if (elapsed >= FADE_SECONDS && this.fadeTimer) {
+      if (elapsed >= seconds && this.fadeTimer) {
         clearInterval(this.fadeTimer);
         this.fadeTimer = null;
+        onDone?.();
       }
     };
     tick();

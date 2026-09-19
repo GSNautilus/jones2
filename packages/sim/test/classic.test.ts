@@ -1,7 +1,10 @@
 /** Classic ruleset: time, travel, locations and the player actions. */
 import { describe, expect, it } from 'vitest';
-import { routeHours, TownGraph, riverton, type Town } from '@jones2/town';
-import { applyAction, availableActions, createGame, cp, describeAction } from '../src';
+import { routeHours, travelHourMultiplier, TownGraph, riverton, type Town } from '@jones2/town';
+import { applyAction, availableActions, classic, createGame, cp, describeAction } from '../src';
+
+const { travelHours } = classic;
+const MULT = travelHourMultiplier(riverton as Town);
 import { config, endAll, must, teleport } from './classic-helpers';
 
 const graph = new TownGraph(riverton as Town);
@@ -25,8 +28,10 @@ describe('classic: the 60-hour week', () => {
     expect(r.ok).toBe(true);
     if (!r.ok) return;
     expect(r.event.duration).toBe(route.minutes);
-    expect(r.state.players.a!.minutesLeft).toBe(3600 - routeHours(route.minutes) * 60);
+    expect(r.state.players.a!.minutesLeft).toBe(3600 - travelHours(route.minutes, MULT) * 60);
     expect(routeHours(route.minutes)).toBe(3); // the hour ladder: depot -> employment is 3h
+    expect(MULT).toBe(2); // Riverton charges twice the ladder
+    expect(travelHours(route.minutes, MULT)).toBe(6);
   });
 
   it('disables an action that does not fit in the hours left', () => {
@@ -233,5 +238,34 @@ describe('classic: shops', () => {
     if (!r.ok) return;
     expect(r.state.players.a!.minutesLeft).toBe(left - 60);
     expect(r.event.text).toContain(s.classic!.headline);
+  });
+});
+
+describe('classic: the original board (townId "classic")', () => {
+  it('starts everyone at Low-Cost Housing and charges a ring hop one hour', () => {
+    const s0 = createGame(config({ townId: 'classic' }));
+    expect(s0.players.a!.node).toBe('lowcost');
+    const r = applyAction(s0, 'a', { type: 'travel', to: 'pawn' });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.state.players.a!.minutesLeft).toBe(3600 - 60);
+    expect(r.event.duration).toBeLessThanOrEqual(60);
+  });
+
+  it('the far side of the ring is five hours and a lap about ten', () => {
+    const s0 = createGame(config({ townId: 'classic' }));
+    const far = describeAction(s0, 'a', { type: 'travel', to: 'employment' });
+    expect(far.minutes).toBe(5 * 60);
+    const opts = availableActions(s0, 'a').filter((o) => o.action.type === 'travel');
+    expect(opts).toHaveLength(12); // every other classic location, nothing closed
+    const worst = Math.max(...opts.map((o) => o.minutes));
+    expect(worst).toBe(5 * 60);
+  });
+
+  it('sends a player home to their apartment at the start of the next week', () => {
+    let s = createGame(config({ townId: 'classic' }));
+    s = must(s, 'a', { type: 'travel', to: 'bank' });
+    s = endAll(s);
+    expect(s.players.a!.node).toBe('lowcost');
   });
 });

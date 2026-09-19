@@ -6,8 +6,9 @@ nothing here can regress the other ruleset.
 
 Shape (docs/PLAN.md §2 and §4, mocked in `art/sheets/ui-classic.png`): the board
 fills the stage; the only permanent furniture is the pie clock bottom-centre
-with WEEK #N under it and the cash readout bottom-right. Everything else is a
-framed window in the centre, over the map.
+with WEEK #N under it, the big cash readout with END TURN bottom-right, and
+GOALS / STATISTICS / OPTIONS bottom-left. Everything else is a framed window
+in the centre, over the map.
 
 ## Files
 Pure, unit-tested (no DOM, no React):
@@ -37,16 +38,22 @@ React:
 - `PixelPanel.tsx` — one canvas: paint at native size, blow up by an integer
   zoom with smoothing off, hit-test with the same layout. Carries a
   `data-buttons` attribute purely so the screenshot harness can click DONE.
+- `OptionsPanel.tsx` — the OPTIONS window: Music and Sound sliders with a mute
+  each (`AudioSettings.musicMuted` / `soundMuted`), NEW GAME. A DOM `Frame`,
+  because the pixel window has no slider.
 - `ClassicScreen.tsx` — the screen. Map wiring (highlight, hover route +
   tooltip + clock preview, click to travel and open), the card deck, the
-  window, goals/statistics, the bottom bar.
+  window, goals/statistics/options, the bottom bar with END TURN.
 
 ## Things worth knowing
 - The map hover/pick handlers are registered **once** and read everything
   volatile through refs. Re-registering them on every render would run the effect
   cleanup, which clears the route and the clock preview the hover just set.
 - Tokens and CLOSED boards reach the map through the figure MARKER convention
-  in `src/map/figures.ts`; `src/map/api.ts` (THE CONTRACT) is untouched.
+  in `src/map/figures.ts`. `FigureStyle` (the contract) carries `emphasis`
+  (the active player's big, bobbing token; every other token is plain size so
+  four at one door sit side by side) and `caption` (the recap's bubble saying
+  what a player is doing).
 - The clock now FILLS as the week is spent (`pieFraction` / `previewWedge` in
   `src/hud/clockMath.ts`). The old drain-ring maths is still exported and still
   tested, because the Jones 2 screen reads it.

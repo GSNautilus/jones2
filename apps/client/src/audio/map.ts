@@ -48,6 +48,9 @@ export const SFX_KEYS: SfxKey[] = [
 /** Moments that are music in their own right: the rotation ducks while they play. */
 export const STINGERS: ReadonlySet<SfxKey> = new Set<SfxKey>(['graduate', 'university', 'startTurn', 'theme', 'newGame']);
 
+/** Stingers that belong to a place: they stop, quickly, when the player leaves it. */
+export const PLACE_STINGERS: ReadonlySet<SfxKey> = new Set<SfxKey>(['university']);
+
 /** Keywords in a sound's name that put it under a key; first match wins. */
 const KEYWORDS: Array<[SfxKey, RegExp]> = [
   ['cash', /cash|register|till|money|pay/i],

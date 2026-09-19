@@ -1,4 +1,4 @@
-import { TownGraph, riverton, type LocationId, type Town, type TransportMode } from '@jones2/town';
+import { TOWNS, TownGraph, type LocationId, type TransportMode } from '@jones2/town';
 import * as C from './content/config';
 import { HOUSING, type Housing, type Amenity } from './content/housing';
 import { JOBS, type Job } from './content/jobs';
@@ -8,7 +8,6 @@ import { LOCATIONS, type Location } from './content/locations';
 import type { Delta, GameState, PlayerState, TrackId } from './types';
 
 const graphs = new Map<string, TownGraph>();
-const TOWNS: Record<string, Town> = { riverton: riverton as Town };
 
 export function getGraph(townId: string): TownGraph {
   let g = graphs.get(townId);

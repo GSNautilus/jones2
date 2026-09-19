@@ -65,7 +65,7 @@ import {
   WATER,
   WOODS,
 } from './riverton/plan';
-import { DRIVEWAY_MINUTES, H, HALF, MARGIN, MAX_GAP, PER_MINUTE, SETBACK, W, type LocSpec } from './riverton/spec';
+import { DRIVEWAY_MINUTES, H, HALF, MARGIN, MAX_GAP, PER_MINUTE, SETBACK, TRAVEL_HOUR_MULTIPLIER, W, type LocSpec } from './riverton/spec';
 import { type Crossing, buildCourses, inWater, roadCrossings, toWaterCourses, waterCrossings } from './riverton/water';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -440,6 +440,52 @@ for (const l of locNodes) {
   edge.minutes = Math.max(DRIVEWAY_MINUTES[0], Math.min(DRIVEWAY_MINUTES[1], edge.minutes));
 }
 
+/* ------------------------------------------------------------------ exits */
+
+/**
+ * Roads that leave town keep going through the edge of the map (decided
+ * 2026-09-18). Each listed street end gets a straight stub from its end node
+ * out past the canvas edge, on the same street id and kind, so the renderer
+ * chains it into the same stroke; the ground layer stops at the canvas plus
+ * its margin, so the road is cut off by the edge of the map rather than
+ * ending in a field. Exit nodes are junctions nobody can travel to.
+ */
+const EXITS: Array<{ street: string; at: 'start' | 'end' }> = [
+  { street: 'highway', at: 'start' },
+  { street: 'highway', at: 'end' },
+  { street: 'main_st', at: 'end' },
+  { street: 'uptown_rd', at: 'end' },
+  { street: 'campus_rd', at: 'end' },
+  { street: 'mill_rd', at: 'end' },
+  { street: 'works_rd', at: 'end' },
+];
+/** How far past the canvas edge a stub runs (more than the renderer's margin). */
+const EXIT_BEYOND = 80;
+
+for (const ex of EXITS) {
+  const st = streets.get(ex.street);
+  if (!st) throw new Error(`exit on unknown street ${ex.street}`);
+  const poly = st.poly;
+  const tip = ex.at === 'start' ? poly[0]! : poly[poly.length - 1]!;
+  const back = ex.at === 'start' ? poly[Math.min(poly.length - 1, 8)]! : poly[Math.max(0, poly.length - 9)]!;
+  const d = unit({ x: tip.x - back.x, y: tip.y - back.y });
+  // distance along d from the tip to the canvas edge
+  let t = Infinity;
+  if (d.x > 0) t = Math.min(t, (W - tip.x) / d.x);
+  if (d.x < 0) t = Math.min(t, -tip.x / d.x);
+  if (d.y > 0) t = Math.min(t, (H - tip.y) / d.y);
+  if (d.y < 0) t = Math.min(t, -tip.y / d.y);
+  if (!Number.isFinite(t)) throw new Error(`exit on ${ex.street} does not point off the map`);
+  const len = t + EXIT_BEYOND;
+  const p = { x: Math.round(tip.x + d.x * len), y: Math.round(tip.y + d.y * len) };
+  const endNode = resolveNode(ex.at === 'start' ? `${ex.street}_w` : `${ex.street}_e`);
+  if (!nodePos.has(endNode)) throw new Error(`exit on ${ex.street}: no end node ${endNode}`);
+  const exitId = `exit_${ex.street}_${ex.at === 'start' ? 'w' : 'e'}`;
+  nodePos.set(exitId, p);
+  nodes.push({ id: exitId, x: p.x, y: p.y });
+  pushEdge(endNode, exitId, st.kind, ex.street, [], len);
+}
+
 /* ------------------------------------------------------------- bus routes */
 
 /** Cheapest walkable chain of nodes, used to lay bus lines over real streets. */
@@ -714,6 +760,7 @@ const town: Town = {
   name: 'Riverton',
   startNode: 'bus_depot',
   canvas: { w: W, h: H },
+  travelHourMultiplier: TRAVEL_HOUR_MULTIPLIER,
   nodes,
   edges,
   water: toWaterCourses(WATER),

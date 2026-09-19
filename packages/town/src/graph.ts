@@ -1,4 +1,4 @@
-import type { NodeId, Route, Town, TownEdge, TransportMode, TransportProfile } from './types';
+import type { NodeId, Route, Town, TownEdge, TownNode, TransportMode, TransportProfile } from './types';
 
 export const TRANSPORT: Record<TransportMode, TransportProfile> = {
   walk: { mode: 'walk', speed: 1.0, roads: ['street', 'path'], overhead: 0 },
@@ -17,6 +17,17 @@ export const MINUTES_PER_HOUR = 60;
  */
 export function routeHours(minutes: number): number {
   return Math.max(1, Math.ceil(minutes / MINUTES_PER_HOUR));
+}
+
+/** The town's travel charge multiplier (`Town.travelHourMultiplier`), 1 when unset. */
+export function travelHourMultiplier(town: Town): number {
+  const m = town.travelHourMultiplier;
+  return m !== undefined && m > 0 ? m : 1;
+}
+
+/** Where the building sprite's anchor is drawn for a node: the node plus its `spriteOffset`. */
+export function spriteAnchor(node: TownNode): { x: number; y: number } {
+  return { x: node.x + (node.spriteOffset?.x ?? 0), y: node.y + (node.spriteOffset?.y ?? 0) };
 }
 
 /** Precomputed adjacency for fast repeated queries. */

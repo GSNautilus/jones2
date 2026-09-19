@@ -8,6 +8,7 @@
 import { useEffect, useState } from 'react';
 import type { ComponentType, MutableRefObject, ReactNode } from 'react';
 import { allPlayersDone } from '@jones2/sim';
+import { TOWNS, riverton, type Town } from '@jones2/town';
 import type { PickResult, TownScene } from '../map/api';
 import '../hud/hud.css';
 import { MapControls } from '../hud/MapControls';
@@ -35,6 +36,13 @@ export function GameRoot({ scene, mapSlot, pickRef, hoverRef, ReplayView }: Game
   useEffect(() => {
     if (state && state.phase === 'playing' && allPlayersDone(state)) setResolving(true);
   }, [state]);
+
+  // The map is whichever town the game is on; the setup screen shows Riverton behind the form.
+  const townId = state?.config.townId ?? 'riverton';
+  useEffect(() => {
+    scene.setTown((TOWNS[townId] ?? (riverton as Town)) as Town);
+    scene.fitAll();
+  }, [scene, townId]);
 
   if (!state) return <SetupScreen store={store} />;
 

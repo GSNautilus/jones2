@@ -1,0 +1,367 @@
+{
+  "id": "classic",
+  "name": "Classic",
+  "startNode": "lowcost",
+  "canvas": {
+    "w": 640,
+    "h": 400
+  },
+  "travelHourMultiplier": 1,
+  "nodes": [
+    {
+      "id": "security_apts",
+      "name": "Security Apartments",
+      "x": 118,
+      "y": 128,
+      "location": "security_apts",
+      "pixel": {
+        "kind": "security_apts"
+      },
+      "spriteOffset": {
+        "x": -62,
+        "y": -20
+      }
+    },
+    {
+      "id": "rent_office",
+      "name": "Rent Office",
+      "x": 215,
+      "y": 128,
+      "location": "rent_office",
+      "pixel": {
+        "kind": "rent_office"
+      },
+      "spriteOffset": {
+        "x": 0,
+        "y": -20
+      }
+    },
+    {
+      "id": "lowcost",
+      "name": "Low-Cost Housing",
+      "x": 320,
+      "y": 128,
+      "location": "lowcost",
+      "pixel": {
+        "kind": "lowcost"
+      },
+      "spriteOffset": {
+        "x": 0,
+        "y": -20
+      }
+    },
+    {
+      "id": "pawn",
+      "name": "Pawn Shop",
+      "x": 425,
+      "y": 128,
+      "location": "pawn",
+      "pixel": {
+        "kind": "pawn"
+      },
+      "spriteOffset": {
+        "x": 0,
+        "y": -20
+      }
+    },
+    {
+      "id": "zmart",
+      "name": "Z-Mart",
+      "x": 522,
+      "y": 128,
+      "location": "zmart",
+      "pixel": {
+        "kind": "zmart"
+      },
+      "spriteOffset": {
+        "x": 68,
+        "y": -20
+      }
+    },
+    {
+      "id": "monolith",
+      "name": "Monolith Burgers",
+      "x": 522,
+      "y": 180,
+      "location": "monolith",
+      "pixel": {
+        "kind": "monolith"
+      },
+      "spriteOffset": {
+        "x": 64,
+        "y": 40
+      }
+    },
+    {
+      "id": "qt_clothing",
+      "name": "QT Clothing",
+      "x": 522,
+      "y": 258,
+      "location": "qt_clothing",
+      "pixel": {
+        "kind": "qt_clothing"
+      },
+      "spriteOffset": {
+        "x": 64,
+        "y": 36
+      }
+    },
+    {
+      "id": "socket_city",
+      "name": "Socket City",
+      "x": 522,
+      "y": 296,
+      "location": "socket_city",
+      "pixel": {
+        "kind": "socket_city"
+      },
+      "spriteOffset": {
+        "x": 64,
+        "y": 94
+      }
+    },
+    {
+      "id": "university",
+      "name": "Hi-Tech University",
+      "x": 425,
+      "y": 296,
+      "location": "university",
+      "pixel": {
+        "kind": "university"
+      },
+      "spriteOffset": {
+        "x": 0,
+        "y": 100
+      }
+    },
+    {
+      "id": "employment",
+      "name": "Employment Office",
+      "x": 215,
+      "y": 296,
+      "location": "employment",
+      "pixel": {
+        "kind": "employment"
+      },
+      "spriteOffset": {
+        "x": 0,
+        "y": 94
+      }
+    },
+    {
+      "id": "factory",
+      "name": "Consolidated Widgets Factory",
+      "x": 118,
+      "y": 296,
+      "location": "factory",
+      "pixel": {
+        "kind": "factory"
+      },
+      "spriteOffset": {
+        "x": -66,
+        "y": 98
+      }
+    },
+    {
+      "id": "bank",
+      "name": "First Jones Bank",
+      "x": 118,
+      "y": 262,
+      "location": "bank",
+      "pixel": {
+        "kind": "bank"
+      },
+      "spriteOffset": {
+        "x": -66,
+        "y": 42
+      }
+    },
+    {
+      "id": "blacks_market",
+      "name": "Black's Market",
+      "x": 118,
+      "y": 180,
+      "location": "blacks_market",
+      "pixel": {
+        "kind": "blacks_market"
+      },
+      "spriteOffset": {
+        "x": -66,
+        "y": 37
+      }
+    }
+  ],
+  "edges": [
+    {
+      "a": "security_apts",
+      "b": "rent_office",
+      "minutes": 51,
+      "kind": "path",
+      "street": "ring"
+    },
+    {
+      "a": "rent_office",
+      "b": "lowcost",
+      "minutes": 55,
+      "kind": "path",
+      "street": "ring"
+    },
+    {
+      "a": "lowcost",
+      "b": "pawn",
+      "minutes": 55,
+      "kind": "path",
+      "street": "ring"
+    },
+    {
+      "a": "pawn",
+      "b": "zmart",
+      "minutes": 51,
+      "kind": "path",
+      "street": "ring"
+    },
+    {
+      "a": "zmart",
+      "b": "monolith",
+      "minutes": 27,
+      "kind": "path",
+      "street": "ring"
+    },
+    {
+      "a": "monolith",
+      "b": "qt_clothing",
+      "minutes": 41,
+      "kind": "path",
+      "street": "ring"
+    },
+    {
+      "a": "qt_clothing",
+      "b": "socket_city",
+      "minutes": 20,
+      "kind": "path",
+      "street": "ring"
+    },
+    {
+      "a": "socket_city",
+      "b": "university",
+      "minutes": 51,
+      "kind": "path",
+      "street": "ring"
+    },
+    {
+      "a": "university",
+      "b": "employment",
+      "minutes": 110,
+      "kind": "path",
+      "street": "ring"
+    },
+    {
+      "a": "employment",
+      "b": "factory",
+      "minutes": 51,
+      "kind": "path",
+      "street": "ring"
+    },
+    {
+      "a": "factory",
+      "b": "bank",
+      "minutes": 18,
+      "kind": "path",
+      "street": "ring"
+    },
+    {
+      "a": "bank",
+      "b": "blacks_market",
+      "minutes": 43,
+      "kind": "path",
+      "street": "ring"
+    },
+    {
+      "a": "blacks_market",
+      "b": "security_apts",
+      "minutes": 27,
+      "kind": "path",
+      "street": "ring"
+    }
+  ],
+  "decor": [
+    {
+      "kind": "plaza",
+      "x": 108,
+      "y": 118,
+      "w": 424,
+      "h": 20
+    },
+    {
+      "kind": "plaza",
+      "x": 108,
+      "y": 286,
+      "w": 424,
+      "h": 20
+    },
+    {
+      "kind": "plaza",
+      "x": 108,
+      "y": 118,
+      "w": 20,
+      "h": 188
+    },
+    {
+      "kind": "plaza",
+      "x": 512,
+      "y": 118,
+      "w": 20,
+      "h": 188
+    },
+    {
+      "kind": "tree_round",
+      "x": 137,
+      "y": 104
+    },
+    {
+      "kind": "bush",
+      "x": 266,
+      "y": 106
+    },
+    {
+      "kind": "tree_round",
+      "x": 379,
+      "y": 104
+    },
+    {
+      "kind": "tree_round",
+      "x": 498,
+      "y": 100
+    },
+    {
+      "kind": "bush",
+      "x": 600,
+      "y": 128
+    },
+    {
+      "kind": "tree_round",
+      "x": 300,
+      "y": 372
+    },
+    {
+      "kind": "bush",
+      "x": 340,
+      "y": 360
+    },
+    {
+      "kind": "tree_pine",
+      "x": 138,
+      "y": 372
+    },
+    {
+      "kind": "bush",
+      "x": 506,
+      "y": 360
+    },
+    {
+      "kind": "tree_round",
+      "x": 40,
+      "y": 132
+    }
+  ]
+}

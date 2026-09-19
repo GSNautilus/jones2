@@ -66,7 +66,10 @@ Distance is now a real cost, so the town's shape *is* game design.
   either stay as inert scenery or are removed from the classic town.
 
 **Decided 2026-09-16 (first pass)**
-1. Whole-hour travel with a distance ladder (superseded in detail by the table below).
+1. Whole-hour travel with a distance ladder (superseded in detail by the table below). Since
+   2026-09-18 every trip is charged **twice** its ladder hours (`travelHourMultiplier: 2` on the
+   Riverton town JSON, read by `classic.travelHours`); the ladder itself, the replay and the walk
+   animation are unchanged. The classic ring (below) sets 1.
 2. The 14 non-classic buildings stay on the map as **inert placeholders**: drawn, labelled CLOSED
    (a sign/board on the sprite and a "Closed" note if clicked), not enterable, no actions.
    They are reserved for later rulesets. On the new map they are scattered through the wedges as
@@ -135,6 +138,34 @@ after the first playthrough felt the map was too cheap to cross. The table now r
 Arriving costs three hours to reach the jobs board once. A cross-river errand is most of a
 working day, which is the point: where you live decides what you can do in a week. The earlier "centre wedge" table (Employment, Monolith and Rent Office at the crossing) is
 superseded.
+
+**Roads leave the map (added 2026-09-18)**
+
+Riverton's through roads no longer end in a field: both ends of the highway, the main street's
+east end, the uptown road north, the campus road east, the mill road west and the works road
+south continue as straight stubs past the canvas edge (`EXITS` in `tools/riverton.ts`, nodes
+`exit_*`, walkers cannot go there). The renderer's layer is the canvas plus its margin, so the
+edge of the map cuts the road off. Ambient traffic uses the stubs to turn round out of sight.
+
+**The classic map (added 2026-09-18)**
+
+A second town, `townId: 'classic'`, offered beside Riverton at new game creation: the original
+board as our engine sees it. Source of truth `packages/town/tools/classic.ts` →
+`src/towns/classic.json`; asserted by `packages/town/test/classic.test.ts`.
+- The thirteen buildings on a ring, clockwise from the top-left as the original screen reads:
+  Security Apartments, Rent Office, Low-Cost Housing, Pawn Shop, Z-Mart, Monolith Burgers,
+  QT Clothing, Socket City, Hi-Tech U, Employment Office, Factory, Bank, Black's Market. Nothing
+  else: no closed placeholders, no bus depot. The centre is empty for the location window.
+- Canvas 640×400 (the original 320×200 at 2×). Every node is ON the walkway (a paved band with a
+  path on it) and its sprite hangs off it outward via `TownNode.spriteOffset`, so tokens stand
+  on the ring in front of the building where the marble did.
+- Travel: the fan wiki's Locations page says a full lap costs about 10 Hours, so the perimeter
+  is 600 minutes and the classic ruleset's whole-hour charge makes a hop to the next building
+  1h (2h across the clock gap between Hi-Tech U and the Employment Office) and the far side of
+  the board 5h. `travelHourMultiplier` is 1: no doubling. Routes take the short way round.
+- Players start at their apartment (Low-Cost Housing by default), as the wiki's Time page has it.
+- Not done: the wiki also says entering any location advances the clock by 2 Hours. That is a
+  ruleset rule, not a map rule, and would apply to Riverton too; decide before adding it.
 
 **Build order for the map**
 1. Amend this plan (done) and write the hour-table test, failing, as the target.
@@ -221,6 +252,13 @@ non-classic locations.
 - **Clock fills like a pie**, as the original: the face fills clockwise as hours are spent, so
   time *left* is the unfilled remainder. WEEK #N under it. Hover preview shades the slice an
   action would consume.
+- **Bottom bar (2026-09-18):** a large cash readout with END TURN under it at the bottom right;
+  GOALS, STATISTICS and OPTIONS at the bottom left. OPTIONS holds the Music and Sound sliders
+  with a mute each, and NEW GAME. Nothing else is permanently on the board.
+- **Week end (2026-09-18):** "Resolve and watch the recap" or "Skip the recap"; no abandon
+  button there (that lives under OPTIONS). In the recap the players stay numbered tokens, each
+  on its own seat beside the door so they never overlap, with a caption bubble over each saying
+  what they are doing.
 
 ---
 

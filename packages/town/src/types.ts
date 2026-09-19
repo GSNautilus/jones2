@@ -96,6 +96,14 @@ export interface TownNode {
    * sim location id.
    */
   pixel?: { kind: string; params?: Record<string, string | number | boolean> };
+  /**
+   * Draw the building sprite with its anchor displaced from the node by this
+   * much, in town units. The node itself stays where routes end and figures
+   * stand. The classic ring uses it: every building's node is ON the walkway,
+   * and the sprite hangs off it outward (above the top row, below the bottom
+   * row, beside the columns), the way the original board is drawn.
+   */
+  spriteOffset?: { x: number; y: number };
 }
 
 export interface TownEdge {
@@ -130,6 +138,13 @@ export interface Town {
    * still derives its bounds from the content.
    */
   canvas?: { w: number; h: number };
+  /**
+   * The classic ruleset charges every trip its whole hours (`routeHours`)
+   * times this. Riverton sets 2 (decided 2026-09-18: the big map felt too
+   * cheap to cross); the classic ring sets 1 so a lap costs the original's
+   * ten hours. Absent means 1.
+   */
+  travelHourMultiplier?: number;
   nodes: TownNode[];
   edges: TownEdge[];
   /** Rivers and lakes as curves. Rectangle 'water' decor still works for small ponds. */

@@ -3,7 +3,8 @@
  * at least 1 Hour to start" rule rather than needing their full cost: a Work session pays pro
  * rata, and a University lesson takes whatever is left with no penalty.
  */
-import { routeHours } from '@jones2/town';
+import { travelHourMultiplier } from '@jones2/town';
+import { travelHours } from '../content/classic';
 import {
   APPLICATION_LUCK_ROLL_MAX,
   CLASSIC_JOBS,
@@ -38,7 +39,7 @@ export function jobSpec(cx: Ctx, a: Action): Spec | string | null {
       const route = graph.bestRoute(p.node, a.to, ['walk']);
       if (!route) return 'No route';
       const name = graph.node(a.to).name ?? a.to;
-      const hours = routeHours(route.minutes);
+      const hours = travelHours(route.minutes, travelHourMultiplier(graph.town));
       return {
         label: `Go to ${name} (${hours}h)`,
         hours,

@@ -140,6 +140,9 @@ export function clampOrigin(view: View, layerW: number, layerH: number): void {
   const visH = view.height / view.zoom;
   const slackX = Math.max(0, visW * PAN_SLACK);
   const slackY = Math.max(0, visH * PAN_SLACK);
-  view.originX = Math.max(-slackX, Math.min(layerW - visW + slackX, view.originX));
-  view.originY = Math.max(-slackY, Math.min(layerH - visH + slackY, view.originY));
+  // A layer smaller than the screen (Riverton at zoom 1 on a 4K monitor, the
+  // classic ring at zoom 2) may sit anywhere fully inside the screen, so it
+  // can still be dragged; `fitAll` puts it in the middle.
+  view.originX = layerW < visW ? Math.max(layerW - visW, Math.min(0, view.originX)) : Math.max(-slackX, Math.min(layerW - visW + slackX, view.originX));
+  view.originY = layerH < visH ? Math.max(layerH - visH, Math.min(0, view.originY)) : Math.max(-slackY, Math.min(layerH - visH + slackY, view.originY));
 }

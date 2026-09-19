@@ -14,6 +14,8 @@
  * which is the whole point.
  */
 import type { NodeId, Town } from '@jones2/town';
+import { AmbientSim, carPose, seedFrom, type Road } from './ambient';
+import { chainsFor } from './streets';
 import type { CreateTownScene, FigurePose, FigureStyle, PickResult, TownScene, TownSceneOptions } from './api';
 import { PX_PER_UNIT, getArt } from './art';
 import {
@@ -33,7 +35,12 @@ import {
   type FigureState,
   type ResolvedFigure,
   anyMoving,
+  type CaptionPlan,
+  type CaptionRect,
   drawFigure,
+  paintCaptionBubble,
+  paintCaptionStem,
+  planCaption,
   drawFigureLabel,
   resolveFigure,
 } from './figures';
@@ -57,6 +64,15 @@ import {
 const BACKDROP = '#20241d';
 
 const EMPTY_TOWN: Town = { id: 'empty', name: 'empty', startNode: '', nodes: [], edges: [] };
+
+/** True when the user has asked the OS for less motion; ambient life then starts off. */
+function prefersReducedMotion(): boolean {
+  try {
+    return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  } catch {
+    return false;
+  }
+}
 
 class PixelTownScene implements TownScene {
   private readonly options: TownSceneOptions;
@@ -87,6 +103,10 @@ class PixelTownScene implements TownScene {
 
   private raf = 0;
   private dirty = true;
+  private ambient: AmbientSim | null = null;
+  private ambientOn: boolean;
+  private lastTick = 0;
+  private lastRender = 0;
   private lastHover = 0;
   private lastHoverNode: NodeId | null | undefined;
 
@@ -97,6 +117,7 @@ class PixelTownScene implements TownScene {
   private movedFar = false;
 
   constructor(options: TownSceneOptions = {}) {
+    this.ambientOn = options.ambient ?? !prefersReducedMotion();
     this.options = options;
   }
 
@@ -182,6 +203,14 @@ class PixelTownScene implements TownScene {
             }),
           };
     this.ground = buildGround(this.town, this.art, this.pal);
+    const g = this.ground;
+    this.ambient = new AmbientSim(chainsFor(this.town) as Road[], { x: g.offsetX, y: g.offsetY, w: g.width, h: g.height }, seedFrom(this.town.id));
+    this.lastTick = 0;
+  }
+
+  setAmbient(on: boolean): void {
+    this.ambientOn = on;
+    this.dirty = true;
   }
 
   setHighlight(nodeIds: NodeId[]): void {
@@ -374,10 +403,22 @@ class PixelTownScene implements TownScene {
 
   private readonly loop = (): void => {
     this.raf = requestAnimationFrame(this.loop);
+    const now = Date.now();
     const figures = [...this.figures.values()];
     const animating = anyMoving(figures) || (this.followId !== null && this.figures.has(this.followId));
-    if (!this.dirty && !animating) return;
+    // Ambient life ticks in real seconds and, on its own, redraws at ~30 fps;
+    // a walking figure or a camera follow still gets every frame.
+    let live = false;
+    if (this.ambient && this.ambientOn && !this.options.editable) {
+      const dt = this.lastTick ? Math.min(0.1, (now - this.lastTick) / 1000) : 0;
+      this.lastTick = now;
+      this.ambient.step(dt);
+      live = true;
+    }
+    if (!this.dirty && !animating && !live) return;
+    if (!this.dirty && !animating && now - this.lastRender < 30) return;
     this.dirty = false;
+    this.lastRender = now;
     this.render();
   };
 
@@ -425,7 +466,9 @@ class PixelTownScene implements TownScene {
 
     this.drawHighlights(frame, ox, oy);
     this.drawRoute(frame, ox, oy);
-    this.drawFigures(frame, ox, oy);
+    const traffic = this.drawTraffic(frame, ox, oy);
+    this.drawFigures(frame, ox, oy, traffic);
+    this.drawSky(frame, ox, oy);
     if (this.options.editable) this.drawEditorHandles(frame, ox, oy);
 
     const image = this.image!;
@@ -496,7 +539,53 @@ class PixelTownScene implements TownScene {
     }
   }
 
-  private drawFigures(frame: Surface, ox: number, oy: number): void {
+  /** Cars on the roads. Returns where they are, so buildings can stand in front of them. */
+  private drawTraffic(frame: Surface, ox: number, oy: number): Array<{ nx: number; ny: number }> {
+    const sim = this.ambient;
+    const out: Array<{ nx: number; ny: number }> = [];
+    if (!sim || !this.ambientOn || this.options.editable || !this.art.vehicle) return out;
+    for (const car of sim.cars) {
+      const road = sim.roads[car.road];
+      if (!road) continue;
+      const pose = carPose(road, car);
+      const nx = pose.x * PX_PER_UNIT;
+      const ny = pose.y * PX_PER_UNIT;
+      if (nx < ox - 16 || nx > ox + frame.width + 16 || ny < oy - 16 || ny > oy + frame.height + 16) continue;
+      blitAnchored(frame, this.art.vehicle(pose.angle, car.colour), nx - ox, ny - oy);
+      out.push({ nx, ny });
+    }
+    return out;
+  }
+
+  /** Birds, the plane and the helicopter, over everything, with their shadows on the ground. */
+  private drawSky(frame: Surface, ox: number, oy: number): void {
+    const sim = this.ambient;
+    if (!sim || !this.ambientOn || this.options.editable || !this.art.sky) return;
+    const shadow = this.pal.index('shadow', [63, 74, 56]);
+    for (const f of sim.fliers) {
+      if (!f.active) continue;
+      const east = f.vx >= 0;
+      const name = f.kind === 'plane' ? `plane_${east ? 'e' : 'w'}` : `heli_${east ? 'e' : 'w'}_${sim.rotorFrame()}`;
+      const sprite = this.art.sky(name);
+      if (!sprite) continue;
+      const nx = f.x * PX_PER_UNIT - ox;
+      const ny = f.y * PX_PER_UNIT - oy;
+      // the shadow falls down and to the right, further for the higher plane
+      const drop = f.kind === 'plane' ? 26 : 12;
+      ditherEllipse(frame, nx + drop / 2, ny + drop, sprite.width / 2, Math.max(2, sprite.height / 4), shadow);
+      blitAnchored(frame, sprite, nx, ny);
+    }
+    for (const flock of sim.flocks) {
+      if (!flock.active) continue;
+      for (const b of flock.birds) {
+        const sprite = this.art.sky(`bird_${sim.birdFrame(b.phase)}`);
+        if (!sprite) continue;
+        blitAnchored(frame, sprite, (flock.x + b.dx) * PX_PER_UNIT - ox, (flock.y + b.dy) * PX_PER_UNIT - oy);
+      }
+    }
+  }
+
+  private drawFigures(frame: Surface, ox: number, oy: number, traffic: Array<{ nx: number; ny: number }> = []): void {
     const g = this.ground!;
     const now = Date.now();
     const resolved: ResolvedFigure[] = [];
@@ -504,7 +593,7 @@ class PixelTownScene implements TownScene {
       const r = resolveFigure(this.town, fig, now);
       if (r) resolved.push(r);
     }
-    if (resolved.length === 0) return;
+    if (resolved.length === 0 && traffic.length === 0) return;
     resolved.sort((a, b) => a.ny - b.ny || a.nx - b.nx);
 
     // Markers (player tokens, CLOSED boards) are overlays, not inhabitants:
@@ -517,7 +606,10 @@ class PixelTownScene implements TownScene {
     // Occlusion: re-blit any building standing in front of a figure (larger
     // anchor y) whose sprite overlaps it. Cheap, and visually identical to
     // compositing the whole band.
-    const minY = walkers.length ? walkers[0]!.ny : Infinity;
+    // Cars on a road behind a building are hidden by it just like walkers.
+    const covered: Array<{ nx: number; ny: number }> = [...walkers, ...traffic];
+    let minY = Infinity;
+    for (const c of covered) if (c.ny < minY) minY = c.ny;
     for (const p of g.placements) {
       if (!p.id || p.ny <= minY) continue;
       const left = p.nx - p.sprite.anchorX;
@@ -525,7 +617,7 @@ class PixelTownScene implements TownScene {
       const right = left + p.sprite.width;
       const bottom = top + p.sprite.height;
       if (right < ox || left > ox + frame.width || bottom < oy || top > oy + frame.height) continue;
-      const hides = walkers.some(
+      const hides = covered.some(
         (f) => f.ny < p.ny && f.nx > left - 12 && f.nx < right + 12 && f.ny > top - 24 && f.ny < bottom + 24,
       );
       if (hides) blitAnchored(frame, p.sprite, p.nx - ox, p.ny - oy);
@@ -540,6 +632,22 @@ class PixelTownScene implements TownScene {
         drawFigureLabel(frame, this.pal, f, sprite.height, ox, oy);
       }
     }
+
+    // Caption bubbles (the recap's "what they did") go over every plate, at
+    // every zoom: zoomed out, where the plates hide, the text is doubled so it
+    // still reads. They stack upward when two figures at one door would
+    // cover each other.
+    const bubbles: CaptionRect[] = [];
+    const captionScale = this.view.zoom >= LABEL_MIN_ZOOM ? 1 : 2;
+    const plans: CaptionPlan[] = [];
+    for (const f of resolved) {
+      if (!f.caption) continue;
+      const sprite = this.art.character(f.dir, f.frame, 1);
+      const plan = planCaption(f, sprite.height, ox, oy, bubbles, captionScale);
+      if (plan) plans.push(plan);
+    }
+    for (const p of plans) paintCaptionStem(frame, this.pal, p);
+    for (const p of plans) paintCaptionBubble(frame, this.pal, p);
   }
 
   private drawEditorHandles(frame: Surface, ox: number, oy: number): void {

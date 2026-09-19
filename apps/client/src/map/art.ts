@@ -8,7 +8,7 @@
  * plate, so the town never has holes while the catalogue grows.
  */
 import type { TownNode } from '@jones2/town';
-import { CHARACTERS, LOCATION_RECIPES, NATURE, PALETTE, PROPS, TILES, UI, buildFromRef, tintCharacter, walkFrame } from '@jones2/pixelart';
+import { CAR_HEADINGS, CHARACTERS, LOCATION_RECIPES, NATURE, PALETTE, PROPS, SKY, TILES, UI, buildFromRef, carTopDown, tintCharacter, walkFrame } from '@jones2/pixelart';
 import type { Palette, PixelBuildingRef, Sprite } from './pixelart';
 
 export type TileKind = 'grass' | 'water' | 'path' | 'plaza';
@@ -26,6 +26,10 @@ export interface ArtSet {
    * hand-rolled test art sets stay valid; see the MARKERS note in `figures.ts`.
    */
   ui?(name: string): Sprite | undefined;
+  /** A driving car pointing along `angle` (radians, 0 = east), in one of the catalogue's colours. */
+  vehicle?(angle: number, colour: number): Sprite;
+  /** A sky sprite by catalogue name (`bird_0`, `plane_e`, `heli_w_1`, ...). */
+  sky?(name: string): Sprite | undefined;
 }
 
 /**
@@ -46,6 +50,7 @@ export function inferRef(node: TownNode): PixelBuildingRef {
 function realArt(): ArtSet {
   const buildings = new Map<string, Sprite>();
   const chars = new Map<string, Sprite>();
+  const vehicles = new Map<string, Sprite>();
   return {
     palette: PALETTE,
     building(ref, node) {
@@ -77,6 +82,20 @@ function realArt(): ArtSet {
     },
     ui(name) {
       return UI[name];
+    },
+    vehicle(angle, colour) {
+      const step = (Math.PI * 2) / CAR_HEADINGS;
+      const idx = ((Math.round(angle / step) % CAR_HEADINGS) + CAR_HEADINGS) % CAR_HEADINGS;
+      const key = `car|${idx}|${colour}`;
+      let s = vehicles.get(key);
+      if (!s) {
+        s = carTopDown(idx * step, colour);
+        vehicles.set(key, s);
+      }
+      return s;
+    },
+    sky(name) {
+      return SKY[name];
     },
   };
 }

@@ -16,6 +16,12 @@ export const MARGIN = 16;
 /** Half the drawn width of each road kind, in pixels (matches the renderer). */
 export const HALF: Record<RoadKind, number> = { highway: 10, street: 7, busline: 7, path: 4 };
 
+/**
+ * The classic ruleset charges every trip its ladder hours times this (decided 2026-09-18:
+ * Riverton felt too cheap to cross). Written to the town JSON as `travelHourMultiplier`.
+ */
+export const TRAVEL_HOUR_MULTIPLIER = 2;
+
 /** Pixels of arc length per minute on foot. The hour ladder lives on these. */
 export const PER_MINUTE: Record<RoadKind, number> = { street: 5.25, busline: 5.25, path: 4, highway: 7 };
 

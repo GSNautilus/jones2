@@ -1,7 +1,7 @@
 /**
  * Classic-ruleset balance run: one player per scripted strategy, N games, and a report of when
  * each goal is first met.
- *   npm run balance -- --ruleset classic --games 30 --weeks 60
+ *   npm run balance -- --ruleset classic --games 30 --weeks 60 [--town classic|riverton]
  */
 import {
   applyAction,
@@ -38,13 +38,13 @@ function mulberry(seed: number) {
   };
 }
 
-function playGame(seed: number, maxWeeks: number, goals: GoalTargets, names: string[]): ClassicOutcome {
+function playGame(seed: number, maxWeeks: number, goals: GoalTargets, names: string[], townId: string): ClassicOutcome {
   let s: GameState = createGame({
     mode: 'classic',
     ruleset: 'classic',
     goals,
     seed,
-    townId: 'riverton',
+    townId,
     players: names.map((n) => ({ id: n, name: n })),
   });
   const rng = mulberry(seed * 7919);
@@ -99,12 +99,12 @@ function playGame(seed: number, maxWeeks: number, goals: GoalTargets, names: str
   return { winner: s.winner, weeks: s.history.length, firstMet, byWeek, final };
 }
 
-export function runClassic(games: number, maxWeeks: number): void {
+export function runClassic(games: number, maxWeeks: number, townId = 'classic'): void {
   const goals = CLASSIC_DEFAULT_GOALS;
   const names = Object.keys(CLASSIC_STRATEGIES);
   const t0 = Date.now();
   const outcomes: ClassicOutcome[] = [];
-  for (let g = 0; g < games; g++) outcomes.push(playGame(1000 + g, maxWeeks, goals, names));
+  for (let g = 0; g < games; g++) outcomes.push(playGame(1000 + g, maxWeeks, goals, names, townId));
   const ms = Date.now() - t0;
 
   console.log(`\nCLASSIC ruleset: ${games} games, cap ${maxWeeks} weeks, goals ${JSON.stringify(goals)}`);

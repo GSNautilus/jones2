@@ -18,6 +18,10 @@ export interface FigureStyle {
   color: string;
   /** Short label shown above the figure (player name). */
   label: string;
+  /** Drawn larger and bobbing: the player whose turn it is. Only a token figure changes. */
+  emphasis?: boolean;
+  /** What the figure is doing right now, in a bubble above the name plate (the week recap). */
+  caption?: string;
 }
 
 /** Where a figure is, either standing at a node or part-way along an edge. */
@@ -48,6 +52,8 @@ export interface TownSceneOptions {
   onDragStart?: (hit: PickResult) => void;
   onDrag?: (hit: PickResult) => void;
   onDragEnd?: () => void;
+  /** Ambient life (traffic, birds, aircraft). Defaults to on, unless the user prefers reduced motion. */
+  ambient?: boolean;
 }
 
 export interface TownScene {
@@ -75,6 +81,10 @@ export interface TownScene {
   panTo(x: number, y: number): void;
   /** Fit the whole town in view. */
   fitAll(): void;
+  /** Turn the ambient life (cars, birds, aircraft) on or off. */
+  setAmbient(on: boolean): void;
+  /** Turn the ambient life (cars, birds, aircraft) on or off. */
+  setAmbient(on: boolean): void;
   /** Re-read canvas size. Call on window resize. */
   resize(): void;
   /** Editor support: move a node's visual immediately without a full rebuild. */

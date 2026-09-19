@@ -1,8 +1,10 @@
 /**
  * The classic play screen (PLAN §2): the board fills the stage, nothing is
- * permanently on top of it except the clock at the bottom centre and the cash
- * readout at the bottom right. Everything else is a centre window over the map
- * — start-of-week cards, the location window, goals, statistics.
+ * permanently on top of it except the clock at the bottom centre, the cash
+ * readout with the END TURN button at the bottom right, and GOALS /
+ * STATISTICS / OPTIONS at the bottom left. Everything else is a centre window
+ * over the map — start-of-week cards, the location window, goals, statistics,
+ * options.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { MutableRefObject } from 'react';
@@ -20,6 +22,19 @@ import { planWalk, walkPose, type WalkPlan } from './walk';
 import { buildLocationWindow, locationPanel } from './menu';
 import type { PanelModel } from './layout';
 import { PixelPanel } from './PixelPanel';
+import { OptionsPanel } from './OptionsPanel';
+import { PixelChrome } from './PixelChrome';
+import type { ChromeModel } from './chrome';
+
+const AMBIENT_KEY = 'jones2-ambient';
+
+function loadAmbient(): boolean {
+  try {
+    return localStorage.getItem(AMBIENT_KEY) !== 'off';
+  } catch {
+    return true;
+  }
+}
 import { goalsModel, statsModel } from './screens';
 import { hoursLeft, hoursOf, travelTooltip } from './tooltip';
 import { audio, cardLine, greetingLine, quoteGroupsFor, quoteLine, refusalGroupFor, sfxForEvent, type SfxKey } from '../audio';
@@ -31,7 +46,7 @@ export interface ClassicScreenProps {
   hoverRef: MutableRefObject<((hit: PickResult) => void) | null>;
 }
 
-type Overlay = 'none' | 'goals' | 'stats' | 'closed';
+type Overlay = 'none' | 'goals' | 'stats' | 'options' | 'closed';
 
 function travelTo(a: Action): NodeId | null {
   return a.type === 'travel' ? a.to : null;
@@ -44,6 +59,16 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
   const [dismissed, setDismissed] = useState(0);
   const [deck, setDeck] = useState('');
   const [openLoc, setOpenLoc] = useState<string | null>(null);
+  // Traffic, birds and aircraft on the map; remembered per browser.
+  const [ambient, setAmbientState] = useState<boolean>(loadAmbient);
+  useEffect(() => {
+    scene.setAmbient(ambient);
+    try {
+      localStorage.setItem(AMBIENT_KEY, ambient ? 'on' : 'off');
+    } catch {
+      /* ignore */
+    }
+  }, [scene, ambient]);
   const openLocRef = useRef(openLoc);
   openLocRef.current = openLoc;
   const [visits, setVisits] = useState<Record<string, number>>({});
@@ -145,7 +170,8 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
     for (const id of state.playerOrder) {
       const pl = state.players[id]!;
       const t = tokens[id]!;
-      figures[id] = { color: t.color, label: tokenLabel(t.token, pl.name) };
+      // The player whose turn it is gets the big, bobbing token.
+      figures[id] = { color: t.color, label: tokenLabel(t.token, pl.name), emphasis: id === currentPid };
       // A walking player's pose is driven by the walk loop, not by state.
       if (walkingRef.current?.pid === id) continue;
       poses[id] = { kind: 'at', node: pl.node, ghost: id !== currentPid };
@@ -167,12 +193,14 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
   }, [scene, currentPid]);
 
   // ---- audio ----------------------------------------------------------------
-  const [muted, setMuted] = useState(() => audio.current.muted);
   useEffect(() => {
     let live = true;
     void audio.loadVoices();
     void audio.load().then(() => {
-      if (live) audio.start();
+      if (!live) return;
+      audio.start();
+      // Effects into memory, so a WORK or a purchase sounds the instant it lands.
+      void audio.preload();
     });
     return () => {
       live = false;
@@ -219,9 +247,12 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
     if (loc && group) speakGroups(loc, [group]);
   }, [store.error]);
 
-  // The clerk stops talking when the window closes.
+  // The clerk stops talking when the window closes, and the place's music goes.
   useEffect(() => {
-    if (openLoc === null) audio.hush();
+    if (openLoc === null) {
+      audio.hush();
+      audio.leave();
+    }
   }, [openLoc]);
 
   // The walk loop: move the token each frame, then open the window on arrival.
@@ -407,6 +438,22 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
   const cash = Math.round(player.cash);
   const left = hoursLeft(player.minutesLeft);
 
+  // The corner furniture, as pixel art. The hours line only reads while the
+  // clock is hovered (PLAN §2), but its room is always kept so nothing jumps.
+  const barModel: ChromeModel = {
+    arrange: 'row',
+    buttons: [
+      { key: 'goals', label: 'GOALS' },
+      { key: 'stats', label: 'STATISTICS' },
+      { key: 'options', label: 'OPTIONS' },
+    ],
+  };
+  const readoutModel: ChromeModel = {
+    arrange: 'stack',
+    display: [`$${cash.toLocaleString()}`, clockHover ? `${left}H LEFT` : ' '],
+    buttons: [{ key: 'end', label: 'END TURN', enabled: walking === null }],
+  };
+
   const cardModel: PanelModel | null = card
     ? {
         title: card.title,
@@ -428,32 +475,11 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
       <MapControls scene={scene} />
 
       <div className="classic-bar-left">
-        <button type="button" className="hud-btn" onClick={() => setOverlay('goals')}>
-          Goals
-        </button>
-        <button type="button" className="hud-btn" onClick={() => setOverlay('stats')}>
-          Statistics
-        </button>
-        <button
-          type="button"
-          className="hud-btn"
-          onClick={() => {
-            setOpenLoc(null);
-            store.act({ type: 'endWeek' });
-          }}
-        >
-          End week
-        </button>
-        <button
-          type="button"
-          className="hud-btn"
-          title="Abandon this game and return to setup"
-          onClick={() => {
-            if (window.confirm('Abandon this game and start a new one?')) store.reset();
-          }}
-        >
-          New game
-        </button>
+        <PixelChrome
+          model={barModel}
+          onButton={(key) => setOverlay(key as 'goals' | 'stats' | 'options')}
+          titles={{ goals: 'Everyone’s progress toward the four goals', stats: 'Your money, job, degrees and possessions', options: 'Sound, animation, new game' }}
+        />
       </div>
 
       <div className="classic-turn">
@@ -474,20 +500,14 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
       </div>
 
       <div className="classic-readout">
-        <button
-          type="button"
-          className="classic-mute"
-          title={muted ? 'Sound off. Click for sound.' : 'Sound on. Click to mute.'}
-          onClick={() => {
-            const next = !muted;
-            setMuted(next);
-            audio.update({ muted: next });
+        <PixelChrome
+          model={readoutModel}
+          titles={{ end: left > 0 ? `End your turn with ${left}h unspent` : 'End your turn' }}
+          onButton={() => {
+            setOpenLoc(null);
+            store.act({ type: 'endWeek' });
           }}
-        >
-          {muted ? 'SOUND OFF' : 'SOUND ON'}
-        </button>
-        <span className="classic-readout-value">{`$${cash.toLocaleString()}`}</span>
-        {clockHover && <span className="classic-readout-time">{`${left}H LEFT`}</span>}
+        />
       </div>
 
       {tip && !blocked && (
@@ -512,6 +532,14 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
         <div className="classic-modal">
           <PixelPanel model={goalsModel(state)} width={360} maxListRows={15} onButton={() => setOverlay('none')} />
         </div>
+      )}
+
+      {!cardModel && overlay === 'options' && (
+        <OptionsPanel
+          onClose={() => setOverlay('none')}
+          onNewGame={() => store.reset()}
+          animation={{ on: ambient, onChange: setAmbientState }}
+        />
       )}
 
       {!cardModel && overlay === 'stats' && (

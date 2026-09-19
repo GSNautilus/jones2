@@ -6,6 +6,7 @@
     "w": 1920,
     "h": 1152
   },
+  "travelHourMultiplier": 2,
   "nodes": [
     {
       "id": "theme_park",
@@ -797,6 +798,41 @@
       "id": "w_lake_ln_0_1",
       "x": 1815,
       "y": 881
+    },
+    {
+      "id": "exit_highway_w",
+      "x": -78,
+      "y": 1162
+    },
+    {
+      "id": "exit_highway_e",
+      "x": 1977,
+      "y": 173
+    },
+    {
+      "id": "exit_main_st_e",
+      "x": 1984,
+      "y": 67
+    },
+    {
+      "id": "exit_uptown_rd_e",
+      "x": 442,
+      "y": -28
+    },
+    {
+      "id": "exit_campus_rd_e",
+      "x": 1996,
+      "y": 712
+    },
+    {
+      "id": "exit_mill_rd_e",
+      "x": -76,
+      "y": 586
+    },
+    {
+      "id": "exit_works_rd_e",
+      "x": 811,
+      "y": 1229
     }
   ],
   "edges": [
@@ -3228,6 +3264,55 @@
       "minutes": 5,
       "kind": "street",
       "street": "dwy_chez_cholesterol"
+    },
+    {
+      "a": "highway_w",
+      "b": "exit_highway_w",
+      "minutes": 34,
+      "kind": "highway",
+      "street": "highway"
+    },
+    {
+      "a": "highway_e",
+      "b": "exit_highway_e",
+      "minutes": 16,
+      "kind": "highway",
+      "street": "highway"
+    },
+    {
+      "a": "a_stadium",
+      "b": "exit_main_st_e",
+      "minutes": 58,
+      "kind": "street",
+      "street": "main_st"
+    },
+    {
+      "a": "uptown_rd_e",
+      "b": "exit_uptown_rd_e",
+      "minutes": 95,
+      "kind": "street",
+      "street": "uptown_rd"
+    },
+    {
+      "a": "campus_rd_e",
+      "b": "exit_campus_rd_e",
+      "minutes": 23,
+      "kind": "street",
+      "street": "campus_rd"
+    },
+    {
+      "a": "mill_rd_e",
+      "b": "exit_mill_rd_e",
+      "minutes": 83,
+      "kind": "street",
+      "street": "mill_rd"
+    },
+    {
+      "a": "works_rd_e",
+      "b": "exit_works_rd_e",
+      "minutes": 22,
+      "kind": "street",
+      "street": "works_rd"
     },
     {
       "a": "a_bus_depot",

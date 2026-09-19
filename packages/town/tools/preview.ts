@@ -5,7 +5,7 @@
  * to end), water rectangles, real-size building boxes labelled with their
  * location id, junction dots, and decor as coloured pixels.
  *
- * Run from the repo root: npx tsx packages/town/tools/preview.ts
+ * Run from the repo root: npx tsx packages/town/tools/preview.ts [riverton|classic]
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -20,13 +20,15 @@ import { blitRGBA, encodePNG, spriteToRGBA } from '../../pixelart/tools/png';
 import { PALETTE } from '../../pixelart/src/palette';
 
 import riverton from '../src/towns/riverton.json';
+import classic from '../src/towns/classic.json';
 import type { RoadKind, Town, TownEdge } from '../src/types';
 import { type Pt, sampleCurve } from './geom';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const OUT = resolve(HERE, '../../../art/sheets/riverton-graph.png');
+const TOWN_ID = process.argv[2] ?? 'riverton';
+const OUT = resolve(HERE, `../../../art/sheets/${TOWN_ID}-graph.png`);
 
-const town = riverton as unknown as Town;
+const town = (TOWN_ID === 'classic' ? classic : riverton) as unknown as Town;
 const SCALE = 1; // preview scale, not the game's
 
 const W = town.canvas?.w ?? 1920;
@@ -206,8 +208,8 @@ for (const n of town.nodes) {
     kind: n.location,
   };
   const sprite = buildFromRef(ref.kind, ref.params);
-  const x = n.x - sprite.anchorX;
-  const y = n.y - sprite.anchorY;
+  const x = n.x + (n.spriteOffset?.x ?? 0) - sprite.anchorX;
+  const y = n.y + (n.spriteOffset?.y ?? 0) - sprite.anchorY;
   rect(s, x, y, sprite.width, sprite.height, C.creamShade ?? C.paving);
   outline(s, x, y, sprite.width, sprite.height, C.ink);
   drawText(s, x + 3, y + 3, n.location.slice(0, 11).toUpperCase(), C.ink, { spacing: 0 });

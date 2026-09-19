@@ -29,7 +29,15 @@ export function SetupScreen({ store }: { store: GameStore }) {
     };
   }, []);
 
-  const [ruleset, setRuleset] = useState<Ruleset>('classic');
+  const [ruleset, setRulesetRaw] = useState<Ruleset>('classic');
+  // The map: 'classic' is the original's ring, 'riverton' the Jones 2 town. It
+  // follows the rules until the player picks one explicitly.
+  const [townId, setTownId] = useState<string>('classic');
+  const [townPicked, setTownPicked] = useState(false);
+  const setRuleset = (r: Ruleset) => {
+    setRulesetRaw(r);
+    if (!townPicked) setTownId(r === 'classic' ? 'classic' : 'riverton');
+  };
   const [names, setNames] = useState(['Ann', 'Bob', '', '']);
   const [mode, setMode] = useState<'classic' | 'fixed'>('classic');
   const [weeks, setWeeks] = useState(30);
@@ -56,7 +64,7 @@ export function SetupScreen({ store }: { store: GameStore }) {
       weeks: !isClassic && mode === 'fixed' ? weeks : undefined,
       goals: { ...goals },
       seed,
-      townId: 'riverton',
+      townId,
       players,
     });
   };
@@ -68,6 +76,19 @@ export function SetupScreen({ store }: { store: GameStore }) {
         <select className="hud-action-input" value={ruleset} onChange={(e) => setRuleset(e.target.value as Ruleset)}>
           <option value="classic">Classic — Jones in the Fast Lane</option>
           <option value="jones2">Jones 2 — the extended design</option>
+        </select>
+
+        <label>Map</label>
+        <select
+          className="hud-action-input"
+          value={townId}
+          onChange={(e) => {
+            setTownId(e.target.value);
+            setTownPicked(true);
+          }}
+        >
+          <option value="classic">Classic — the original board, a ring of 13 buildings</option>
+          <option value="riverton">Jones 2 — Riverton, the river and highway town</option>
         </select>
 
         <label>Players</label>

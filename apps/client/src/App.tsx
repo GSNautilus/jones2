@@ -32,13 +32,8 @@ function ModeLinks({ mode }: { mode: Mode }) {
     ['editor', '/?editor'],
     ['map', '/?map'],
   ];
-  // In play mode the top-right corner belongs to the camera buttons, so the
-  // mode switch sits in the bottom-right instead.
-  const spot = mode === 'play'
-    ? { left: 'auto' as const, right: 10, top: 'auto' as const, bottom: 10 }
-    : { left: 'auto' as const, right: 12, top: 12 };
   return (
-    <div className="overlay mode-links" style={spot}>
+    <div className="overlay mode-links" style={{ left: 'auto', right: 12, top: 12 }}>
       {links.map(([m, href]) => (
         <a
           key={m}
@@ -80,16 +75,16 @@ function PlayRoot() {
     onPick: (h) => pickRef.current?.(h),
     onHover: (h) => hoverRef.current?.(h),
   });
+  // Dev builds expose the scene so a scripted browser (screenshots, the
+  // trailer capture) can drive the camera. Never in production.
   useEffect(() => {
-    scene.setTown(TOWN);
-    scene.fitAll();
+    const env = (import.meta as unknown as { env?: { DEV?: boolean } }).env;
+    if (env?.DEV) (window as unknown as { __scene?: typeof scene }).__scene = scene;
   }, [scene]);
-  return (
-    <>
-      <GameRoot scene={scene} mapSlot={<MapCanvas scene={scene} />} pickRef={pickRef} hoverRef={hoverRef} ReplayView={ReplayView} />
-      <ModeLinks mode="play" />
-    </>
-  );
+  // GameRoot loads the town the game is on (the setup screen shows Riverton).
+  // Play mode has no mode links: the bottom-right corner is the cash readout
+  // and the END TURN button. The other modes are reached by their URLs.
+  return <GameRoot scene={scene} mapSlot={<MapCanvas scene={scene} />} pickRef={pickRef} hoverRef={hoverRef} ReplayView={ReplayView} />;
 }
 
 function ReplayRoot() {

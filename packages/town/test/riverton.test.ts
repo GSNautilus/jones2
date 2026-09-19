@@ -185,10 +185,30 @@ describe('riverton — geometry', () => {
   it('declares its canvas and keeps every node inside it, with margin', () => {
     expect(town.canvas).toEqual({ w: 1920, h: 1152 });
     for (const n of town.nodes) {
+      if (n.id.startsWith('exit_')) continue; // the road stubs that leave the map
       expect(n.x, `${n.id}.x`).toBeGreaterThanOrEqual(MARGIN);
       expect(n.x, `${n.id}.x`).toBeLessThanOrEqual(CANVAS_W - MARGIN);
       expect(n.y, `${n.id}.y`).toBeGreaterThanOrEqual(MARGIN);
       expect(n.y, `${n.id}.y`).toBeLessThanOrEqual(CANVAS_H - MARGIN);
+    }
+  });
+
+  it('seven roads keep going through the edge of the map', () => {
+    const exits = town.nodes.filter((n) => n.id.startsWith('exit_'));
+    expect(exits.map((n) => n.id).sort()).toEqual(
+      ['exit_campus_rd_e', 'exit_highway_e', 'exit_highway_w', 'exit_main_st_e', 'exit_mill_rd_e', 'exit_uptown_rd_e', 'exit_works_rd_e'],
+    );
+    for (const n of exits) {
+      const outside = n.x < 0 || n.x > CANVAS_W || n.y < 0 || n.y > CANVAS_H;
+      expect(outside, `${n.id} must lie beyond the canvas`).toBe(true);
+      expect(n.location, `${n.id} is a junction, not a place`).toBeUndefined();
+      const stubs = town.edges.filter((e) => e.a === n.id || e.b === n.id);
+      expect(stubs, `${n.id} hangs off exactly one road`).toHaveLength(1);
+      // the stub continues the street it leaves by, so it draws as one stroke
+      const street = stubs[0]!.street!;
+      const others = town.edges.filter((e) => e.street === street && e !== stubs[0]);
+      expect(others.length).toBeGreaterThan(0);
+      expect(stubs[0]!.kind).toBe(others[0]!.kind);
     }
   });
 

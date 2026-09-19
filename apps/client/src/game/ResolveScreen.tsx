@@ -10,6 +10,7 @@ import type { NodeId, Town, TownGraph } from '@jones2/town';
 import type { TownScene } from '../map/api';
 import type { GameStore } from './store';
 import { Frame, FrameButton } from '../hud/Frame';
+import { assignTokens, tokenLabel } from '../classic/tokens';
 import { Deltas } from './format';
 
 /** Matches the ReplayView contract in src/replay/types.ts. */
@@ -19,7 +20,8 @@ export interface ReplayProps {
   graph: TownGraph;
   logs: Record<PlayerId, PlayerEvent[]>;
   starts: Record<PlayerId, NodeId>;
-  players: Record<PlayerId, { name: string; color: string }>;
+  /** `label` is the figure's map label (a token marker for the classic screen); the name when absent. */
+  players: Record<PlayerId, { name: string; color: string; label?: string }>;
   onDone?: () => void;
 }
 
@@ -32,6 +34,7 @@ export interface ResolveScreenProps {
 }
 
 function ReportNotes({ report, state }: { report: WeekReport; state: GameState }) {
+  if (report.notes.length === 0) return null;
   return (
     <div className="report">
       <ul>
@@ -43,6 +46,42 @@ function ReportNotes({ report, state }: { report: WeekReport; state: GameState }
           </li>
         ))}
       </ul>
+    </div>
+  );
+}
+
+/** Hour of the week an event started at, for the log. */
+function hourOf(minute: number): string {
+  return `${Math.floor(minute / 60)}h`;
+}
+
+/**
+ * The week's log, one column per player: every action they took with the hour
+ * it started at and what it changed. The same events the recap animates.
+ */
+function PlayerLogs({ report, state }: { report: WeekReport; state: GameState }) {
+  return (
+    <div className="report-logs">
+      {state.playerOrder.map((id) => {
+        const events = report.logs[id] ?? [];
+        return (
+          <div key={id} className="report-log">
+            <h4>{state.players[id]!.name}</h4>
+            {events.length === 0 ? (
+              <p className="hud-tagline">Did nothing this week.</p>
+            ) : (
+              <ol>
+                {events.map((e, i) => (
+                  <li key={i}>
+                    <span className="report-log-hour">{hourOf(e.minute)}</span> {e.text}
+                    {e.deltas.length > 0 && <Deltas deltas={e.deltas} />}
+                  </li>
+                ))}
+              </ol>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -62,7 +101,8 @@ export function ResolveScreen({ store, scene, ReplayView, onExit }: ResolveScree
     const winner = state.winner ? state.players[state.winner] : null;
     return (
       <div className="hud-modal">
-        <Frame title={winner ? `${winner.name} wins!` : 'Game over'} className="hud-modal-card">
+        <Frame title={winner ? `${winner.name} wins!` : 'Game over'} className="hud-modal-card hud-modal-wide">
+          {lastReport && <PlayerLogs report={lastReport} state={state} />}
           {lastReport && <ReportNotes report={lastReport} state={state} />}
           <FrameButton onClick={store.reset}>New game</FrameButton>
         </Frame>
@@ -74,7 +114,7 @@ export function ResolveScreen({ store, scene, ReplayView, onExit }: ResolveScree
     return (
       <div className="hud-modal">
         <Frame title={`Week ${state.week} — everyone is done`} className="hud-modal-card">
-          <p className="hud-tagline">Resolve the week to see how it played out.</p>
+          <p className="hud-tagline">Resolve the week and watch the recap of what everyone did, or go straight to the report.</p>
           <div className="hud-row hud-row-wrap">
             <FrameButton
               onClick={() => {
@@ -83,9 +123,16 @@ export function ResolveScreen({ store, scene, ReplayView, onExit }: ResolveScree
                 setStep('replay');
               }}
             >
-              Resolve the week
+              Resolve and watch the recap
             </FrameButton>
-            <FrameButton onClick={store.reset}>Abandon game</FrameButton>
+            <FrameButton
+              onClick={() => {
+                store.resolve();
+                setStep('done');
+              }}
+            >
+              Skip the recap
+            </FrameButton>
           </div>
         </Frame>
       </div>
@@ -95,9 +142,17 @@ export function ResolveScreen({ store, scene, ReplayView, onExit }: ResolveScree
   if (step === 'replay') {
     if (!replayStarts || !lastReport) return null;
     const graph = getGraph(state.config.townId);
-    const players: Record<PlayerId, { name: string; color: string }> = {};
+    // The classic screen's players are numbered tokens; they stay tokens in
+    // the recap, each on its own seat beside the door so nobody overlaps.
+    const classic = state.config.ruleset === 'classic';
+    const tokens = assignTokens(state.playerOrder);
+    const players: Record<PlayerId, { name: string; color: string; label?: string }> = {};
     for (const id of state.playerOrder) {
-      players[id] = { name: state.players[id]!.name, color: playerColors[id] ?? '#888888' };
+      const name = state.players[id]!.name;
+      const t = tokens[id]!;
+      players[id] = classic
+        ? { name, color: t.color, label: tokenLabel(t.token, name) }
+        : { name, color: playerColors[id] ?? '#888888' };
     }
     return (
       <div className="replay-wrap">
@@ -111,7 +166,7 @@ export function ResolveScreen({ store, scene, ReplayView, onExit }: ResolveScree
           onDone={() => setStep('done')}
         />
         <FrameButton className="skip" onClick={() => setStep('done')}>
-          Skip replay
+          Skip recap
         </FrameButton>
       </div>
     );
@@ -120,7 +175,8 @@ export function ResolveScreen({ store, scene, ReplayView, onExit }: ResolveScree
   // step === 'done', game still playing: show the report, then continue.
   return (
     <div className="hud-modal">
-      <Frame title={`Week ${lastReport ? lastReport.week : state.week} resolved`} className="hud-modal-card">
+      <Frame title={`Week ${lastReport ? lastReport.week : state.week} resolved`} className="hud-modal-card hud-modal-wide">
+        {lastReport && <PlayerLogs report={lastReport} state={state} />}
         {lastReport && <ReportNotes report={lastReport} state={state} />}
         <FrameButton onClick={onExit}>Continue</FrameButton>
       </Frame>

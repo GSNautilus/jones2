@@ -84,3 +84,37 @@
   top: 56px;
   z-index: 2;
 }
+
+/* Week resolved: the log of what each player did, one column per player. */
+.hud-modal-wide {
+  max-width: min(960px, 92vw);
+}
+.report-logs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 10px;
+  max-height: 46vh;
+  overflow: auto;
+}
+.report-log h4 {
+  margin: 0 0 4px;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.report-log ol {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.report-log li {
+  margin-bottom: 3px;
+}
+.report-log-hour {
+  display: inline-block;
+  min-width: 2.6em;
+  font-weight: 700;
+  opacity: 0.75;
+}

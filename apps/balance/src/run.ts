@@ -17,10 +17,12 @@ const GAMES = Number(arg('games', '30'));
 const MAX_WEEKS = Number(arg('weeks', '80'));
 const MODE = arg('mode', 'classic') as 'classic' | 'fixed';
 const RULESET = arg('ruleset', 'jones2') as 'classic' | 'jones2';
+/** 'riverton' (the Jones 2 map) or 'classic' (the original's ring). */
+const TOWN = arg('town', RULESET === 'classic' ? 'classic' : 'riverton');
 const NAMES = Object.keys(STRATEGIES);
 
 if (RULESET === 'classic') {
-  runClassic(GAMES, MAX_WEEKS);
+  runClassic(GAMES, MAX_WEEKS, TOWN);
   process.exit(0);
 }
 
@@ -46,7 +48,7 @@ function playGame(seed: number): Outcome {
     weeks: MODE === 'fixed' ? MAX_WEEKS : undefined,
     goals: DEFAULT_GOALS,
     seed,
-    townId: 'riverton',
+    townId: TOWN,
     players: NAMES.map((n) => ({ id: n, name: n })),
   });
   const rng = mulberry(seed * 7919);
