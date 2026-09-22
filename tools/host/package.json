@@ -1,0 +1,18 @@
+{
+  "name": "@jones2/host",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Tools the game's host runs on their own machine with the Supabase secret key: asset upload, and later new games and invites.",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "upload-assets": "tsx src/upload-assets.ts"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.117.0"
+  }
+}
