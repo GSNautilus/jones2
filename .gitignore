@@ -9,6 +9,5 @@ apps/balance/out/
 .claude/settings.local.json
 *.stackdump
 tools/sci/soundfont/
-art/audio/wav/
+assets/sierra/
 Jones3x/
-art/audio/voice/wav/

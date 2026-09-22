@@ -2,7 +2,7 @@
 
 Working plan for the next stretch of work. Discussed 2026-09-16; status tags as in DESIGN.md
 (**DECIDED** / **DISCUSSING** / **DEFERRED**). Reference material: `docs/original-rules.md`
-(49 pages from the fan wiki, extracted verbatim) and `art/reference/original/*.png`.
+(49 pages from the fan wiki, extracted verbatim) and `assets/sierra/reference/*.png`.
 
 Direction in one sentence: **reproduce the original's gameplay and interface faithfully on the
 new pixel-art town, then grow from there.** Everything added in DESIGN.md §6 that the original

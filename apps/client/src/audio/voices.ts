@@ -1,6 +1,6 @@
 /**
  * The clerks' spoken lines from the CD-ROM edition, by number. The labelling
- * lives in `public/audio/voices.json` (written by `tools/sci`'s matching
+ * lives in `assets/sierra/audio/voices.json` (written by `tools/sci`'s matching
  * pass, see docs/VOICES.md): which line numbers are each location's greetings,
  * in the wiki's order, and which are its responses, grouped as the wiki
  * groups them ("Bought an Item", "Pay Rent", "Got the Job"…). This module

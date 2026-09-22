@@ -1,7 +1,7 @@
 /**
  * Which extracted sound plays for which game moment. The sounds are known by
  * number (their resource number in the original game) and by the names given
- * on the audition page, kept in `public/audio/names.json` as `{ "23": "cash
+ * on the audition page, kept in `assets/sierra/audio/names.json` as `{ "23": "cash
  * register", ... }`. This module turns those names into the map the game
  * uses, by keyword, so renaming a sound is enough to re-wire it; an explicit
  * `overrides` block in the same file wins over the keywords.

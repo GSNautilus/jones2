@@ -2,7 +2,7 @@
  * Extract every sound resource from an SCI game directory as a standard MIDI
  * file, plus a manifest describing each one.
  *
- *   npx tsx tools/sci/src/extract.ts "<game dir>" art/audio/midi [device]
+ *   npx tsx tools/sci/src/extract.ts "<game dir>" assets/sierra/source/midi [device]
  *
  * `device` picks the track: mt32 (default), adlib, gm, pcspeaker, tandy, cms.
  *

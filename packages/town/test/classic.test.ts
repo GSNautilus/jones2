@@ -1,7 +1,7 @@
 /**
  * The classic town: the original board as a ring. These are the facts the
  * generator (`tools/classic.ts`) must keep, taken from the original's screen
- * (art/reference/original/wiki_map.png) and the fan wiki's Locations page
+ * (assets/sierra/reference/wiki_map.png) and the fan wiki's Locations page
  * ("a full lap around the entire board costing about 10 Hours"; the list is
  * "sorted by their position on the board, going clockwise from the very top").
  */

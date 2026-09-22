@@ -2,14 +2,18 @@
  * The labelled voice file itself: every line is used once, the greeting
  * lists are as long as the wiki's, and nothing is left unresolved.
  */
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { classic } from '@jones2/sim';
 import type { VoicesFile } from '../../src/audio/voices';
 
-const file = JSON.parse(readFileSync(join(__dirname, '../../public/audio/voices.json'), 'utf8')) as VoicesFile;
-const manifest = JSON.parse(readFileSync(join(__dirname, '../../public/audio/manifest.json'), 'utf8')) as unknown;
+// The original game's audio is not in the repo (assets/README.md); these checks run where it is.
+const dir = join(__dirname, '../../../../assets/sierra/audio');
+const present = existsSync(join(dir, 'voices.json'));
+const read = (name: string, empty: unknown): unknown => (present ? JSON.parse(readFileSync(join(dir, name), 'utf8')) : empty);
+const file = read('voices.json', { greetings: {}, quotes: {}, cards: {}, unresolved: [] }) as VoicesFile;
+const manifest = read('manifest.json', []);
 
 function allLines(v: VoicesFile): number[] {
   const out: number[] = [];
@@ -19,7 +23,7 @@ function allLines(v: VoicesFile): number[] {
   return out;
 }
 
-describe('voices.json', () => {
+describe.skipIf(!present)('voices.json', () => {
   it('uses each of the 533 lines exactly once and leaves none unresolved', () => {
     const lines = allLines(file);
     expect(lines.length + file.unresolved.length).toBe(533);

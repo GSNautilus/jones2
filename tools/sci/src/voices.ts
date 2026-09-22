@@ -8,7 +8,7 @@
  * with an 0xFFFF number. `cdaudio.map` is the same list in Redbook frames for
  * playing from the disc; the hard-disk copy is what we read.
  *
- *   npx tsx tools/sci/src/voices.ts "<cd dir>" art/audio/voice [rate]
+ *   npx tsx tools/sci/src/voices.ts "<cd dir>" assets/sierra/source/voice [rate]
  *
  * Writes voice/wav/line_NNN.wav (git-ignored), voice/ogg/line_NNN.ogg via
  * ffmpeg, and voice/manifest.json. The sample rate is not stored anywhere in

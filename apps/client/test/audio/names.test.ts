@@ -1,12 +1,14 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { resolveMap, type NamesFile } from '../../src/audio/map';
 import { cardSound } from '../../src/classic/cards';
 
-const names = JSON.parse(readFileSync(resolve(__dirname, '../../public/audio/names.json'), 'utf8')) as NamesFile;
+// The original game's audio is not in the repo (assets/README.md); these checks run where it is.
+const path = resolve(__dirname, '../../../../assets/sierra/audio/names.json');
+const names = (existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : { overrides: {} }) as NamesFile;
 
-describe('the shipped names.json', () => {
+describe.skipIf(!existsSync(path))('the shipped names.json', () => {
   const map = resolveMap(names);
 
   it('puts exactly the random pieces in the rotation, not the stingers', () => {

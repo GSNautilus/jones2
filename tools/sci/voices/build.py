@@ -1,7 +1,7 @@
-"""labels.json + overrides.json -> apps/client/public/audio/voices.json and
-art/audio/voice/labels.html (every line with its transcript and label, for a spot-check).
+"""labels.json + overrides.json -> assets/sierra/audio/voices.json and
+assets/sierra/source/voice/labels.html (every line with its transcript and label, for a spot-check).
 
-  python tools/sci/voices/build.py art/audio/voice .
+  python tools/sci/voices/build.py assets/sierra/source/voice .
 """
 import json, sys, html
 S, root = sys.argv[1], sys.argv[2]
@@ -33,7 +33,7 @@ out = {
     "cards": cards,
     "unresolved": unresolved,
 }
-json.dump(out, open(f"{root}/apps/client/public/audio/voices.json", "w"), indent=1)
+json.dump(out, open(f"{root}/assets/sierra/audio/voices.json", "w"), indent=1)
 # a page: number, listen, transcript, label
 rows = []
 for n, l in sorted(L.items()):
@@ -45,7 +45,7 @@ page = f"""<!doctype html><meta charset="utf-8"><title>Jones voices — labels</
 <style>body{{font:14px/1.4 system-ui,sans-serif;margin:24px;background:#1d1a24;color:#eee}}table{{border-collapse:collapse}}td,th{{padding:3px 8px;border-bottom:1px solid #444;vertical-align:top}}audio{{width:200px}}tr.no{{background:#3a2020}}</style>
 <h1>533 spoken lines — whisper transcript and label</h1><p>Red rows are unresolved. Label = location / quote group [index into the wiki list]. The last column is the wiki/CD text the line was matched to.</p>
 <table><tr><th>#</th><th>listen</th><th>whisper heard</th><th>label</th><th>matched text</th><th>score</th></tr>{''.join(rows)}</table>"""
-open(f"{root}/art/audio/voice/labels.html", "w", encoding="utf-8").write(page)
+open(f"{root}/assets/sierra/source/voice/labels.html", "w", encoding="utf-8").write(page)
 print("greetings", {k: len(v) for k, v in out["greetings"].items()})
 print("quotes", {k: {g: len(v) for g, v in gs.items()} for k, gs in out["quotes"].items()})
 print("cards", {k: len(v) for k, v in cards.items()}); print("unresolved", len(unresolved), unresolved)

@@ -1,8 +1,8 @@
 """Transcribe the extracted voice lines with faster-whisper (GPU).
 
-  python tools/sci/voices/transcribe.py art/audio/voice/transcripts.json [model] [only: 516,517,...]
+  python tools/sci/voices/transcribe.py assets/sierra/source/voice/transcripts.json [model] [only: 516,517,...]
 
-Reads art/audio/voice/wav/line_NNN.wav (run tools/sci/src/voices.ts first), resamples
+Reads assets/sierra/source/voice/wav/line_NNN.wav (run tools/sci/src/voices.ts first), resamples
 11025 -> 16000, and writes {number: {text, logprob, no_speech, seconds, sr}}. With a
 list of numbers it re-does only those and merges into the existing file. Needs the
 `codex` conda env plus `pip install faster-whisper rapidfuzz`.
@@ -10,7 +10,7 @@ list of numbers it re-does only those and merges into the existing file. Needs t
 import json, sys, glob, os, time
 import numpy as np, soundfile as sf, librosa
 from faster_whisper import WhisperModel
-root = "art/audio/voice/wav"
+root = "assets/sierra/source/voice/wav"
 out = sys.argv[1]
 model_name = sys.argv[2] if len(sys.argv) > 2 else "large-v3"
 model = WhisperModel(model_name, device="cuda", compute_type="float16")

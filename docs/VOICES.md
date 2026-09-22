@@ -19,14 +19,14 @@ spot-checked the lines by ear.
   516–665 and the 900s from 16 MB too early (they came out as other clerks' speech cut
   mid-sentence, which is what the old "flag 0x21" note was seeing). Fixed; the entries now tile the
   volume exactly. `src/dump-text.ts` writes the CD's text resources as JSON.
-- `art/audio/voice/` — `ogg/line_NNN.ogg` (533 files, 11 MB), `manifest.json`, `transcripts.json`
+- `assets/sierra/source/voice/` — `ogg/line_NNN.ogg` (533 files, 11 MB), `manifest.json`, `transcripts.json`
   (whisper), `labels.json` (every line: transcript, label, match score), `overrides.json` (the hand
   labels), `cd-texts.json`, `locs.json` (the classic locations table as JSON, input to the
   matcher), `labels.html` (every line with player, transcript and label: the spot-check page),
   `index.html` (the plain audition page). `runs.html` is superseded by `labels.html`.
 - `tools/sci/voices/` — `transcribe.py`, `match.py`, `build.py`: the pipeline (commands below).
-- `apps/client/public/audio/voices.json` — the result the client loads; `public/audio/voice/` the
-  OGGs it serves (copied from `art/audio/voice/ogg`).
+- `assets/sierra/audio/voices.json` — the result the client loads; `assets/sierra/audio/voice/` the
+  OGGs it serves (copied from `assets/sierra/source/voice/ogg`).
 - `apps/client/src/audio/voices.ts` — pure: `greetingLine`, `quoteLine`, `quoteGroupsFor`
   (log event → quote groups), `refusalGroupFor` (sim refusal → group), `cardLine` (card text →
   line). `player.ts` has `speak(line | line[])` and `hush()`: one voice at a time, music ducked to

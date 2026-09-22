@@ -4,7 +4,7 @@
  *
  *   npx tsx packages/town/tools/classic.ts
  *
- * The original board (art/reference/original/wiki_map.png, 320×200) is a
+ * The original board (assets/sierra/reference/wiki_map.png, 320×200) is a
  * walkway running round a centre window with the thirteen buildings on the
  * outside of the loop. Clockwise from the top-left corner: Security
  * Apartments, Rent Office, Low-Cost Housing, Pawn Shop, Z-Mart, Monolith

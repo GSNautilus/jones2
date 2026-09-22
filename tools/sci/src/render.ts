@@ -2,10 +2,10 @@
  * Render the extracted MIDI files to audio with a General MIDI soundfont, and
  * write an audition page so the sounds can be listened to and named.
  *
- *   npx tsx tools/sci/src/render.ts art/audio/midi art/audio [soundfont.sf2|sf3]
+ *   npx tsx tools/sci/src/render.ts assets/sierra/source/midi assets/sierra/source [soundfont.sf2|sf3]
  *
- * Writes art/audio/wav/*.wav (ignored by git), art/audio/ogg/*.ogg (ffmpeg,
- * libvorbis) and art/audio/index.html. The soundfont defaults to the
+ * Writes assets/sierra/source/wav/*.wav (ignored by git), assets/sierra/source/ogg/*.ogg (ffmpeg,
+ * libvorbis) and assets/sierra/source/index.html. The soundfont defaults to the
  * MuseScore General font in tools/sci/soundfont/.
  */
 import { execFileSync } from 'node:child_process';
@@ -118,7 +118,7 @@ const page = `<!doctype html>
 <h1>Jones in the Fast Lane — the 34 sounds</h1>
 <p>MT-32 arrangement rendered through a General MIDI soundfont. Play each one and type what it is
 (theme, weekend, hired, refused, purchase, door, week end…). Names are kept in this browser; the box
-at the bottom holds them as JSON to paste into <code>art/audio/names.json</code>.</p>
+at the bottom holds them as JSON to paste into <code>assets/sierra/source/names.json</code>.</p>
 <table>
 <tr><th>#</th><th>listen</th><th>length</th><th>notes</th><th>channels</th><th>name</th></tr>
 ${rows}

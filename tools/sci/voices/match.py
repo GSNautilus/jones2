@@ -1,7 +1,7 @@
 """Match whisper transcripts of the 533 lines to the wiki/CD texts, then use the
 run structure (consecutive numbers = one text list in order) to fill in the rest.
 
-  python tools/sci/voices/match.py art/audio/voice
+  python tools/sci/voices/match.py assets/sierra/source/voice
 
 Reads transcripts.json, locs.json (CLASSIC_LOCATIONS dumped as JSON, see README) and
 cd-texts.json (tools/sci/src/dump-text.ts) from that folder; writes labels.json and

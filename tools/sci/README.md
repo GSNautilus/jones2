@@ -6,8 +6,9 @@ files, renders those to audio with a General MIDI soundfont, and writes an
 audition page for naming them.
 
 The game files are not in the repo and never will be (Sierra's copyright). The
-tool reads them from wherever you keep them; the outputs under `art/audio/`
-are ours to use privately.
+tool reads them from wherever you keep them. Everything it writes lands under `assets/sierra/`,
+which is gitignored: the repo is public, and these outputs are Sierra's material too. They reach
+players only through the private Supabase bucket (see `assets/README.md`).
 
 ## Run (PowerShell, from the repo root)
 
@@ -39,7 +40,7 @@ The 1992 CD-ROM release adds what the floppy lacks:
   ```
 
   The lines are labelled (which clerk, which greeting or response) in
-  `apps/client/public/audio/voices.json`; `voices/` holds the transcribe-and-match pipeline that
+  `assets/sierra/audio/voices.json`; `voices/` holds the transcribe-and-match pipeline that
   produced it and `docs/VOICES.md` explains the numbering. `labels.html` lists every line with its
   transcript and label for a spot-check by ear. The `sync` resources (type 14, one per line) are
   lip-sync data for the portraits, not used yet.
@@ -62,8 +63,8 @@ The 1992 CD-ROM release adds what the floppy lacks:
 - `voices/transcribe.py`, `match.py`, `build.py` — the speech labelling pipeline (Python, `codex`
   env with `faster-whisper` and `rapidfuzz`): whisper transcripts → fuzzy match to the wiki and CD
   texts → run-structure inference → `overrides.json` hand labels → `voices.json` + `labels.html`.
-- `art/audio/midi/*.mid` + `manifest.json`, `art/audio/ogg/*.ogg`,
-  `art/audio/index.html` (audition page), `art/audio/names.json` (your names).
+- `assets/sierra/source/midi/*.mid` + `manifest.json`, `assets/sierra/source/ogg/*.ogg`,
+  `assets/sierra/source/index.html` (audition page), `assets/sierra/source/names.json` (your names).
 
 ## Known limits
 
