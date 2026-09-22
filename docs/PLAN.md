@@ -164,8 +164,8 @@ board as our engine sees it. Source of truth `packages/town/tools/classic.ts` â†
   1h (2h across the clock gap between Hi-Tech U and the Employment Office) and the far side of
   the board 5h. `travelHourMultiplier` is 1: no doubling. Routes take the short way round.
 - Players start at their apartment (Low-Cost Housing by default), as the wiki's Time page has it.
-- Not done: the wiki also says entering any location advances the clock by 2 Hours. That is a
-  ruleset rule, not a map rule, and would apply to Riverton too; decide before adding it.
+- The wiki also says entering any location advances the clock by 2 Hours. Decided 2026-09-22:
+  not charged, on either map.
 
 **Build order for the map**
 1. Amend this plan (done) and write the hour-table test, failing, as the target.

@@ -195,12 +195,16 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
   // ---- audio ----------------------------------------------------------------
   useEffect(() => {
     let live = true;
-    void audio.loadVoices();
-    void audio.load().then(() => {
+    const voices = audio.loadVoices();
+    void audio.load().then(async () => {
       if (!live) return;
       audio.start();
       // Effects into memory, so a WORK or a purchase sounds the instant it lands.
-      void audio.preload();
+      await audio.preload();
+      // From the private bucket, the music and every clerk line follow in the
+      // background, once per device. Nothing happens when the files stream locally.
+      await voices;
+      if (live) void audio.prefetch();
     });
     return () => {
       live = false;
@@ -311,6 +315,8 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
     // The clerk speaks the greeting the bubble shows.
     const line = greetingLine(audio.voices, loc, greetingIndex(loc, visit));
     if (line !== null) audio.speak(line);
+    // From the private bucket: this clerk's answers download while the greeting plays.
+    audio.prefetchPlace(loc);
   }, []);
   const openRef = useRef(openWindow);
   openRef.current = openWindow;

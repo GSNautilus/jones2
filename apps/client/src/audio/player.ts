@@ -7,6 +7,7 @@
  * START GAME button is that click, so the game screen can start the music
  * as soon as it mounts.
  */
+import { localAssets, type AssetLoader } from './assets';
 import { PLACE_STINGERS, STINGERS, fileFor, resolveMap, type NamesFile, type SfxKey, type SoundMap } from './map';
 import { EMPTY_VOICES, voiceFile, type VoicesFile } from './voices';
 
@@ -151,20 +152,49 @@ export class AudioPlayer {
   private stopped = true;
   /** The one voice element; a new line cuts the old. */
   private voice: AudioLike | null = null;
+  /** A clerk's line is under way: playing, or still downloading. Ducks the music. */
+  private talking = false;
+  /** Bumped whenever the voice is cut, so a line that finishes downloading late stays silent. */
+  private voiceTurn = 0;
+  /** Bumped whenever the music is dropped, for the same reason. */
+  private musicTurn = 0;
   /** A stinger that arrived while a clerk was speaking; plays when the line ends. */
   private pendingStinger: { n: number; key: SfxKey } | null = null;
   /** Which moment the playing (or pending) stinger is for. */
   private stingerKey: SfxKey | null = null;
   /** The silent loop that keeps the output stream open while the player runs. */
   private keepAlive: AudioLike | null = null;
-  /** Effects fetched ahead of time, as object URLs, so a play never waits on the network. */
-  private preloaded = new Map<number, string>();
   private readonly random: () => number;
   private readonly createAudio: (src: string) => AudioLike;
+  private assets: AssetLoader;
 
-  constructor(random: () => number = Math.random, createAudio: (src: string) => AudioLike = (src) => new Audio(src)) {
+  constructor(
+    random: () => number = Math.random,
+    createAudio: (src: string) => AudioLike = (src) => new Audio(src),
+    assets: AssetLoader = localAssets(),
+  ) {
     this.random = random;
     this.createAudio = createAudio;
+    this.assets = assets;
+  }
+
+  /** Switch where the files come from (the Supabase bucket once a seat is signed in). Call before `load`. */
+  useAssets(assets: AssetLoader): void {
+    this.assets = assets;
+  }
+
+  /**
+   * Hand `go` a playable URL for `path`: at once when the file is in hand (or
+   * streamable), otherwise after it downloads. Callers guard `go` against
+   * having been cut off in the meantime.
+   */
+  private withSrc(path: string, go: (src: string) => void, fail: () => void): void {
+    const now = this.assets.peek(path);
+    if (now !== undefined) {
+      go(now);
+      return;
+    }
+    this.assets.url(path).then(go, fail);
   }
 
   /** What is playing now, for tests and the report. */
@@ -174,6 +204,7 @@ export class AudioPlayer {
 
   /** Stop and drop the current music element, whatever it is. */
   private dropMusic(): void {
+    this.musicTurn++;
     if (!this.music) return;
     const a = this.music;
     this.music = null;
@@ -182,11 +213,9 @@ export class AudioPlayer {
   }
 
   /** Load `names.json` and build the map. Safe to call again; silent on failure. */
-  async load(url = 'audio/names.json'): Promise<SoundMap> {
+  async load(path = 'audio/names.json'): Promise<SoundMap> {
     try {
-      const res = await fetch(url, { cache: 'no-cache' });
-      if (!res.ok) throw new Error(String(res.status));
-      this.map = resolveMap((await res.json()) as NamesFile);
+      this.map = resolveMap(await this.assets.json<NamesFile>(path));
     } catch {
       this.map = { sfx: {}, music: [], unmatched: [] };
     }
@@ -197,46 +226,54 @@ export class AudioPlayer {
     return this.map;
   }
 
-  /**
-   * Fetch every effect (not the music, not the 533 voice lines) into memory
-   * once, so a play starts at once instead of after a round trip to the
-   * server. Browser only: needs `URL.createObjectURL`. Safe to call again.
-   */
-  async preload(): Promise<number> {
-    if (typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') return 0;
+  /** Every effect's file (not the stingers, which are music). */
+  private effectFiles(): string[] {
     const numbers = new Set<number>();
     for (const [key, list] of Object.entries(this.map.sfx)) {
       if (STINGERS.has(key as SfxKey)) continue;
       for (const n of list ?? []) numbers.add(n);
     }
-    let done = 0;
-    await Promise.all(
-      [...numbers].map(async (n) => {
-        if (this.preloaded.has(n)) return;
-        try {
-          const res = await fetch(fileFor(n));
-          if (!res.ok) return;
-          this.preloaded.set(n, URL.createObjectURL(await res.blob()));
-          done++;
-        } catch {
-          // the effect streams from the server when it plays
-        }
-      }),
-    );
-    return done;
+    return [...numbers].map(fileFor);
   }
 
-  /** Where to play sound `n` from: memory if preloaded, else the server. */
-  private srcFor(n: number): string {
-    return this.preloaded.get(n) ?? fileFor(n);
+  /**
+   * Fetch every effect (not the music, not the 533 voice lines) into memory
+   * once, so a play starts at once instead of after a round trip to the
+   * server. Safe to call again. Returns how many are in memory.
+   */
+  async preload(): Promise<number> {
+    return this.assets.warmAll(this.effectFiles());
+  }
+
+  /**
+   * Whole-file mode only (the private bucket): pull the rest down in the
+   * background, music first, then every labelled voice line. Each file lands
+   * in the browser's cache, so this costs a download once per device. A no-op
+   * when the files stream from beside the page.
+   */
+  async prefetch(): Promise<number> {
+    if (this.assets.stream) return 0;
+    const music = new Set<number>(this.map.music);
+    for (const key of STINGERS) for (const n of this.map.sfx[key] ?? []) music.add(n);
+    const lines = new Set<number>();
+    const v = this.voiceMap;
+    for (const list of Object.values(v.greetings)) for (const n of list) lines.add(n);
+    for (const groups of Object.values(v.quotes)) for (const list of Object.values(groups)) for (const n of list) lines.add(n);
+    for (const list of Object.values(v.cards)) for (const c of list) lines.add(c.line);
+    return this.assets.warmAll([...[...music].map(fileFor), ...[...lines].map(voiceFile)], 3);
+  }
+
+  /** A place's spoken lines, fetched ahead of the background queue as the player walks in. */
+  prefetchPlace(loc: string): void {
+    if (this.assets.stream) return;
+    const lines = [...(this.voiceMap.greetings[loc] ?? []), ...Object.values(this.voiceMap.quotes[loc] ?? {}).flat()];
+    void this.assets.warmAll(lines.map(voiceFile));
   }
 
   /** Load `voices.json` (the labelled spoken lines). Silent on failure. */
-  async loadVoices(url = 'audio/voices.json'): Promise<VoicesFile> {
+  async loadVoices(path = 'audio/voices.json'): Promise<VoicesFile> {
     try {
-      const res = await fetch(url, { cache: 'no-cache' });
-      if (!res.ok) throw new Error(String(res.status));
-      this.voiceMap = { ...EMPTY_VOICES, ...((await res.json()) as Partial<VoicesFile>) };
+      this.voiceMap = { ...EMPTY_VOICES, ...(await this.assets.json<Partial<VoicesFile>>(path)) };
     } catch {
       this.voiceMap = EMPTY_VOICES;
     }
@@ -269,7 +306,7 @@ export class AudioPlayer {
 
   private musicVolume(): number {
     if (this.musicOff()) return 0;
-    return this.settings.music * (this.voice ? DUCK : 1);
+    return this.settings.music * (this.talking ? DUCK : 1);
   }
 
   // ---- speech --------------------------------------------------------------
@@ -284,13 +321,13 @@ export class AudioPlayer {
     const [first, ...rest] = Array.isArray(line) ? line : [line];
     if (first === undefined) return;
     this.dropVoice();
-    const a = this.createAudio(voiceFile(first));
-    a.volume = this.settings.voice;
-    this.voice = a;
+    const turn = this.voiceTurn;
+    this.talking = true; // duck now, even while the line downloads
     this.applyMusicVolume();
     const done = () => {
-      if (this.voice !== a) return;
+      if (turn !== this.voiceTurn) return;
       this.voice = null;
+      this.talking = false;
       if (rest.length) {
         this.speak(rest); // the next sentence of the same answer
         return;
@@ -300,9 +337,19 @@ export class AudioPlayer {
       this.pendingStinger = null;
       if (p) this.stinger(p.n, p.key);
     };
-    a.addEventListener('ended', done);
-    a.addEventListener('error', done);
-    void a.play().catch(done);
+    this.withSrc(
+      voiceFile(first),
+      (src) => {
+        if (turn !== this.voiceTurn) return;
+        const a = this.createAudio(src);
+        a.volume = this.settings.voice;
+        this.voice = a;
+        a.addEventListener('ended', done);
+        a.addEventListener('error', done);
+        void a.play().catch(done);
+      },
+      done,
+    );
   }
 
   /** Stop the clerk mid-sentence (the window closed). */
@@ -312,6 +359,8 @@ export class AudioPlayer {
   }
 
   private dropVoice(): void {
+    this.voiceTurn++;
+    this.talking = false;
     if (!this.voice) return;
     const a = this.voice;
     this.voice = null;
@@ -337,9 +386,15 @@ export class AudioPlayer {
       this.stinger(n, key);
       return;
     }
-    const a = this.createAudio(this.srcFor(n));
-    a.volume = this.settings.sfx;
-    void a.play().catch(() => undefined);
+    this.withSrc(
+      fileFor(n),
+      (src) => {
+        const a = this.createAudio(src);
+        a.volume = this.settings.sfx;
+        void a.play().catch(() => undefined);
+      },
+      () => undefined,
+    );
   }
 
   /**
@@ -349,28 +404,41 @@ export class AudioPlayer {
    */
   private stinger(n: number, key: SfxKey): void {
     this.stingerKey = key;
-    if (this.voice) {
+    if (this.talking) {
       this.pendingStinger = { n, key };
       return;
     }
     this.clearTimers();
     this.dropMusic();
     this.phase = 'stinger';
-    const a = this.createAudio(fileFor(n));
-    a.volume = this.musicVolume(); // ducked if a clerk is already talking
-    a.muted = this.musicOff();
-    let done = false;
-    const resume = () => {
-      if (done || this.music !== a) return;
-      done = true;
-      this.music = null;
+    const turn = this.musicTurn;
+    const gone = () => {
+      if (turn !== this.musicTurn) return;
       this.phase = 'idle';
       if (!this.stopped) this.rest();
     };
-    this.music = a;
-    a.addEventListener('ended', resume);
-    a.addEventListener('error', resume);
-    void a.play().catch(resume);
+    this.withSrc(
+      fileFor(n),
+      (src) => {
+        if (turn !== this.musicTurn) return;
+        const a = this.createAudio(src);
+        a.volume = this.musicVolume(); // ducked if a clerk is already talking
+        a.muted = this.musicOff();
+        let done = false;
+        const resume = () => {
+          if (done || this.music !== a) return;
+          done = true;
+          this.music = null;
+          this.phase = 'idle';
+          if (!this.stopped) this.rest();
+        };
+        this.music = a;
+        a.addEventListener('ended', resume);
+        a.addEventListener('error', resume);
+        void a.play().catch(resume);
+      },
+      gone,
+    );
   }
 
   /**
@@ -387,7 +455,14 @@ export class AudioPlayer {
       return;
     }
     const a = this.music;
-    if (this.phase !== 'stinger' || !a) return;
+    if (this.phase !== 'stinger') return;
+    if (!a) {
+      // still downloading: never let it start
+      this.dropMusic();
+      this.phase = 'idle';
+      if (!this.stopped) this.rest();
+      return;
+    }
     this.fade(a, true, LEAVE_SECONDS, () => {
       if (this.music !== a) return;
       this.dropMusic();
@@ -459,23 +534,33 @@ export class AudioPlayer {
     }
     this.lastTrack = n;
     this.dropMusic();
-    const a = this.createAudio(fileFor(n));
-    a.muted = this.musicOff();
-    a.volume = 0;
-    this.music = a;
     this.phase = 'playing';
-    a.addEventListener('timeupdate', () => {
-      // start the fade-out so it ends with the piece
-      if (this.phase === 'playing' && a.duration && a.currentTime >= a.duration - FADE_SECONDS) this.fadeOut(a);
-    });
-    a.addEventListener('ended', () => {
-      if (this.music === a) this.rest();
-    });
-    a.addEventListener('error', () => {
-      if (this.music === a) this.rest();
-    });
-    void a.play().catch(() => this.rest());
-    this.fade(a, false);
+    const turn = this.musicTurn;
+    this.withSrc(
+      fileFor(n),
+      (src) => {
+        if (turn !== this.musicTurn || this.phase !== 'playing') return;
+        const a = this.createAudio(src);
+        a.muted = this.musicOff();
+        a.volume = 0;
+        this.music = a;
+        a.addEventListener('timeupdate', () => {
+          // start the fade-out so it ends with the piece
+          if (this.phase === 'playing' && a.duration && a.currentTime >= a.duration - FADE_SECONDS) this.fadeOut(a);
+        });
+        a.addEventListener('ended', () => {
+          if (this.music === a) this.rest();
+        });
+        a.addEventListener('error', () => {
+          if (this.music === a) this.rest();
+        });
+        void a.play().catch(() => this.rest());
+        this.fade(a, false);
+      },
+      () => {
+        if (turn === this.musicTurn && this.phase === 'playing') this.rest();
+      },
+    );
   }
 
   private fadeOut(a: AudioLike): void {
