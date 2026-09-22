@@ -11,6 +11,7 @@ bucket that only seated players can read.
 - `sierra/source/` — the extractor's working files: MIDI, renders, WAVs, transcripts, labels,
   audition pages. See `tools/sci/README.md`.
 - `sierra/reference/` — screenshots of the original and the fan wiki's board map.
+- `sierra/cd/` — the CD-ROM release zip itself (ignored even by this folder's own repository).
 
 The folder is its own local git repository, so the hand labelling keeps its history. Do not add
 a GitHub remote to it unless the repository there is private.
