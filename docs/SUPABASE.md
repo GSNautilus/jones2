@@ -23,6 +23,7 @@ and `tools/host/` (scripts the host runs with the secret key). This page is the 
 ## 2. Apply the migrations (PowerShell, repo root)
 
 ```powershell
+cd "C:\Users\Nautilus\Projects\Jones 2"
 npx supabase login
 npx supabase link --project-ref <ref>
 npx supabase db push
@@ -36,6 +37,7 @@ the 20-letter id in the project URL. Re-run `db push` whenever a new migration l
 Needs `assets/sierra/audio` on this machine (see `assets/README.md`).
 
 ```powershell
+cd "C:\Users\Nautilus\Projects\Jones 2"
 $env:SUPABASE_URL="https://<ref>.supabase.co"
 $env:SUPABASE_SECRET_KEY="sb_secret_..."
 npm run upload-assets -w @jones2/host -- --dry-run
