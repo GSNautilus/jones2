@@ -51,6 +51,21 @@ JSON label files. `-- --prune` also deletes bucket files no longer on disk.
 
 Check in the dashboard: **Storage → sierra** lists `audio/`, and the bucket is not marked Public.
 
+## 4. Deploy the turn function
+
+The `submit-turn` Edge Function takes each player's finished week, checks it, and resolves the
+week when the last one lands. It needs the login and link from step 2, no keys.
+
+```powershell
+cd "C:\Users\Nautilus\Projects\Jones 2"
+npm run deploy -w @jones2/server
+```
+
+This rebuilds the bundle (`supabase/functions/_shared/server.js`, generated, not committed) and
+uploads it; Supabase builds it on their side, so Docker is not needed. Re-run it whenever
+`packages/server` or `packages/sim` changes, or the server runs old rules against new clients.
+Check in the dashboard: **Edge Functions** lists `submit-turn`.
+
 ## Free plan notes
 
 - A project with no activity for a week is **paused**. Restore it from the dashboard. A

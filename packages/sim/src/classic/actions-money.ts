@@ -12,7 +12,7 @@ import { applyDelta } from '../helpers';
 import { chance } from '../rng';
 import type { Action, Delta } from '../types';
 import { d, earn, happy, pay } from './effects';
-import { liquidAssets, stockPrice } from './state';
+import { liquidAssets, playerRoll, stockPrice } from './state';
 import { monthAfter, priceOf, rentOfficeOpen, type Ctx, type Spec } from './context';
 
 /** Banking, loans, stocks and everything the Rent Office does. Null if not one of those. */
@@ -240,8 +240,7 @@ export function moneySpec(cx: Ctx, a: Action): Spec | string | null {
           const deltas: Delta[] = [];
           c.week.askedExtension = true;
           const odds = RENT_EXTENSION_APPROVAL_CHANCE[c.extensionsApproved] ?? RENT_EXTENSION_APPROVAL_FLOOR;
-          let ok: boolean;
-          [state.rng, ok] = chance(state.rng, odds);
+          const ok = playerRoll(state, p, (s) => chance(s, odds));
           if (!ok) {
             happy(p, 'rent_extension_refused', deltas);
             return { text: 'Extension refused.', deltas };

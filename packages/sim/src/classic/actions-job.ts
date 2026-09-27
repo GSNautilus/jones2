@@ -27,7 +27,7 @@ import { nextInt } from '../rng';
 import type { Action, Delta } from '../types';
 import * as K from './config';
 import { d, earn, happy, pay } from './effects';
-import { degreeCount, hasUniform, jobOf, lessonsNeeded, maxDep, maxExp } from './state';
+import { degreeCount, hasUniform, jobOf, lessonsNeeded, maxDep, maxExp, playerRoll } from './state';
 import { DEGREE_BY_ID, MINUTES, listedWage, monthAfter, priceOf, requiredDep, type Ctx, type Spec } from './context';
 
 /** Travel, work, apply, raise, enrol, lesson, relax, end the week. Null if not one of those. */
@@ -135,8 +135,7 @@ export function jobSpec(cx: Ctx, a: Action): Spec | string | null {
           }
           if (!job.alwaysHired) {
             const luck = applicationLuck(c.dependability, c.experience, degreeCount(p));
-            let roll: number;
-            [state.rng, roll] = nextInt(state.rng, 1, APPLICATION_LUCK_ROLL_MAX);
+            const roll = playerRoll(state, p, (s) => nextInt(s, 1, APPLICATION_LUCK_ROLL_MAX));
             const ok = K.APPLICATION_LUCK_INCLUSIVE ? roll <= luck : roll < luck;
             if (!ok) {
               c.week.turnedDown.push(job.id);

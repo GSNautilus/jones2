@@ -1,0 +1,20 @@
+{
+  "name": "@jones2/server",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Server-side game logic for the Supabase Edge Function: turn submission and week resolution. Bundled into supabase/functions/_shared by `npm run bundle`.",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "bundle": "tsx tools/bundle.ts",
+    "deploy": "tsx tools/bundle.ts && supabase functions deploy submit-turn --use-api --workdir ../.."
+  },
+  "dependencies": {
+    "@jones2/sim": "*"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
+    "esbuild": "^0.28.2"
+  }
+}

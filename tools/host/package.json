@@ -9,9 +9,6 @@
     "typecheck": "tsc --noEmit",
     "upload-assets": "tsx src/upload-assets.ts"
   },
-  "devDependencies": {
-    "@electric-sql/pglite": "^0.5.8"
-  },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.0"
   }

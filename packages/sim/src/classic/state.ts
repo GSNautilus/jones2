@@ -3,6 +3,7 @@
  * `GameState.classic` so the Jones 2 ruleset is untouched: those fields are simply absent when
  * `config.ruleset` is 'jones2'.
  */
+import { nextFloat, seedRng, type RngState } from '../rng';
 import type { Delta, GameState, PlayerState } from '../types';
 import {
   CLASSIC_ITEMS,
@@ -45,6 +46,12 @@ export interface ClassicWeekFlags {
   readNewspaper: boolean;
   /** Jobs that answered "No openings" this week; they stay shut until next week. */
   turnedDown: string[];
+  /**
+   * This player's random stream for the week, started from the week-start state (see
+   * `playerRoll`). Absent until the first roll. Kept per player so one player's dice never
+   * depend on what another did that week: async players play the same week apart.
+   */
+  rng?: RngState;
 }
 
 export interface ClassicPlayerState {
@@ -139,6 +146,28 @@ export function emptyWeekFlags(): ClassicWeekFlags {
     readNewspaper: false,
     turnedDown: [],
   };
+}
+
+/**
+ * The first state of a player's weekly random stream: a mix of the week-start game stream,
+ * the week and the seat, so every player and every week draws different dice.
+ */
+export function playerStreamSeed(gameRng: RngState, week: number, seat: number): RngState {
+  const mixed = (gameRng ^ Math.imul(week + 1, 0x85ebca6b) ^ Math.imul(seat + 1, 0xc2b2ae35)) >>> 0;
+  return seedRng(nextFloat(mixed)[0]);
+}
+
+/**
+ * Roll the acting player's dice for an in-week action. Draws from the player's own weekly
+ * stream, never the shared game stream, so the result is the same whether the week is
+ * replayed alone (the player's device) or merged with everyone else's (the server).
+ */
+export function playerRoll<T>(state: GameState, p: PlayerState, roll: (s: RngState) => [RngState, T]): T {
+  const c = cp(p);
+  const start = c.week.rng ?? playerStreamSeed(state.rng, state.week, Math.max(0, state.playerOrder.indexOf(p.id)));
+  const [next, value] = roll(start);
+  c.week.rng = next;
+  return value;
 }
 
 /** The classic half of a player. Throws if the ruleset is not classic — call only behind that check. */
