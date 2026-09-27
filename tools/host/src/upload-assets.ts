@@ -53,6 +53,29 @@ async function main(): Promise<void> {
   }
 
   const client = createClient(url!, key!, { auth: { persistSession: false, autoRefreshToken: false } });
+  // The database says plainly when it does not know a key; Storage only says
+  // "Invalid Compact JWS". Ask the database first. This also proves the
+  // migrations ran (the secret key can read every table).
+  const probe = await client.from('games').select('id').limit(1);
+  if (probe.error) {
+    const m = probe.error.message;
+    if (/invalid api key/i.test(m)) {
+      console.error(
+        `This project does not recognise that secret key.\n` +
+          `  - Is it from the jones2 project, not your other one? Check the project name at the top of the dashboard.\n` +
+          `  - Copy it with the copy button on Project Settings > API Keys > Secret keys, not by selecting the text\n` +
+          `    (the page shows it masked with dots until revealed).\n` +
+          `  - It should start with sb_secret_ and have no spaces or dots in it.`,
+      );
+    } else if (/fetch failed|ENOTFOUND|ECONNREFUSED/i.test(m)) {
+      console.error(`Could not reach ${url} (${m}). Check the URL, and whether the project is paused in the dashboard.`);
+    } else if (/games/i.test(m)) {
+      console.error(`The games table is missing (${m}). Apply the migrations first: npx supabase db push`);
+    } else {
+      console.error(`The database refused the key: ${m}`);
+    }
+    process.exit(1);
+  }
   const { data: bucket, error } = await client.storage.getBucket(BUCKET);
   if (error && /fetch failed|ENOTFOUND|ECONNREFUSED/i.test(error.message)) {
     console.error(`Could not reach ${url} (${error.message}). Check the URL, and whether the project is paused in the dashboard.`);
