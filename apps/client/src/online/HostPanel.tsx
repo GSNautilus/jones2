@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 import '../hud/hud.css';
 import { Frame, FrameButton } from '../hud/Frame';
 import { hostDeleteGame, hostGames, hostReplaceLink, hostSeats, type HostGame, type HostSeatStatus } from './api';
-import { hostHash, playerLink } from './route';
+import { NEW_GAME_HASH, hostHash, playerLink } from './route';
 import { sendLink } from './share';
 
 function Seats({ game, onDeleted }: { game: HostGame; onDeleted: () => void }) {
@@ -133,7 +133,7 @@ export function HostPanel({ focus }: { focus: string | null }) {
           ))
         )}
         <div className="hud-row hud-row-wrap">
-          <FrameButton onClick={() => (location.hash = '')}>New game</FrameButton>
+          <FrameButton onClick={() => (location.hash = NEW_GAME_HASH)}>New game</FrameButton>
           <FrameButton onClick={load}>Refresh</FrameButton>
         </div>
       </Frame>

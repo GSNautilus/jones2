@@ -163,7 +163,15 @@ function PlayRoot() {
   }
   return (
     <>
-      <GameRoot scene={scene} mapSlot={mapSlot} pickRef={pickRef} hoverRef={hoverRef} ReplayView={ReplayView} online={host ? ONLINE : undefined} />
+      <GameRoot
+        scene={scene}
+        mapSlot={mapSlot}
+        pickRef={pickRef}
+        hoverRef={hoverRef}
+        ReplayView={ReplayView}
+        online={host ? ONLINE : undefined}
+        newGame={route.kind === 'new'}
+      />
       <OnlineGames />
     </>
   );

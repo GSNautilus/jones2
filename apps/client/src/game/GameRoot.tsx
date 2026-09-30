@@ -28,9 +28,11 @@ export interface GameRootProps {
   ReplayView: ComponentType<ReplayProps>;
   /** On a host device: the new game screen can create an online game. */
   online?: OnlineSetup;
+  /** Show the new game screen even though a local game is saved (#/new). */
+  newGame?: boolean;
 }
 
-export function GameRoot({ scene, mapSlot, pickRef, hoverRef, ReplayView, online }: GameRootProps) {
+export function GameRoot({ scene, mapSlot, pickRef, hoverRef, ReplayView, online, newGame }: GameRootProps) {
   const store = useGameStore();
   const { state } = store;
   const [resolving, setResolving] = useState(false);
@@ -46,7 +48,7 @@ export function GameRoot({ scene, mapSlot, pickRef, hoverRef, ReplayView, online
     scene.fitAll();
   }, [scene, townId]);
 
-  if (!state) return <SetupScreen store={store} online={online} />;
+  if (!state || newGame) return <SetupScreen store={store} online={online} />;
 
   const resolvingNow = resolving || state.phase === 'finished';
 

@@ -80,3 +80,11 @@ describe('host routes', () => {
     expect(playerLink('TOK', { origin: 'https://gsnautilus.github.io', pathname: '/jones2/' })).toBe('https://gsnautilus.github.io/jones2/#/join/TOK');
   });
 });
+
+describe('the new game address', () => {
+  it('reads #/new', async () => {
+    const { NEW_GAME_HASH } = await import('../../src/online/route');
+    expect(parseRoute(NEW_GAME_HASH)).toEqual({ kind: 'new' });
+    expect(parseRoute('#/new/x')).toEqual({ kind: 'local' });
+  });
+});

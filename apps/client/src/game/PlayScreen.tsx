@@ -7,6 +7,7 @@
  * an enabled destination dispatches the travel action, hovering previews the
  * route on the ground AND the travel cost on the clock.
  */
+import { NEW_GAME_HASH } from '../online/route';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { MutableRefObject } from 'react';
 import { availableActions, getGraph, transportModes, type Action } from '@jones2/sim';
@@ -147,6 +148,9 @@ export function PlayScreen({ store, scene, pickRef, hoverRef }: PlayScreenProps)
       <StatusStrip store={store} open={statsOpen} onToggle={() => setStatsOpen((v) => !v)} />
       <Clock minutesLeft={p.minutesLeft} minutesBudget={p.minutesBudget} week={state.week} />
       {note && <div className="hud-toast">{note}</div>}
+      <a className="hud-new-game" href={NEW_GAME_HASH} title="Set up a new game (this one stays saved until you start another)">
+        New game
+      </a>
     </div>
   );
 }

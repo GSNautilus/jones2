@@ -121,3 +121,20 @@ input, select { font: inherit; padding: 5px 8px; border: 2px solid var(--ink); b
     padding: 2px 4px;
   }
 }
+
+/* The older Jones 2 play screen's way back to setup (src/game/PlayScreen.tsx). */
+.hud-new-game {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 20;
+  padding: 3px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: #f3e9c8;
+  color: #1f1b24;
+  border: 2px solid #1f1b24;
+  text-decoration: none;
+}

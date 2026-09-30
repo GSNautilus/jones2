@@ -84,6 +84,8 @@ export function SetupScreen({ store, online }: { store: GameStore; online?: Onli
     if (!c) return;
     if (!isOnline) {
       store.start(c);
+      // Leaving #/new: the game just started replaces any saved one.
+      if (location.hash.startsWith('#/new')) location.hash = '';
       return;
     }
     setCreating(true);
@@ -194,6 +196,11 @@ export function SetupScreen({ store, online }: { store: GameStore; online?: Onli
         {online && (
           <p className="hud-tagline">
             <a href="#/host">Host panel: your online games and their links</a>
+          </p>
+        )}
+        {store.state && (
+          <p className="hud-tagline">
+            <a href="#">Back to the game in progress on this screen</a> (starting a new one here replaces it)
           </p>
         )}
       </Frame>
