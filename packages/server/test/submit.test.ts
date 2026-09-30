@@ -45,7 +45,8 @@ beforeEach(async () => {
   });
   const g = await t.db.query<{ id: string }>(`insert into games (name, config) values ('Family', $1::jsonb) returning id`, [JSON.stringify(week1.config)]);
   game = g.rows[0]!.id;
-  await t.db.query(`insert into seats (game_id, player_id, name, token_hash, user_id) values ($1, 'a', 'Ann', repeat('a', 64), $2), ($1, 'b', 'Bob', repeat('b', 64), $3)`, [game, ANN, BOB]);
+  await t.db.query(`insert into seats (game_id, player_id, name, token_hash) values ($1, 'a', 'Ann', repeat('a', 64)), ($1, 'b', 'Bob', repeat('b', 64))`, [game]);
+  await t.db.query(`insert into seat_devices (game_id, player_id, user_id) values ($1, 'a', $2), ($1, 'b', $3)`, [game, ANN, BOB]);
   await t.db.query('insert into snapshots (game_id, week, state) values ($1, 1, $2::jsonb)', [game, JSON.stringify(storable(week1))]);
 });
 
@@ -140,9 +141,10 @@ describe('retries and races', () => {
 
   it('two last turns at once resolve the week once', async () => {
     await t.db.query(
-      `insert into seats (game_id, player_id, name, token_hash, user_id) values ($1, 'c', 'Cy', repeat('c', 64), $2)`,
-      [game, EVE],
+      `insert into seats (game_id, player_id, name, token_hash) values ($1, 'c', 'Cy', repeat('c', 64))`,
+      [game],
     );
+    await t.db.query(`insert into seat_devices (game_id, player_id, user_id) values ($1, 'c', $2)`, [game, EVE]);
     // A third seat that the sim does not know would never check; give the game three players instead.
     const three = createGame({ ...week1.config, players: [...week1.config.players, { id: 'c', name: 'Cy' }] });
     await t.db.query('update snapshots set state = $2::jsonb where game_id = $1 and week = 1', [game, JSON.stringify(storable(three))]);
@@ -152,5 +154,16 @@ describe('retries and races', () => {
     expect([b, c].filter((r) => r.status === 200 && r.body.resolved)).toHaveLength(1);
     expect(await row('select week from games where id = $1', [game])).toEqual({ week: 2 });
     expect(await row('select count(*)::int as n from snapshots where game_id = $1 and week = 2', [game])).toEqual({ n: 1 });
+  });
+});
+
+describe('several devices on one seat', () => {
+  it("lets a player's second device hand in the week", async () => {
+    const phone = randomUUID();
+    await t.db.query('insert into auth.users (id) values ($1)', [phone]);
+    await t.db.query(`insert into seat_devices (game_id, player_id, user_id) values ($1, 'a', $2)`, [game, phone]);
+    expect(await submit(phone, 'a', WALK)).toMatchObject({ status: 200 });
+    // and the laptop, retrying the same week, is told it is in
+    expect(await submit(ANN, 'a', WALK)).toMatchObject({ status: 200, body: { resolved: false } });
   });
 });

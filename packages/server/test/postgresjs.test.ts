@@ -53,9 +53,10 @@ async function seed(): Promise<string> {
   const g = await t.db.query<{ id: string }>('insert into games (name, config) values ($1, $2::jsonb) returning id', ['Test', JSON.stringify(config)]);
   const id = g.rows[0]!.id;
   await t.db.query(
-    `insert into seats (game_id, player_id, name, token_hash, user_id) values ($1, 'p0', 'Test A', $4, $2), ($1, 'p1', 'Test B', $5, $3)`,
-    [id, ANN, BOB, randomBytes(32).toString('hex'), randomBytes(32).toString('hex')],
+    `insert into seats (game_id, player_id, name, token_hash) values ($1, 'p0', 'Test A', $2), ($1, 'p1', 'Test B', $3)`,
+    [id, randomBytes(32).toString('hex'), randomBytes(32).toString('hex')],
   );
+  await t.db.query(`insert into seat_devices (game_id, player_id, user_id) values ($1, 'p0', $2), ($1, 'p1', $3)`, [id, ANN, BOB]);
   await t.db.query('insert into snapshots (game_id, week, state) values ($1, 1, $2::jsonb)', [id, JSON.stringify({ ...state, history: [] })]);
   return id;
 }

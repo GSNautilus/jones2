@@ -1,7 +1,8 @@
 /**
- * Give a player a fresh invite link: for a new device, a cleared browser, or a
- * link sent to the wrong person. The old link and the device that used it stop
- * working for that seat; the week in progress is kept.
+ * Give a player a new link when the old one reached the wrong person. The old
+ * link stops working, and every device it opened is signed out of the seat;
+ * the week in progress is kept. (A new phone does not need this: the player
+ * just opens their link on it.)
  *
  *   npm run reissue-seat -w @jones2/host -- --game <game id> --player <name or p0..p3>
  *
@@ -27,11 +28,13 @@ async function main(): Promise<void> {
   const token = newToken();
   const u = await client
     .from('seats')
-    .update({ token_hash: tokenHash(token), user_id: null, claimed_at: null })
+    .update({ token_hash: tokenHash(token), claimed_at: null })
     .eq('game_id', args.game)
     .eq('player_id', seat.player_id);
   if (u.error) throw new Error(explain('Re-issuing the seat', u.error.message));
-  console.log(`New link for ${seat.name} (the old one no longer works):\n  ${inviteLink(args.site ?? DEFAULT_SITE, token)}`);
+  const d = await client.from('seat_devices').delete().eq('game_id', args.game).eq('player_id', seat.player_id);
+  if (d.error) throw new Error(explain('Signing out the old devices', d.error.message));
+  console.log(`New link for ${seat.name} . The old link no longer works, and its devices are signed out:\n  ${inviteLink(args.site ?? DEFAULT_SITE, token)}`);
 }
 
 main().catch((e: unknown) => {

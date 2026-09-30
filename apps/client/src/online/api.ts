@@ -51,8 +51,7 @@ async function accessToken(): Promise<string> {
 export async function redeem(token: string): Promise<{ gameId: string; playerId: PlayerId }> {
   const { data, error } = await supa().rpc('redeem_seat', { token });
   if (error) {
-    if (/already been used/i.test(error.message)) throw new OnlineError('This invite has already been used on another device. Ask the host for a new link.');
-    if (/unknown invite/i.test(error.message)) throw new OnlineError('This invite link is not valid. It may have been replaced by a newer one; ask the host.');
+    if (/unknown invite/i.test(error.message)) throw new OnlineError('This link no longer works. The host may have replaced it with a new one; ask them for it.');
     throw new OnlineError(human(error.message));
   }
   const row = (data as { game_id: string; player_id: string }[] | null)?.[0];

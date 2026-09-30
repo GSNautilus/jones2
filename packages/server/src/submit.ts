@@ -58,7 +58,7 @@ export async function submitTurn(db: Db, userId: string, body: unknown): Promise
     const game = games[0];
     if (!game) return fail(404, 'No such game');
 
-    const seat = await q('select 1 from public.seats where game_id = $1 and player_id = $2 and user_id = $3', [req.gameId, req.playerId, userId]);
+    const seat = await q('select 1 from public.seat_devices where game_id = $1 and player_id = $2 and user_id = $3', [req.gameId, req.playerId, userId]);
     if (seat.length === 0) return fail(403, 'That seat is not yours');
 
     const previous = await q<{ same: boolean; submitted: boolean }>(

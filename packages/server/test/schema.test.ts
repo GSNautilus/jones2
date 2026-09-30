@@ -5,7 +5,9 @@
  */
 import { createHash, randomUUID } from 'node:crypto';
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { supabaseDb, type Who } from './supabase-stub';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { MIGRATIONS, supabaseDb, type Who } from './supabase-stub';
 
 const hash = (token: string) => createHash('sha256').update(token, 'utf8').digest('hex');
 
@@ -88,17 +90,30 @@ describe('redeeming an invite', () => {
     expect(await t.as(ann, `select name from storage.objects where bucket_id = 'sierra'`)).toEqual([{ name: 'audio/voice/line_010.ogg' }]);
   });
 
-  it('is single-use: another session cannot take the seat, the same one can redeem again', async () => {
+  it("is the player's key: every device that opens the link joins the seat, as often as it likes", async () => {
     await t.as(ann, 'select * from redeem_seat($1)', ['ann-token']);
-    await refused(t.as(eve, 'select * from redeem_seat($1)', ['ann-token']), /already been used/);
-    expect(await t.as(eve, 'select * from games')).toEqual([]);
+    // Ann's phone (eve's session stands in for a second device of Ann's)
+    expect(await t.as(eve, 'select * from redeem_seat($1)', ['ann-token'])).toEqual([{ game_id: game, player_id: 'p1' }]);
+    expect((await t.as(eve, 'select id from games')).map((r) => r.id)).toEqual([game]);
+    expect(await t.as(eve, 'select player_id from my_seats()')).toEqual([{ player_id: 'p1' }]);
+    expect(await t.as(eve, `select name from storage.objects where bucket_id = 'sierra'`)).toHaveLength(1);
+    // and again, later, on the first device
     expect(await t.as(ann, 'select * from redeem_seat($1)', ['ann-token'])).toHaveLength(1);
+    expect(await t.as(HOST, `select count(*)::int as n from seat_devices where player_id = 'p1'`)).toEqual([{ n: 2 }]);
+  });
+
+  it('lets either device play the seat', async () => {
+    await t.as(ann, 'select * from redeem_seat($1)', ['ann-token']);
+    await t.as(eve, 'select * from redeem_seat($1)', ['ann-token']);
+    await t.as(ann, `select save_draft($1, 1, 'p1', '[{"type":"work"}]'::jsonb)`, [game]);
+    await t.as(eve, `select save_draft($1, 1, 'p1', '[]'::jsonb)`, [game]);
+    expect(await t.as<{ n: number }>(ann, `select jsonb_array_length(actions) as n from turns where player_id = 'p1'`)).toEqual([{ n: 0 }]);
   });
 
   it('never shows token hashes or who holds a seat', async () => {
     await t.as(ann, 'select * from redeem_seat($1)', ['ann-token']);
     await refused(t.as(ann, 'select token_hash from seats'), /permission denied/);
-    await refused(t.as(ann, 'select user_id from seats'), /permission denied/);
+    await refused(t.as(ann, 'select * from seat_devices'), /permission denied/);
     await refused(t.as(ann, 'select * from seats'), /permission denied/);
   });
 
@@ -115,10 +130,14 @@ describe('redeeming an invite', () => {
     expect((await t.as(ann, 'select player_id from my_seats() order by 1')).map((r) => r.player_id)).toEqual(['p1', 'p2']);
   });
 
-  it('the host re-issuing a seat locks the old device out', async () => {
+  it('the host re-issuing a seat signs every device out and retires the old link', async () => {
     await t.as(ann, 'select * from redeem_seat($1)', ['ann-token']);
-    await t.as(HOST, `update seats set user_id = null, claimed_at = null, token_hash = $1 where game_id = $2 and player_id = 'p1'`, [hash('ann-new'), game]);
+    await t.as(bob, 'select * from redeem_seat($1)', ['ann-token']); // a second device on Ann's link
+    // what tools/host reissue-seat does
+    await t.as(HOST, `update seats set claimed_at = null, token_hash = $1 where game_id = $2 and player_id = 'p1'`, [hash('ann-new'), game]);
+    await t.as(HOST, `delete from seat_devices where game_id = $1 and player_id = 'p1'`, [game]);
     expect(await t.as(ann, 'select * from games')).toEqual([]);
+    expect(await t.as(bob, 'select * from games')).toEqual([]);
     expect(await t.as(ann, `select * from storage.objects where bucket_id = 'sierra'`)).toEqual([]);
     await refused(t.as(ann, 'select * from redeem_seat($1)', ['ann-token']), /unknown invite/);
     expect(await t.as(eve, 'select * from redeem_seat($1)', ['ann-new'])).toHaveLength(1);
@@ -267,5 +286,21 @@ describe('ping', () => {
   it('answers anyone, signed in or not', async () => {
     expect(await t.as(nobody, 'select ping() as p')).toEqual([{ p: 'pong' }]);
     expect(await t.as(eve, 'select ping() as p')).toEqual([{ p: 'pong' }]);
+  });
+});
+
+describe('moving to permanent links (migration 20261001000000)', () => {
+  it('keeps every device that already held a seat', async () => {
+    const old = await supabaseDb({ stopBefore: '20261001000000' });
+    await old.db.query('insert into auth.users (id) values ($1)', [ANN]);
+    const g = await old.db.query<{ id: string }>(`insert into games (name, config) values ('Old', '{}') returning id`);
+    const id = g.rows[0]!.id;
+    await old.db.query(
+      `insert into seats (game_id, player_id, name, token_hash, user_id) values ($1, 'p0', 'Ann', repeat('a', 64), $2), ($1, 'p1', 'Bob', repeat('b', 64), null)`,
+      [id, ANN],
+    );
+    await old.db.exec(readFileSync(join(MIGRATIONS, '20261001000000_permanent_links.sql'), 'utf8'));
+    expect((await old.db.query('select game_id, player_id, user_id from seat_devices')).rows).toEqual([{ game_id: id, player_id: 'p0', user_id: ANN }]);
+    expect(await old.as({ role: 'authenticated', uid: ANN }, 'select player_id from my_seats()')).toEqual([{ player_id: 'p0' }]);
   });
 });

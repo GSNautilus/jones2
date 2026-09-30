@@ -6,8 +6,9 @@
  *
  * --dry-run shows the players and settings without touching Supabase.
  *
- * Each link works once: it binds its seat to the first device that opens it.
- * Send each person their own link. Lost it, or a new device? `reissue-seat`.
+ * Each link is that player's key: it opens their seat on any device, any number
+ * of times. Send each person their own. A link that reached the wrong person?
+ * `reissue-seat` makes a new one and signs out every device the old one opened.
  */
 import { createGame } from '@jones2/sim';
 import { adminClient, checkReachable, explain, projectUrl } from './admin';
@@ -49,7 +50,8 @@ async function main(): Promise<void> {
 
     console.log(`Game created: ${title} (${config.townId} map, seed ${config.seed})`);
     console.log(`Game id: ${gameId}\n`);
-    console.log('Send each person their own link. Each works on one device only.\n');
+    console.log('Send each person their own link. It is their key to the game: it works on any of their');
+    console.log('devices, every time, so they should keep it (the text message is fine) and not share it.\n');
     config.players.forEach((p, i) => console.log(`${p.name}:\n  ${inviteLink(site, tokens[i]!)}\n`));
   } catch (e) {
     await client.from('games').delete().eq('id', gameId); // seats and snapshots go with it

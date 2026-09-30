@@ -77,15 +77,17 @@ npm run new-game -w @jones2/host -- --players "Ann,Bob,Cy"
 $env:SUPABASE_SECRET_KEY=$null
 ```
 
-It prints one link per player. Send each person their own link: it works on the **first device
-that opens it** and nowhere else. After that, that device can reopen the game from the site's
-home page ("Your online games") or from the address the link turned into.
+It prints one link per player. Send each person their own link. **The link is their key to the
+game**: it opens their seat on any of their devices, every time, for as long as the game lasts.
+They keep it wherever it arrived (a text message is fine) and use it to get back in; a new phone
+or a cleared browser just means opening the link again. Nobody needs an account or a password.
 
 - `--map riverton` plays on the Jones 2 town instead of the original ring.
-- `npm run list-games -w @jones2/host` shows every game, its week, and which links have been opened.
-- `npm run reissue-seat -w @jones2/host -- --game <id> --player Ann` makes a new link for a new
-  phone or a cleared browser. The old link and the old device stop working for that seat; the
-  week in progress is kept.
+- `npm run list-games -w @jones2/host` shows every game, its week, and how many devices each
+  player has opened their link on.
+- `npm run reissue-seat -w @jones2/host -- --game <id> --player Ann` is only for a link that
+  reached the wrong person: it makes a new link, the old one stops working, and every device the
+  old one opened is signed out of that seat. The week in progress is kept.
 
 How a week goes: everyone plays their week whenever they like; ending the week hands it in. When
 the last player hands in, the week resolves and everyone sees the recap the next time they open
@@ -105,8 +107,10 @@ the game. Nobody sees what the others did until then.
 - Holding a seat (after redeeming its invite link): read that game, its seat names, its week
   snapshots and the audio; write only their own turn for the open week, until it is submitted;
   see rivals' turns only once the week has resolved.
-- An invite is single-use: it binds to the first device that redeems it. The host re-issues a
-  seat to move it to a new device, which locks the old one out.
+- A player's link is their key: every device that opens it joins their seat (table
+  `seat_devices`). Anyone holding the link can play as that player and hear the audio, so it is
+  as private as a shared family password. Re-issuing the seat retires the link and signs all of
+  its devices out.
 - Games, seats, snapshots and submissions are written only with the secret key (host tools and
   the Edge Function), never from the public site. Any seat unlocks the audio, so the public site
   must never be able to mint one.

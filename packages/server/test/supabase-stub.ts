@@ -43,7 +43,8 @@ export const MIGRATIONS = join(__dirname, '../../../supabase/migrations');
 
 export type Who = { role: 'anon' } | { role: 'authenticated'; uid: string } | { role: 'service_role' };
 
-export async function supabaseDb(): Promise<{
+/** `stopBefore`: apply migrations only up to (not including) the one whose name starts with it. */
+export async function supabaseDb(opts: { stopBefore?: string } = {}): Promise<{
   db: PGlite;
   /** Run `sql` as `who`, the way a request through the API would. */
   as: <T = Record<string, unknown>>(who: Who, sql: string, params?: unknown[]) => Promise<T[]>;
@@ -54,6 +55,7 @@ export async function supabaseDb(): Promise<{
   const db = new PGlite();
   await db.exec(STUB);
   for (const f of readdirSync(MIGRATIONS).filter((f) => f.endsWith('.sql')).sort()) {
+    if (opts.stopBefore && f >= opts.stopBefore) break;
     await db.exec(readFileSync(join(MIGRATIONS, f), 'utf8'));
   }
   let inTx = false;
