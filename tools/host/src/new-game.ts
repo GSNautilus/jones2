@@ -42,7 +42,7 @@ async function main(): Promise<void> {
 
   try {
     const tokens = config.players.map(() => newToken());
-    const seats = config.players.map((p, i) => ({ game_id: gameId, player_id: p.id, name: p.name, token_hash: tokenHash(tokens[i]!) }));
+    const seats = config.players.map((p, i) => ({ game_id: gameId, player_id: p.id, name: p.name, token_hash: tokenHash(tokens[i]!), link: tokens[i]! }));
     const s = await client.from('seats').insert(seats);
     if (s.error) throw new Error(explain('Creating the seats', s.error.message));
     const snap = await client.from('snapshots').insert({ game_id: gameId, week: state.week, state: { ...state, history: [] } });

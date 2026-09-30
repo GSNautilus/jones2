@@ -10,7 +10,8 @@
     "upload-assets": "tsx src/upload-assets.ts",
     "new-game": "tsx src/new-game.ts",
     "list-games": "tsx src/list-games.ts",
-    "reissue-seat": "tsx src/reissue-seat.ts"
+    "reissue-seat": "tsx src/reissue-seat.ts",
+    "host-link": "tsx src/host-link.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.0",

@@ -15,10 +15,15 @@ import { ReplayDemo } from './replay/demo';
 import { ReplayView } from './replay/ReplayView';
 import { GameRoot } from './game';
 import { EditorPanel, type EditorHandle } from './editor';
+import { createGame } from '@jones2/sim';
+import { hostCreateGame, isHost } from './online/api';
+import { HostKeyScreen } from './online/HostKeyScreen';
+import { HostPanel } from './online/HostPanel';
 import { JoinScreen } from './online/JoinScreen';
 import { OnlineGames } from './online/OnlineGames';
 import { OnlineRoot } from './online/OnlineRoot';
-import { parseRoute, type Route } from './online/route';
+import { hostHash, parseRoute, type Route } from './online/route';
+import type { OnlineSetup } from './game/SetupScreen';
 
 const TOWN = riverton as Town;
 type Mode = 'play' | 'replay' | 'editor' | 'map';
@@ -85,8 +90,33 @@ function useRoute(): Route {
   return route;
 }
 
+/** Is this browser a host device? Asked once; never signs in just to ask. */
+function useIsHost(): boolean {
+  const [host, setHost] = useState(false);
+  useEffect(() => {
+    let live = true;
+    isHost()
+      .then((h) => live && setHost(h))
+      .catch(() => undefined);
+    return () => {
+      live = false;
+    };
+  }, []);
+  return host;
+}
+
+/** The new game screen's online option: build week 1 with the sim, create the game, open it in the host panel. */
+const ONLINE: OnlineSetup = {
+  create: async (config) => {
+    const state = createGame(config);
+    const seats = await hostCreateGame(config.players.map((p) => p.name).join(', '), state);
+    location.hash = hostHash(seats[0]?.gameId);
+  },
+};
+
 function PlayRoot() {
   const route = useRoute();
+  const host = useIsHost();
   const pickRef = useRef<((hit: PickResult) => void) | null>(null);
   const hoverRef = useRef<((hit: PickResult) => void) | null>(null);
   const scene = useTownScene({
@@ -117,17 +147,23 @@ function PlayRoot() {
       />
     );
   }
-  if (route.kind === 'join') {
+  if (route.kind === 'join' || route.kind === 'hostkey' || route.kind === 'host') {
     return (
       <div className="stage">
         <div className="stage-map">{mapSlot}</div>
-        <JoinScreen token={route.token} />
+        {route.kind === 'join' ? (
+          <JoinScreen token={route.token} />
+        ) : route.kind === 'hostkey' ? (
+          <HostKeyScreen token={route.token} />
+        ) : (
+          <HostPanel focus={route.gameId} />
+        )}
       </div>
     );
   }
   return (
     <>
-      <GameRoot scene={scene} mapSlot={mapSlot} pickRef={pickRef} hoverRef={hoverRef} ReplayView={ReplayView} />
+      <GameRoot scene={scene} mapSlot={mapSlot} pickRef={pickRef} hoverRef={hoverRef} ReplayView={ReplayView} online={host ? ONLINE : undefined} />
       <OnlineGames />
     </>
   );

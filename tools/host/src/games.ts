@@ -64,3 +64,8 @@ export function tokenHash(token: string): string {
 export function inviteLink(site: string, token: string): string {
   return `${site.endsWith('/') ? site : `${site}/`}#/join/${token}`;
 }
+
+/** The host's own link: opening it makes a device a host device (host-link.ts). */
+export function hostLink(site: string, token: string): string {
+  return `${site.endsWith('/') ? site : `${site}/`}#/hostkey/${token}`;
+}

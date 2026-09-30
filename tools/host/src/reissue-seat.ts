@@ -28,13 +28,13 @@ async function main(): Promise<void> {
   const token = newToken();
   const u = await client
     .from('seats')
-    .update({ token_hash: tokenHash(token), claimed_at: null })
+    .update({ token_hash: tokenHash(token), link: token, claimed_at: null })
     .eq('game_id', args.game)
     .eq('player_id', seat.player_id);
   if (u.error) throw new Error(explain('Re-issuing the seat', u.error.message));
   const d = await client.from('seat_devices').delete().eq('game_id', args.game).eq('player_id', seat.player_id);
   if (d.error) throw new Error(explain('Signing out the old devices', d.error.message));
-  console.log(`New link for ${seat.name} . The old link no longer works, and its devices are signed out:\n  ${inviteLink(args.site ?? DEFAULT_SITE, token)}`);
+  console.log(`New link for ${seat.name}. The old link no longer works, and its devices are signed out:\n  ${inviteLink(args.site ?? DEFAULT_SITE, token)}`);
 }
 
 main().catch((e: unknown) => {

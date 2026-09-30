@@ -66,7 +66,31 @@ uploads it; Supabase builds it on their side, so Docker is not needed. Re-run it
 `packages/server` or `packages/sim` changes, or the server runs old rules against new clients.
 Check in the dashboard: **Edge Functions** lists `submit-turn`.
 
-## 5. Start a game and send the invites
+## 5. Host from the site (once: your host link)
+
+Games are normally started from the site's new game screen. One console step makes your devices
+host devices:
+
+```powershell
+cd "C:\Users\Nautilus\Projects\Jones 2"
+$env:SUPABASE_URL="https://adqanptxzjlxoiwhvvvk.supabase.co"; $env:SUPABASE_SECRET_KEY="sb_secret_..."
+npm run host-link -w @jones2/host
+$env:SUPABASE_SECRET_KEY=$null
+```
+
+It prints your host link (`…/jones2/#/hostkey/…`). Open it on every device you want to host from
+and keep it private: whoever holds it can create games and see every player link. Running the
+command again makes a new host link and signs every host device out.
+
+On a host device, the new game screen has a **Where** choice. **Online** creates the game and
+opens the **host panel** (`…/jones2/#/host`), which lists every online game and, per player:
+**Send link** (the phone's share sheet, or copy on a computer), **Play as** (join that seat on
+this device), **New link** (for a link that reached the wrong person), and whether this week is
+handed in. It can also delete a game.
+
+## 5b. The same from the console
+
+The commands below still work, for scripting or if the site is unavailable.
 
 Needs the secret key in the window, as in step 3.
 

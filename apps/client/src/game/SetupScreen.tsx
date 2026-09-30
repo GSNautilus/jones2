@@ -2,7 +2,7 @@
 import { useEffect } from 'react';
 import { audio } from '../audio';
 import { useState } from 'react';
-import { CLASSIC_DEFAULT_GOALS, DEFAULT_GOALS, type GoalTargets, type Ruleset } from '@jones2/sim';
+import { CLASSIC_DEFAULT_GOALS, DEFAULT_GOALS, type GameConfig, type GoalTargets, type Ruleset } from '@jones2/sim';
 import { Frame, FrameButton } from '../hud/Frame';
 import { MAX_PLAYERS, tokenColor, tokenNumber } from '../classic/tokens';
 import type { GameStore } from './store';
@@ -13,7 +13,13 @@ const GOAL_KEYS = ['money', 'happiness', 'education', 'career'] as const;
 const CLASSIC_GOAL_MIN = 10;
 const CLASSIC_GOAL_MAX = 100;
 
-export function SetupScreen({ store }: { store: GameStore }) {
+/** Present on a host device (src/online/): the new game can be an online one instead. */
+export interface OnlineSetup {
+  /** Create the online game and open it in the host panel. Rejects with a readable message. */
+  create: (config: GameConfig) => Promise<void>;
+}
+
+export function SetupScreen({ store, online }: { store: GameStore; online?: OnlineSetup }) {
   // Browsers only allow sound after a click; the first click on this screen starts the music.
   useEffect(() => {
     let done = false;
@@ -29,6 +35,10 @@ export function SetupScreen({ store }: { store: GameStore }) {
     };
   }, []);
 
+  const [where, setWhere] = useState<'here' | 'online'>('here');
+  const [creating, setCreating] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
+  const isOnline = !!online && where === 'online';
   const [ruleset, setRulesetRaw] = useState<Ruleset>('classic');
   // The map: 'classic' is the original's ring, 'riverton' the Jones 2 town. It
   // follows the rules until the player picks one explicitly.
@@ -52,13 +62,13 @@ export function SetupScreen({ store }: { store: GameStore }) {
   const clampGoal = (v: number) =>
     isClassic ? Math.max(CLASSIC_GOAL_MIN, Math.min(CLASSIC_GOAL_MAX, Math.round(v))) : Math.max(1, Math.round(v));
 
-  const start = () => {
+  const config = (): GameConfig | null => {
     const players = names
       .map((n, i) => ({ id: `p${i}`, name: n.trim() }))
       .filter((p) => p.name !== '')
       .slice(0, MAX_PLAYERS);
-    if (players.length === 0) return;
-    store.start({
+    if (players.length === 0) return null;
+    return {
       ruleset,
       mode: isClassic ? 'classic' : mode,
       weeks: !isClassic && mode === 'fixed' ? weeks : undefined,
@@ -66,17 +76,51 @@ export function SetupScreen({ store }: { store: GameStore }) {
       seed,
       townId,
       players,
-    });
+    };
+  };
+
+  const start = () => {
+    const c = config();
+    if (!c) return;
+    if (!isOnline) {
+      store.start(c);
+      return;
+    }
+    setCreating(true);
+    setProblem(null);
+    online!
+      .create(c)
+      .catch((e: unknown) => setProblem(e instanceof Error ? e.message : String(e)))
+      .finally(() => setCreating(false));
   };
 
   return (
     <div className="hud-modal setup-stage">
       <Frame title="Jones 2 — new game" className="hud-modal-card setup-card">
+        {online && (
+          <>
+            <label>Where</label>
+            <select
+              className="hud-action-input"
+              value={where}
+              onChange={(e) => {
+                const w = e.target.value as 'here' | 'online';
+                setWhere(w);
+                if (w === 'online') setRuleset('classic');
+              }}
+            >
+              <option value="here">On this screen — everyone takes turns here</option>
+              <option value="online">Online — everyone plays on their own device, one link each</option>
+            </select>
+          </>
+        )}
+
         <label>Rules</label>
-        <select className="hud-action-input" value={ruleset} onChange={(e) => setRuleset(e.target.value as Ruleset)}>
+        <select className="hud-action-input" value={ruleset} disabled={isOnline} onChange={(e) => setRuleset(e.target.value as Ruleset)}>
           <option value="classic">Classic — Jones in the Fast Lane</option>
           <option value="jones2">Jones 2 — the extended design</option>
         </select>
+        {isOnline && <p className="hud-tagline">Online games use the classic rules.</p>}
 
         <label>Map</label>
         <select
@@ -143,9 +187,15 @@ export function SetupScreen({ store }: { store: GameStore }) {
           ))}
         </div>
 
-        <FrameButton onClick={start} className="setup-start">
-          Start game
+        {problem && <p className="hud-tagline">{problem}</p>}
+        <FrameButton onClick={start} className="setup-start" disabled={creating}>
+          {isOnline ? (creating ? 'Creating…' : 'Create online game') : 'Start game'}
         </FrameButton>
+        {online && (
+          <p className="hud-tagline">
+            <a href="#/host">Host panel: your online games and their links</a>
+          </p>
+        )}
       </Frame>
     </div>
   );

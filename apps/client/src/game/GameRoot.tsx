@@ -16,7 +16,7 @@ import { TimePreviewProvider } from '../hud/preview';
 import { ClassicScreen } from '../classic/ClassicScreen';
 import '../classic/classic.css';
 import { useGameStore } from './store';
-import { SetupScreen } from './SetupScreen';
+import { SetupScreen, type OnlineSetup } from './SetupScreen';
 import { PlayScreen } from './PlayScreen';
 import { ResolveScreen, type ReplayProps } from './ResolveScreen';
 
@@ -26,9 +26,11 @@ export interface GameRootProps {
   pickRef: MutableRefObject<((hit: PickResult) => void) | null>;
   hoverRef: MutableRefObject<((hit: PickResult) => void) | null>;
   ReplayView: ComponentType<ReplayProps>;
+  /** On a host device: the new game screen can create an online game. */
+  online?: OnlineSetup;
 }
 
-export function GameRoot({ scene, mapSlot, pickRef, hoverRef, ReplayView }: GameRootProps) {
+export function GameRoot({ scene, mapSlot, pickRef, hoverRef, ReplayView, online }: GameRootProps) {
   const store = useGameStore();
   const { state } = store;
   const [resolving, setResolving] = useState(false);
@@ -44,7 +46,7 @@ export function GameRoot({ scene, mapSlot, pickRef, hoverRef, ReplayView }: Game
     scene.fitAll();
   }, [scene, townId]);
 
-  if (!state) return <SetupScreen store={store} />;
+  if (!state) return <SetupScreen store={store} online={online} />;
 
   const resolvingNow = resolving || state.phase === 'finished';
 

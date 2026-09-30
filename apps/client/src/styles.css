@@ -73,3 +73,51 @@ input, select { font: inherit; padding: 5px 8px; border: 2px solid var(--ink); b
 .online-games a {
   color: #1f1b24;
 }
+
+/* Host panel (src/online/HostPanel.tsx). */
+.host-panel {
+  max-height: 88vh;
+  overflow-y: auto;
+}
+.host-game {
+  margin: 6px 0;
+}
+.host-game-title {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  font-weight: 700;
+  padding: 6px 8px;
+  background: #f3e9c8;
+  color: #1f1b24;
+  border: 2px solid #1f1b24;
+  cursor: pointer;
+}
+.host-seats table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 6px 0;
+}
+.host-seats td {
+  padding: 4px 6px;
+  vertical-align: middle;
+}
+.host-name {
+  font-weight: 700;
+}
+.host-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+@media (max-width: 640px) {
+  .host-seats tr {
+    display: block;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    padding: 4px 0;
+  }
+  .host-seats td {
+    display: block;
+    padding: 2px 4px;
+  }
+}

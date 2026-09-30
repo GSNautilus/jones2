@@ -69,3 +69,10 @@ describe('reaching the project', () => {
     expect(await checkReachable('https://abcdefghijklmnopqrst.supabase.co', answering)).toBeNull();
   });
 });
+
+describe('host link', () => {
+  it('uses its own address, apart from player links', async () => {
+    const { hostLink } = await import('../src/games');
+    expect(hostLink('https://gsnautilus.github.io/jones2/', 'TOK')).toBe('https://gsnautilus.github.io/jones2/#/hostkey/TOK');
+  });
+});

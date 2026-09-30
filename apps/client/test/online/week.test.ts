@@ -68,3 +68,15 @@ describe('recap bookkeeping', () => {
     expect(wantsRecap(5, 4)).toBe(true);
   });
 });
+
+describe('host routes', () => {
+  it('reads the host link and the host panel', async () => {
+    const { hostHash, playerLink } = await import('../../src/online/route');
+    expect(parseRoute('#/hostkey/abcdefghijklmnopqrstuvwxyz0123')).toEqual({ kind: 'hostkey', token: 'abcdefghijklmnopqrstuvwxyz0123' });
+    expect(parseRoute('#/host')).toEqual({ kind: 'host', gameId: null });
+    expect(parseRoute(hostHash(GAME))).toEqual({ kind: 'host', gameId: GAME });
+    expect(parseRoute('#/host/not-a-game')).toEqual({ kind: 'local' });
+    expect(parseRoute('#/hostkey/short')).toEqual({ kind: 'local' });
+    expect(playerLink('TOK', { origin: 'https://gsnautilus.github.io', pathname: '/jones2/' })).toBe('https://gsnautilus.github.io/jones2/#/join/TOK');
+  });
+});

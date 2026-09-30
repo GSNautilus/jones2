@@ -166,3 +166,93 @@ export async function submitWeek(gameId: string, week: number, playerId: PlayerI
   if (res.ok && body.accepted) return { ok: true, resolved: !!body.resolved, week: body.week ?? week, finished: !!body.finished };
   return { ok: false, status: res.status, error: body.error ?? `The server answered ${res.status}`, index: body.index };
 }
+
+// ---- hosting (the host's devices only; the database refuses everyone else) ----
+
+/** Opening the host link: make this browser a host device. */
+export async function redeemHost(token: string): Promise<void> {
+  const { error } = await supa().rpc('redeem_host', { token });
+  if (error) {
+    if (/unknown host link/i.test(error.message)) throw new OnlineError('This host link no longer works. Make a new one with: npm run host-link -w @jones2/host');
+    throw new OnlineError(human(error.message));
+  }
+}
+
+/** Is this browser a host device? False when signed out; never signs in just to ask. */
+export async function isHost(): Promise<boolean> {
+  if (!(await currentUserId())) return false;
+  const { data, error } = await supa().rpc('is_host');
+  return !error && data === true;
+}
+
+export interface HostSeat {
+  gameId: string;
+  playerId: PlayerId;
+  name: string;
+  token: string | null;
+}
+
+/** Create an online game from the week-1 state the sim built. Returns each player's link token. */
+export async function hostCreateGame(name: string, state: GameState): Promise<HostSeat[]> {
+  const { data, error } = await supa().rpc('host_create_game', { p_name: name, p_config: state.config, p_state: state });
+  if (error) throw new OnlineError(human(error.message));
+  return ((data ?? []) as { game_id: string; player_id: string; name: string; token: string }[]).map((r) => ({
+    gameId: r.game_id,
+    playerId: r.player_id,
+    name: r.name,
+    token: r.token,
+  }));
+}
+
+export interface HostGame {
+  gameId: string;
+  name: string;
+  week: number;
+  status: string;
+  createdAt: string;
+}
+
+export async function hostGames(): Promise<HostGame[]> {
+  const { data, error } = await supa().rpc('host_games');
+  if (error) throw new OnlineError(human(error.message));
+  return ((data ?? []) as { game_id: string; name: string; week: number; status: string; created_at: string }[]).map((g) => ({
+    gameId: g.game_id,
+    name: g.name,
+    week: g.week,
+    status: g.status,
+    createdAt: g.created_at,
+  }));
+}
+
+export interface HostSeatStatus {
+  playerId: PlayerId;
+  name: string;
+  /** Null for a seat made before links were kept: replace it to get one. */
+  token: string | null;
+  devices: number;
+  submitted: boolean;
+}
+
+export async function hostSeats(gameId: string): Promise<HostSeatStatus[]> {
+  const { data, error } = await supa().rpc('host_seats', { g: gameId });
+  if (error) throw new OnlineError(human(error.message));
+  return ((data ?? []) as { player_id: string; name: string; token: string | null; devices: number; submitted: boolean }[]).map((s) => ({
+    playerId: s.player_id,
+    name: s.name,
+    token: s.token,
+    devices: s.devices,
+    submitted: s.submitted,
+  }));
+}
+
+/** A new link for one seat; the old one stops working and its devices are signed out. */
+export async function hostReplaceLink(gameId: string, playerId: PlayerId): Promise<string> {
+  const { data, error } = await supa().rpc('host_replace_link', { g: gameId, pid: playerId });
+  if (error) throw new OnlineError(human(error.message));
+  return data as string;
+}
+
+export async function hostDeleteGame(gameId: string): Promise<void> {
+  const { error } = await supa().rpc('host_delete_game', { g: gameId });
+  if (error) throw new OnlineError(human(error.message));
+}
