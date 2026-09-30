@@ -62,7 +62,7 @@ export async function submitTurn(db: Db, userId: string, body: unknown): Promise
     if (seat.length === 0) return fail(403, 'That seat is not yours');
 
     const previous = await q<{ same: boolean; submitted: boolean }>(
-      `select actions = $4::jsonb as same, submitted_at is not null as submitted
+      `select actions = $4::text::jsonb as same, submitted_at is not null as submitted
          from public.turns where game_id = $1 and week = $2 and player_id = $3`,
       [req.gameId, req.week, req.playerId, JSON.stringify(req.actions)],
     );
@@ -83,7 +83,7 @@ export async function submitTurn(db: Db, userId: string, body: unknown): Promise
 
     await q(
       `insert into public.turns (game_id, week, player_id, actions, submitted_at)
-       values ($1, $2, $3, $4::jsonb, now())
+       values ($1, $2, $3, $4::text::jsonb, now())
        on conflict (game_id, week, player_id) do update set actions = excluded.actions, submitted_at = excluded.submitted_at`,
       [req.gameId, req.week, req.playerId, JSON.stringify(req.actions)],
     );
@@ -102,7 +102,7 @@ export async function submitTurn(db: Db, userId: string, body: unknown): Promise
     const turns = Object.fromEntries(rows.map((r) => [r.player_id, r.actions]));
     const { state, report } = resolveOnlineWeek(snapshot, turns);
     const finished = state.phase === 'finished';
-    await q('insert into public.snapshots (game_id, week, state, report) values ($1, $2, $3::jsonb, $4::jsonb)', [
+    await q('insert into public.snapshots (game_id, week, state, report) values ($1, $2, $3::text::jsonb, $4::text::jsonb)', [
       req.gameId,
       state.week,
       JSON.stringify(storable(state)),

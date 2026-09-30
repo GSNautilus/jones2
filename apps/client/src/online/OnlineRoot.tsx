@@ -14,7 +14,7 @@ import { ClassicScreen } from '../classic/ClassicScreen';
 import { ResolveScreen, type ReplayProps } from '../game/ResolveScreen';
 import { colorForIndex, type GameStore } from '../game/store';
 import * as api from './api';
-import { useOnlineAudio } from './audio';
+import { switchToBucketAudio } from './audio';
 import { OnlineGame, type View } from './game';
 
 export function useOnlineGame(gameId: string, playerId: string): { game: OnlineGame; view: View } {
@@ -119,8 +119,11 @@ export interface OnlineRootProps {
 }
 
 export function OnlineRoot({ gameId, playerId, scene, mapSlot, pickRef, hoverRef, ReplayView }: OnlineRootProps) {
+  // Before any child mounts: React runs a child's effects before its parent's, and the
+  // classic screen loads the sound map in its first effect. Downloads start only once
+  // the session holds a seat, which the load below ensures.
+  switchToBucketAudio();
   const { game, view } = useOnlineGame(gameId, playerId);
-  useOnlineAudio(view.phase !== 'loading' && view.phase !== 'error');
   const townId = view.state?.config.townId ?? 'classic';
   useEffect(() => {
     scene.setTown((TOWNS[townId] ?? (riverton as Town)) as Town);
