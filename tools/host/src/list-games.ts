@@ -4,7 +4,7 @@
  *
  *   npm run list-games -w @jones2/host
  */
-import { adminClient, explain } from './admin';
+import { adminClient, checkReachable, explain, projectUrl } from './admin';
 
 interface Row {
   id: string;
@@ -17,6 +17,8 @@ interface Row {
 
 async function main(): Promise<void> {
   const client = adminClient();
+  const unreachable = await checkReachable(projectUrl());
+  if (unreachable) throw new Error(unreachable);
   const { data, error } = await client
     .from('games')
     .select('id, name, week, status, created_at, seats(player_id, name, claimed_at)')

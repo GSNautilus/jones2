@@ -7,13 +7,15 @@
  *
  * `list-games` shows game ids and seats.
  */
-import { adminClient, explain } from './admin';
+import { adminClient, checkReachable, explain, projectUrl } from './admin';
 import { DEFAULT_SITE, inviteLink, newToken, parseArgs, tokenHash } from './games';
 
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
   if (!args.game || !args.player) throw new Error('Usage: --game <game id> --player <name or p0..p3>. See list-games.');
   const client = adminClient();
+  const unreachable = await checkReachable(projectUrl());
+  if (unreachable) throw new Error(unreachable);
   const { data, error } = await client.from('seats').select('player_id, name').eq('game_id', args.game);
   if (error) throw new Error(explain('Reading the seats', error.message));
   const seats = (data ?? []) as { player_id: string; name: string }[];

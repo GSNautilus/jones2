@@ -55,3 +55,17 @@ describe('invites', () => {
     expect(inviteLink('http://localhost:5174', 'TOK')).toBe('http://localhost:5174/#/join/TOK');
   });
 });
+
+describe('reaching the project', () => {
+  it('says why a request never got an answer', async () => {
+    const { checkReachable, networkReason } = await import('../src/admin');
+    const dns = Object.assign(new TypeError('fetch failed'), { cause: { code: 'ENOTFOUND' } });
+    expect(networkReason(dns)).toMatch(/project ref in SUPABASE_URL/);
+    const failing = (async () => {
+      throw dns;
+    }) as unknown as typeof fetch;
+    expect(await checkReachable('https://abcdefghijklmnopqrst.supabase.co', failing)).toMatch(/Could not reach https:\/\/abcdefghijklmnopqrst\.supabase\.co: that address does not exist/);
+    const answering = (async () => new Response('nope', { status: 401 })) as unknown as typeof fetch;
+    expect(await checkReachable('https://abcdefghijklmnopqrst.supabase.co', answering)).toBeNull();
+  });
+});

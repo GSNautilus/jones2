@@ -2,13 +2,15 @@
  * Create an online game and print one invite link per player.
  *
  * PowerShell, from the repo root, with SUPABASE_URL and SUPABASE_SECRET_KEY set:
- *   npm run new-game -w @jones2/host -- --players "Ann,Bob,Cy" [--map classic|riverton] [--name "Family"] [--seed 123]
+ *   npm run new-game -w @jones2/host -- --players "Ann,Bob,Cy" [--map classic|riverton] [--name "Family"] [--seed 123] [--dry-run]
+ *
+ * --dry-run shows the players and settings without touching Supabase.
  *
  * Each link works once: it binds its seat to the first device that opens it.
  * Send each person their own link. Lost it, or a new device? `reissue-seat`.
  */
 import { createGame } from '@jones2/sim';
-import { adminClient, explain } from './admin';
+import { adminClient, checkReachable, explain, projectUrl } from './admin';
 import { DEFAULT_SITE, gameConfig, inviteLink, newToken, parseArgs, parsePlayers, tokenHash } from './games';
 
 async function main(): Promise<void> {
@@ -20,11 +22,20 @@ async function main(): Promise<void> {
   const config = gameConfig(names, { map: args.map, seed });
   if (typeof config === 'string') throw new Error(config);
   const site = args.site ?? DEFAULT_SITE;
+  const title = args.name ?? names.join(', ');
+
+  if (args['dry-run']) {
+    console.log(`Would create "${title}" on the ${config.townId} map, seed ${config.seed}, with ${names.length} players:`);
+    for (const p of config.players) console.log(`  ${p.id}  ${p.name}`);
+    return;
+  }
 
   const client = adminClient();
+  const unreachable = await checkReachable(projectUrl());
+  if (unreachable) throw new Error(unreachable);
   const state = createGame(config);
 
-  const { data: game, error } = await client.from('games').insert({ name: args.name ?? names.join(', '), config }).select('id').single();
+  const { data: game, error } = await client.from('games').insert({ name: title, config }).select('id').single();
   if (error || !game) throw new Error(explain('Creating the game', error?.message ?? 'no row'));
   const gameId = (game as { id: string }).id;
 
@@ -36,7 +47,7 @@ async function main(): Promise<void> {
     const snap = await client.from('snapshots').insert({ game_id: gameId, week: state.week, state: { ...state, history: [] } });
     if (snap.error) throw new Error(explain('Saving week 1', snap.error.message));
 
-    console.log(`Game created: ${args.name ?? names.join(', ')} (${config.townId} map, seed ${config.seed})`);
+    console.log(`Game created: ${title} (${config.townId} map, seed ${config.seed})`);
     console.log(`Game id: ${gameId}\n`);
     console.log('Send each person their own link. Each works on one device only.\n');
     config.players.forEach((p, i) => console.log(`${p.name}:\n  ${inviteLink(site, tokens[i]!)}\n`));
