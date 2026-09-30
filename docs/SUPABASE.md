@@ -66,6 +66,31 @@ uploads it; Supabase builds it on their side, so Docker is not needed. Re-run it
 `packages/server` or `packages/sim` changes, or the server runs old rules against new clients.
 Check in the dashboard: **Edge Functions** lists `submit-turn`.
 
+## 5. Start a game and send the invites
+
+Needs the secret key in the window, as in step 3.
+
+```powershell
+cd "C:\Users\Nautilus\Projects\Jones 2"
+$env:SUPABASE_URL="https://adqanptxzjlxoiwhvvvk.supabase.co"; $env:SUPABASE_SECRET_KEY="sb_secret_..."
+npm run new-game -w @jones2/host -- --players "Ann,Bob,Cy"
+$env:SUPABASE_SECRET_KEY=$null
+```
+
+It prints one link per player. Send each person their own link: it works on the **first device
+that opens it** and nowhere else. After that, that device can reopen the game from the site's
+home page ("Your online games") or from the address the link turned into.
+
+- `--map riverton` plays on the Jones 2 town instead of the original ring.
+- `npm run list-games -w @jones2/host` shows every game, its week, and which links have been opened.
+- `npm run reissue-seat -w @jones2/host -- --game <id> --player Ann` makes a new link for a new
+  phone or a cleared browser. The old link and the old device stop working for that seat; the
+  week in progress is kept.
+
+How a week goes: everyone plays their week whenever they like; ending the week hands it in. When
+the last player hands in, the week resolves and everyone sees the recap the next time they open
+the game. Nobody sees what the others did until then.
+
 ## Free plan notes
 
 - A project with no activity for a week is **paused**. Restore it from the dashboard. A

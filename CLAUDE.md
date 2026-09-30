@@ -12,7 +12,10 @@ A modernized *Jones in the Fast Lane*. Family online play, async weeks, browser 
 - `packages/town` — town graph schema, the town JSON, and path/travel utilities. The sim depends on it.
 - `apps/balance` — headless runner that plays many games with scripted strategies to find dominant strategies.
 - `apps/debug-client` — plain HTML/React hot-seat client for playtesting. Deliberately ugly.
-- Later: `apps/client` (three.js map + React UI), `apps/server` (Node, SQLite, invite links, email).
+- `apps/client` — the real client (pixel map + React UI); online play in `src/online/`, published to GitHub Pages by `.github/workflows/pages.yml`.
+- `packages/server` — the submit-turn Edge Function's logic (bundled into `supabase/functions/_shared`), and the database tests.
+- `supabase/` — migrations and the Edge Function entry. `tools/host` — host commands run with the secret key (upload audio, new game, invites). Setup: `docs/SUPABASE.md`.
+- Never commit anything from the original game: it lives in gitignored `assets/sierra/` (see `assets/README.md`). The repo is public.
 
 ## Rules
 - Commands handed to the user are PowerShell. Always.
