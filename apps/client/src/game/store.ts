@@ -53,6 +53,12 @@ function load(): Persisted | null {
       localStorage.removeItem(STORAGE);
       return null;
     }
+    // Games on the extended-design rules are no longer offered (DESIGN decision log
+    // 2026-10-02); one saved from before would reopen in the placeholder screen.
+    if (parsed.state.config.ruleset !== 'classic') {
+      localStorage.removeItem(STORAGE);
+      return null;
+    }
     return parsed;
   } catch {
     return null;

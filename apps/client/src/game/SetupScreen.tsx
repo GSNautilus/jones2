@@ -39,15 +39,10 @@ export function SetupScreen({ store, online }: { store: GameStore; online?: Onli
   const [creating, setCreating] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
   const isOnline = !!online && where === 'online';
-  const [ruleset, setRulesetRaw] = useState<Ruleset>('classic');
-  // The map: 'classic' is the original's ring, 'riverton' the Jones 2 town. It
-  // follows the rules until the player picks one explicitly.
+  // Always the classic rules (see the note where the Rules choice used to be).
+  const ruleset: Ruleset = 'classic';
+  // The map: 'classic' is the original's ring, 'riverton' the Jones 2 town.
   const [townId, setTownId] = useState<string>('classic');
-  const [townPicked, setTownPicked] = useState(false);
-  const setRuleset = (r: Ruleset) => {
-    setRulesetRaw(r);
-    if (!townPicked) setTownId(r === 'classic' ? 'classic' : 'riverton');
-  };
   const [names, setNames] = useState(['Ann', 'Bob', '', '']);
   const [mode, setMode] = useState<'classic' | 'fixed'>('classic');
   const [weeks, setWeeks] = useState(30);
@@ -108,7 +103,6 @@ export function SetupScreen({ store, online }: { store: GameStore; online?: Onli
               onChange={(e) => {
                 const w = e.target.value as 'here' | 'online';
                 setWhere(w);
-                if (w === 'online') setRuleset('classic');
               }}
             >
               <option value="here">On this screen — everyone takes turns here</option>
@@ -117,21 +111,18 @@ export function SetupScreen({ store, online }: { store: GameStore; online?: Onli
           </>
         )}
 
-        <label>Rules</label>
-        <select className="hud-action-input" value={ruleset} disabled={isOnline} onChange={(e) => setRuleset(e.target.value as Ruleset)}>
-          <option value="classic">Classic — Jones in the Fast Lane</option>
-          <option value="jones2">Jones 2 — the extended design</option>
-        </select>
-        {isOnline && <p className="hud-tagline">Online games use the classic rules.</p>}
+        {/*
+          No Rules choice: every new game uses the classic rules and the classic
+          screen (clerks, windows, options), on either map. The extended-design
+          ruleset still exists in the sim but only has the early placeholder
+          screen, so it is not offered (DESIGN decision log 2026-10-02).
+        */}
 
         <label>Map</label>
         <select
           className="hud-action-input"
           value={townId}
-          onChange={(e) => {
-            setTownId(e.target.value);
-            setTownPicked(true);
-          }}
+          onChange={(e) => setTownId(e.target.value)}
         >
           <option value="classic">Classic — the original board, a ring of 13 buildings</option>
           <option value="riverton">Jones 2 — Riverton, the river and highway town</option>
