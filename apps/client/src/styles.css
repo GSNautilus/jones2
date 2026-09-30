@@ -52,3 +52,24 @@ input, select { font: inherit; padding: 5px 8px; border: 2px solid var(--ink); b
 .log li { padding: 3px 0; border-bottom: 1px dotted var(--line); font-size: 13px; }
 .report { background: #fffbe8; border: 2px solid var(--line); padding: 10px; margin-bottom: 10px; }
 .center { max-width: 520px; margin: 48px auto; background: var(--panel); padding: 24px; border: 3px solid var(--ink); }
+
+/* Home screen: this browser's online games (src/online/OnlineGames.tsx). */
+.online-games {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 20;
+  max-width: 320px;
+  padding: 8px 12px;
+  background: #f3e9c8;
+  color: #1f1b24;
+  border: 2px solid #1f1b24;
+  font-size: 13px;
+}
+.online-games ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+.online-games a {
+  color: #1f1b24;
+}

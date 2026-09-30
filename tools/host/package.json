@@ -3,13 +3,17 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "description": "Tools the game's host runs on their own machine with the Supabase secret key: asset upload, and later new games and invites.",
+  "description": "Tools the game's host runs on their own machine with the Supabase secret key: asset upload, new games, invites.",
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "upload-assets": "tsx src/upload-assets.ts"
+    "upload-assets": "tsx src/upload-assets.ts",
+    "new-game": "tsx src/new-game.ts",
+    "list-games": "tsx src/list-games.ts",
+    "reissue-seat": "tsx src/reissue-seat.ts"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.117.0"
+    "@supabase/supabase-js": "^2.117.0",
+    "@jones2/sim": "*"
   }
 }

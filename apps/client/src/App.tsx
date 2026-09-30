@@ -1,6 +1,8 @@
 /**
  * Mode switch by URL query:
- *   (default)  play   — hot-seat game with the 3D map for travel (src/game/)
+ *   (default)  play   — the game (src/game/); the URL hash picks online play:
+ *                       #/join/<token> redeems an invite, #/game/<id>/<seat> plays
+ *                       an online seat (src/online/), anything else is hot-seat
  *   ?replay    replay — demo replay of a scripted week (src/replay/)
  *   ?editor    editor — town editor (src/editor/)
  *   ?map       map    — renderer demo (src/map/demo.tsx)
@@ -13,6 +15,10 @@ import { ReplayDemo } from './replay/demo';
 import { ReplayView } from './replay/ReplayView';
 import { GameRoot } from './game';
 import { EditorPanel, type EditorHandle } from './editor';
+import { JoinScreen } from './online/JoinScreen';
+import { OnlineGames } from './online/OnlineGames';
+import { OnlineRoot } from './online/OnlineRoot';
+import { parseRoute, type Route } from './online/route';
 
 const TOWN = riverton as Town;
 type Mode = 'play' | 'replay' | 'editor' | 'map';
@@ -68,7 +74,19 @@ function CameraButtons({ scene }: { scene: ReturnType<typeof useTownScene> }) {
   );
 }
 
+/** The online route in the URL hash, kept current. */
+function useRoute(): Route {
+  const [route, setRoute] = useState<Route>(() => parseRoute(location.hash));
+  useEffect(() => {
+    const onChange = () => setRoute(parseRoute(location.hash));
+    window.addEventListener('hashchange', onChange);
+    return () => window.removeEventListener('hashchange', onChange);
+  }, []);
+  return route;
+}
+
 function PlayRoot() {
+  const route = useRoute();
   const pickRef = useRef<((hit: PickResult) => void) | null>(null);
   const hoverRef = useRef<((hit: PickResult) => void) | null>(null);
   const scene = useTownScene({
@@ -84,7 +102,35 @@ function PlayRoot() {
   // GameRoot loads the town the game is on (the setup screen shows Riverton).
   // Play mode has no mode links: the bottom-right corner is the cash readout
   // and the END TURN button. The other modes are reached by their URLs.
-  return <GameRoot scene={scene} mapSlot={<MapCanvas scene={scene} />} pickRef={pickRef} hoverRef={hoverRef} ReplayView={ReplayView} />;
+  const mapSlot = <MapCanvas scene={scene} />;
+  if (route.kind === 'game') {
+    return (
+      <OnlineRoot
+        key={`${route.gameId}/${route.playerId}`}
+        gameId={route.gameId}
+        playerId={route.playerId}
+        scene={scene}
+        mapSlot={mapSlot}
+        pickRef={pickRef}
+        hoverRef={hoverRef}
+        ReplayView={ReplayView}
+      />
+    );
+  }
+  if (route.kind === 'join') {
+    return (
+      <div className="stage">
+        <div className="stage-map">{mapSlot}</div>
+        <JoinScreen token={route.token} />
+      </div>
+    );
+  }
+  return (
+    <>
+      <GameRoot scene={scene} mapSlot={mapSlot} pickRef={pickRef} hoverRef={hoverRef} ReplayView={ReplayView} />
+      <OnlineGames />
+    </>
+  );
 }
 
 function ReplayRoot() {

@@ -50,6 +50,8 @@ function sierraAudio(): Plugin {
 }
 
 export default defineConfig({
+  // GitHub Pages serves the site under /jones2/; the deploy workflow sets JONES2_BASE.
+  base: process.env.JONES2_BASE ?? '/',
   plugins: [react(), sierraAudio()],
   server: { port: 5174 },
 });

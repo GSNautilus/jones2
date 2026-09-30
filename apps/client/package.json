@@ -10,12 +10,13 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@jones2/pixelart": "*",
     "@jones2/sim": "*",
     "@jones2/town": "*",
+    "@supabase/supabase-js": "^2.117.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "three": "^0.170.0",
-    "@jones2/pixelart": "*"
+    "three": "^0.170.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",

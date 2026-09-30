@@ -214,3 +214,58 @@ describe('the sierra bucket', () => {
     expect((await t.as(ann, 'select bucket_id from storage.objects')).map((r) => r.bucket_id)).toEqual(['sierra']);
   });
 });
+
+describe('save_draft', () => {
+  beforeEach(async () => {
+    await t.as(ann, 'select * from redeem_seat($1)', ['ann-token']);
+  });
+  const save = (who: Who, pid: string, week = 1, draft = '[{"type":"work"}]') =>
+    t.as(who, 'select save_draft($1, $2, $3, $4::jsonb)', [game, week, pid, draft]);
+
+  it('saves and then replaces the player’s own draft', async () => {
+    await save(ann, 'p1');
+    await save(ann, 'p1', 1, '[{"type":"work"},{"type":"endWeek"}]');
+    const rows = await t.as<{ n: number }>(ann, `select jsonb_array_length(actions) as n from turns where player_id = 'p1'`);
+    expect(rows).toEqual([{ n: 2 }]);
+  });
+
+  it('refuses another seat, another week, and something that is not a list', async () => {
+    await refused(save(ann, 'p2'), /not yours/);
+    await refused(save(eve, 'p1'), /not yours/);
+    await refused(save(ann, 'p1', 2), /not open/);
+    await refused(save(ann, 'p1', 1, '{"type":"work"}'), /list of actions/);
+  });
+
+  it('never overwrites a submitted turn', async () => {
+    await save(ann, 'p1');
+    await t.as(HOST, `update turns set submitted_at = now() where game_id = $1 and player_id = 'p1'`, [game]);
+    await save(ann, 'p1', 1, '[]');
+    expect(await t.as<{ n: number }>(ann, `select jsonb_array_length(actions) as n from turns where player_id = 'p1'`)).toEqual([{ n: 1 }]);
+  });
+
+  it('is not open to signed-out visitors', async () => {
+    await refused(t.as(nobody, 'select save_draft($1, 1, $2, $3::jsonb)', [game, 'p1', '[]']), /permission denied/);
+  });
+});
+
+describe('week_status', () => {
+  it('says who has handed in the open week, without the actions', async () => {
+    await t.as(ann, 'select * from redeem_seat($1)', ['ann-token']);
+    await t.as(HOST, `insert into turns (game_id, week, player_id, actions, submitted_at) values ($1, 1, 'p2', '[{"type":"endWeek"}]', now())`, [game]);
+    expect(await t.as(ann, 'select * from week_status($1)', [game])).toEqual([
+      { player_id: 'p1', name: 'Ann', submitted: false },
+      { player_id: 'p2', name: 'Bob', submitted: true },
+    ]);
+  });
+
+  it('says nothing to someone without a seat in that game', async () => {
+    expect(await t.as(eve, 'select * from week_status($1)', [game])).toEqual([]);
+  });
+});
+
+describe('ping', () => {
+  it('answers anyone, signed in or not', async () => {
+    expect(await t.as(nobody, 'select ping() as p')).toEqual([{ p: 'pong' }]);
+    expect(await t.as(eve, 'select ping() as p')).toEqual([{ p: 'pong' }]);
+  });
+});
