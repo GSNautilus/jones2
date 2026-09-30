@@ -1,5 +1,6 @@
 import { existsSync } from 'node:fs';
-import { describe, expect, it } from 'vitest';
+import { join } from 'node:path';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { unpackLZW1 } from '../src/lzw1';
 import { MT32_TO_GM, PPQ, summarise, toStandardMidi } from '../src/midi';
 import { GameFiles, SOUND, readMap } from '../src/resources';
@@ -101,10 +102,16 @@ describe('sound resource', () => {
   });
 });
 
-const GAME = '<folder holding RESOURCE.MAP>';
+// The 1991 floppy release, wherever you keep it: set JONES_GAME_DIR to the folder holding
+// RESOURCE.MAP. Skipped without it (always, on GitHub). Never commit the game files.
+const GAME = process.env.JONES_GAME_DIR ?? '';
 
-describe.skipIf(!existsSync(GAME))('the real game files', () => {
-  const game = new GameFiles(GAME);
+describe.skipIf(!GAME || !existsSync(GAME))('the real game files', () => {
+  // Opened in beforeAll: a skipped group's body still runs to collect its tests.
+  let game: GameFiles;
+  beforeAll(() => {
+    game = new GameFiles(GAME);
+  });
 
   it('decompresses every sound to its declared size', () => {
     const sounds = game.ofType(SOUND);
@@ -145,7 +152,8 @@ describe('CD speech', () => {
   });
 });
 
-const CD = 'C:/Users/Nautilus/Projects/Jones 2/Jones3x/CD';
+// The CD edition, unpacked into the gitignored Jones3x/CD at the repo root (or JONES_CD_DIR).
+const CD = process.env.JONES_CD_DIR ?? join(__dirname, '../../../Jones3x/CD');
 
 describe.skipIf(!existsSync(CD))('the CD edition files', () => {
   it('opens the map with 28-bit offsets and finds the text resources', () => {

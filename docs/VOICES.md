@@ -89,12 +89,12 @@ tolerates that. Decide later whether the bubble texts should follow the recordin
 
 ## How the labels were made (reproducible)
 
-1. Extract: `npx tsx tools/sci/src/voices.ts "…\Jones3x\CD" art\audio\voice` (wav + ogg + manifest).
+1. Extract: `npx tsx tools/sci/src/voices.ts "…\Jones3x\CD" assets\sierra\source\voice` (wav + ogg + manifest).
 2. Transcribe with faster-whisper `large-v3` on the GPU (`codex` env; `pip install faster-whisper
-   rapidfuzz`): `python tools\sci\voices\transcribe.py art\audio\voice\transcripts.json`. About
+   rapidfuzz`): `python tools\sci\voices\transcribe.py assets\sierra\source\voice\transcripts.json`. About
    9 minutes for all 533; pass a comma-separated list of numbers as the third argument to redo a
    few. Transcripts are near-perfect: the 8-bit audio is clean and the actor enunciates.
-3. Match: `python tools\sci\voices\match.py art\audio\voice`. Candidates are every greeting and
+3. Match: `python tools\sci\voices\match.py assets\sierra\source\voice`. Candidates are every greeting and
    quote in `classic/locations.ts` (dumped to `locs.json`) plus the CD text resources 232, 215,
    700, 108 (`cd-texts.json`). Score = 0.6 × token-set ratio + 0.4 × plain ratio; ≥ 78 is
    confident. Within each run, confident matches vote for (list, offset) and the rest of the list
@@ -102,7 +102,7 @@ tolerates that. Decide later whether the bubble texts should follow the recordin
    settled the rest.
 4. Hand labels for the lines the wiki has no text for (pawn, bank, university, employment, rent
    office refusals, goals, work messages) are in `overrides.json`, written from the transcripts.
-5. Build: `python tools\sci\voices\build.py art\audio\voice .` writes `voices.json` and
+5. Build: `python tools\sci\voices\build.py assets\sierra\source\voice .` writes `voices.json` and
    `labels.html`.
 
 `apps/client/test/audio/voices-file.test.ts` checks the file: every line used exactly once,

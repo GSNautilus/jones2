@@ -13,9 +13,9 @@ players only through the private Supabase bucket (see `assets/README.md`).
 ## Run (PowerShell, from the repo root)
 
 ```powershell
-npx tsx tools/sci/src/extract.ts "<folder holding RESOURCE.MAP>" art\audio\midi
-npx tsx tools/sci/src/render.ts art\audio\midi art\audio
-Start-Process art\audio\index.html
+npx tsx tools/sci/src/extract.ts "<folder holding RESOURCE.MAP>" assets\sierra\source\midi
+npx tsx tools/sci/src/render.ts assets\sierra\source\midi assets\sierra\source
+Start-Process assets\sierra\source\index.html
 ```
 
 `extract.ts` takes an optional third argument for the device track: `mt32`
@@ -35,8 +35,8 @@ The 1992 CD-ROM release adds what the floppy lacks:
   frames. 533 lines, 34 minutes. `voices.ts` writes them out:
 
   ```powershell
-  npx tsx tools/sci/src/voices.ts "C:\Users\Nautilus\Projects\Jones 2\Jones3x\CD" art\audio\voice
-  Start-Process art\audio\voice\labels.html
+  npx tsx tools/sci/src/voices.ts Jones3x\CD assets\sierra\source\voice
+  Start-Process assets\sierra\source\voice\labels.html
   ```
 
   The lines are labelled (which clerk, which greeting or response) in
