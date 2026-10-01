@@ -32,7 +32,9 @@ Pure, unit-tested (no DOM, no React):
   layout, used by both the painter and the mouse, so they cannot drift.
 - `screens.ts` — the GOALS and STATISTICS models.
 - `screen.ts` — sizing for the device (PLAN §7): crisp scales in whole device
-  pixels, `fitPanel` (a window's scale, width, rows), `chromeScale`, `usesDock`.
+  pixels, `fitPanel` (a window's scale, width, rows in a given room),
+  `placeFurniture` and `chooseLayout` (corners / rail / dock and the furniture's
+  scale, so windows never cover the furniture).
   `useScreen.ts` is the React hook that feeds it.
 - `touch.ts` — two-tap travel: `tapResult` decides select / act / clear.
 - `paint.ts` — draws a `PanelModel` into a pixel-art `Surface` with the art

@@ -307,9 +307,13 @@ hover text). Pointer events throughout, so mouse, pen and finger share one path.
 threshold ~10px for a finger (3px for a mouse); a near miss picks the closest building; pinch
 steps the zoom. The hours-left line is always shown on a touch screen (no hover to reveal it).
 
-**Portrait.** A dock under the map: clock left, cash + hours + END TURN right, the three buttons
-in a row beneath; respects the phone's safe area. The map shrinks to the space above it.
-Windows still cover the whole screen.
+**Furniture never covered (2026-10-01).** Clock, cash box, the three buttons, player plate
+and map buttons are laid out first; windows, the pinned tooltip and errors get only the room
+left. `chooseLayout` (`screen.ts`) picks the arrangement: corners (the original), a rail down
+the right (one or two columns) for a short screen, a dock under the map for a portrait one.
+Taken outright when the Employment Office window keeps six rows beside it at no smaller a scale
+than the furniture; otherwise the arrangement leaving windows the most rows. The map gives up
+the rail's or dock's space. Respects the phone's safe area.
 
 **Page.** `100dvh` instead of `100%`/`100vh` heights, no page bounce or double-tap zoom, no
 text selection on long press, `viewport-fit=cover`.

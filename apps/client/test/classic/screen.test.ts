@@ -1,13 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { layoutPanel, textWidth, TOUCH_BUTTON_H, TOUCH_ROW_H, ROW_H, scrollAfterDrag, type PanelModel } from '../../src/classic/layout';
+import { layoutChrome } from '../../src/classic/chrome';
 import {
   DESKTOP_SCALE,
   MIN_PANEL_W,
-  chromeScale,
   crispScales,
   devicePixels,
   fitPanel,
-  usesDock,
+  chooseLayout,
+  placeFurniture,
+  windowArea,
+  REFERENCE_WINDOW,
+  type Furniture,
   type ScreenInfo,
 } from '../../src/classic/screen';
 
@@ -90,7 +94,7 @@ describe('touch density', () => {
 describe('fitPanel', () => {
   it('gives a desktop exactly the designed window', () => {
     const fit = fitPanel(model(11), { width: 380, maxListRows: 11 }, DESKTOP);
-    expect(fit).toEqual({ scale: DESKTOP_SCALE, width: 380, maxListRows: 11, density: 'mouse' });
+    expect(fit).toEqual({ scale: DESKTOP_SCALE, width: 380, maxListRows: 11, density: 'mouse', fits: true });
   });
 
   it('keeps ×2 on a 125% laptop', () => {
@@ -129,20 +133,64 @@ describe('fitPanel', () => {
   });
 });
 
-describe('dock and corner scale', () => {
-  it('docks on an upright phone or tablet, not on a desktop or a phone on its side', () => {
-    expect(usesDock(PHONE)).toBe(true);
-    expect(usesDock(IPAD_PORTRAIT)).toBe(true);
-    expect(usesDock(DESKTOP)).toBe(false);
-    expect(usesDock(PHONE_LANDSCAPE)).toBe(false);
+const FURNITURE: Furniture = (() => {
+  const box = (m: Parameters<typeof layoutChrome>[0]) => {
+    const l = layoutChrome(m);
+    return { w: l.width, h: l.height };
+  };
+  const bar = [
+    { key: 'goals', label: 'GOALS' },
+    { key: 'stats', label: 'STATISTICS' },
+    { key: 'options', label: 'OPTIONS' },
+  ];
+  return {
+    bar: box({ arrange: 'row', buttons: bar }),
+    barStack: box({ arrange: 'stack', buttons: bar }),
+    readout: box({ arrange: 'stack', display: ['$9,999,999', '60H LEFT'], buttons: [{ key: 'end', label: 'END TURN' }] }),
+    clock: 96,
+  };
+})();
+
+describe('chooseLayout: nothing overlaps', () => {
+  it('keeps a desktop in the original corners at ×2', () => {
+    expect(chooseLayout(DESKTOP, FURNITURE)).toMatchObject({ mode: 'corners', scale: 2 });
+    // A 1440x900 laptop's browser window, less its tabs and address bar.
+    expect(chooseLayout({ width: 1440, height: 790, dpr: 1, touch: false }, FURNITURE)).toMatchObject({ mode: 'corners', scale: 2 });
   });
 
-  it('keeps ×2 where it fits and steps down crisply where it does not', () => {
-    expect(chromeScale(DESKTOP, 540, 108)).toBe(2);
-    const s = chromeScale(PHONE, 220, 150, 0.36);
-    expect(s).toBeLessThan(2);
-    expect(crisp(s, PHONE.dpr)).toBe(true);
-    expect(220 * s).toBeLessThanOrEqual(PHONE.width - 24);
+  it('moves the furniture to a rail on a short landscape screen', () => {
+    expect(chooseLayout({ width: 1366, height: 650, dpr: 1, touch: false }, FURNITURE)).toMatchObject({ mode: 'rail', scale: 2 });
+    expect(chooseLayout(PHONE_LANDSCAPE, FURNITURE).mode).toBe('rail');
+  });
+
+  it('docks a portrait screen', () => {
+    expect(chooseLayout(PHONE, FURNITURE).mode).toBe('dock');
+    expect(chooseLayout(IPAD_PORTRAIT, FURNITURE)).toMatchObject({ mode: 'dock', scale: 2 });
+  });
+
+  it('a stack of buttons is as wide as its widest button, not the row', () => {
+    expect(FURNITURE.barStack.w).toBeLessThan(FURNITURE.bar.w);
+  });
+
+  it('across screen sizes: the furniture fits and the biggest window fits beside it', () => {
+    const failures: string[] = [];
+    for (const dpr of [1, 1.25, 1.5, 2, 3]) {
+      for (const touch of [false, true]) {
+        for (let width = 360; width <= 2560; width += 40) {
+          for (let height = 360; height <= 1440; height += 40) {
+            const screen = { width, height, dpr, touch };
+            const layout = chooseLayout(screen, FURNITURE);
+            const placed = placeFurniture(layout.mode, FURNITURE, layout.scale, screen);
+            const area = windowArea(screen, layout.room);
+            const fit = fitPanel(REFERENCE_WINDOW.model, REFERENCE_WINDOW.want, area);
+            const l = layoutPanel(REFERENCE_WINDOW.model, { width: fit.width, maxListRows: fit.maxListRows, density: fit.density });
+            const inside = l.width * fit.scale <= area.width && l.height * fit.scale <= area.height;
+            if (!placed.fits || !inside) failures.push(`${width}x${height}@${dpr}${touch ? 't' : ''} ${layout.mode} x${layout.scale}`);
+          }
+        }
+      }
+    }
+    expect(failures).toEqual([]);
   });
 });
 

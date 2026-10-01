@@ -60,7 +60,9 @@ export function layoutChrome(model: ChromeModel): ChromeLayout {
   const lineWidths = lines.map((l) => measureTextScaled(l.text, l.scale, { spacing: 1 }));
   const displayInnerW = lines.length ? Math.max(...lineWidths) : 0;
   const rowW = model.buttons.reduce((w, b, i) => w + buttonWidth(b.label) + (i ? BUTTON_GAP : 0), 0);
-  const contentW = Math.max(model.arrange === 'row' ? rowW : Math.max(rowW, 96), lines.length ? displayInnerW + DISPLAY_PAD * 2 : 0);
+  // A stack is as wide as its widest button (one button: the same as its row).
+  const widest = model.buttons.reduce((w, b) => Math.max(w, buttonWidth(b.label)), 0);
+  const contentW = Math.max(model.arrange === 'row' ? rowW : Math.max(widest, 96), lines.length ? displayInnerW + DISPLAY_PAD * 2 : 0);
 
   let y = CHROME_PAD;
   let display: Rect | null = null;

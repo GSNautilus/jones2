@@ -7,7 +7,7 @@
  * options. On a portrait screen the three move into a dock under the map, and
  * a finger travels with two taps (PLAN §7).
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import type { MutableRefObject } from 'react';
 import { availableActions, bestPet, bestVehicle, getGraph, type Action, type ActionOption } from '@jones2/sim';
 import type { NodeId } from '@jones2/town';
@@ -25,11 +25,30 @@ import type { PanelModel } from './layout';
 import { PixelPanel } from './PixelPanel';
 import { OptionsPanel } from './OptionsPanel';
 import { PixelChrome } from './PixelChrome';
-import { layoutChrome, type ChromeModel } from './chrome';
+import { layoutChrome, type ChromeButton, type ChromeModel } from './chrome';
 import { CLOCK_ART } from '../hud/Clock';
-import { chromeScale, usesDock } from './screen';
+import { chooseLayout, type Box, type Furniture, type Room } from './screen';
 import { useScreen } from './useScreen';
 import { isTouchPointer, tapResult, type TapTarget } from './touch';
+
+const BAR_BUTTONS: ChromeButton[] = [
+  { key: 'goals', label: 'GOALS' },
+  { key: 'stats', label: 'STATISTICS' },
+  { key: 'options', label: 'OPTIONS' },
+];
+
+function boxOf(model: ChromeModel): Box {
+  const l = layoutChrome(model);
+  return { w: l.width, h: l.height };
+}
+
+/** The furniture's native sizes, the cash box measured with a wide figure so the layout never jumps as cash grows. */
+const FURNITURE: Furniture = {
+  bar: boxOf({ arrange: 'row', buttons: BAR_BUTTONS }),
+  barStack: boxOf({ arrange: 'stack', buttons: BAR_BUTTONS }),
+  readout: boxOf({ arrange: 'stack', display: ['$9,999,999', '60H LEFT'], buttons: [{ key: 'end', label: 'END TURN' }] }),
+  clock: CLOCK_ART,
+};
 
 const AMBIENT_KEY = 'jones2-ambient';
 
@@ -504,64 +523,71 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
     [windowActions],
   );
 
-  // ---- portrait dock (PLAN §7) ---------------------------------------------
-  // On a portrait phone or tablet the furniture moves into a dock under the
-  // map, and the map shrinks to the space above it (classic.css reads the
-  // dock's height from --classic-dock-h).
-  const dock = usesDock(screen);
-  const dockRef = useRef<HTMLDivElement | null>(null);
+  // ---- furniture and the room it leaves (PLAN §7) --------------------------
+  // `chooseLayout` puts the furniture in the corners, a rail down the right or
+  // a dock under the map. Windows, the pinned tooltip and the error toast only
+  // ever use the room left between the top row and the furniture, measured off
+  // the real elements, so nothing covers the clock or the buttons. The map
+  // gives up the rail's or the dock's space (classic.css reads the variables).
+  const layout = useMemo(() => chooseLayout(screen, FURNITURE), [screen]);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const [measured, setMeasured] = useState<Room | null>(null);
   const hasPlayer = player !== null;
-  useEffect(() => {
-    const el = dockRef.current;
-    const root = document.documentElement;
-    if (!dock || !el) {
-      root.style.removeProperty('--classic-dock-h');
-      return undefined;
-    }
-    const set = () => root.style.setProperty('--classic-dock-h', `${el.offsetHeight}px`);
-    set();
-    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(set);
-    observer?.observe(el);
-    return () => {
-      observer?.disconnect();
-      root.style.removeProperty('--classic-dock-h');
+  useLayoutEffect(() => {
+    const root = rootRef.current;
+    if (!root) return undefined;
+    const doc = document.documentElement;
+    const measure = () => {
+      const box = root.getBoundingClientRect();
+      const room: Room = { top: 0, right: 0, bottom: 0 };
+      for (const el of root.querySelectorAll<HTMLElement>(':scope > .classic-turn, :scope > .hud-mapcontrols')) {
+        room.top = Math.max(room.top, Math.ceil(el.getBoundingClientRect().bottom - box.top) + 4);
+      }
+      for (const el of root.querySelectorAll<HTMLElement>(
+        ':scope > .classic-bar-left, :scope > .classic-clock, :scope > .classic-readout, :scope > .classic-dock',
+      )) {
+        const r = el.getBoundingClientRect();
+        if (r.height > 0) room.bottom = Math.max(room.bottom, Math.ceil(box.bottom - r.top));
+      }
+      for (const el of root.querySelectorAll<HTMLElement>(':scope > .classic-rail')) {
+        room.right = Math.max(room.right, Math.ceil(box.right - el.getBoundingClientRect().left));
+      }
+      setMeasured((m) => (m && m.top === room.top && m.right === room.right && m.bottom === room.bottom ? m : room));
+      doc.style.setProperty('--classic-map-bottom', layout.mode === 'dock' ? `${room.bottom}px` : '0px');
+      doc.style.setProperty('--classic-map-right', layout.mode === 'rail' ? `${room.right}px` : '0px');
     };
-  }, [dock, hasPlayer]);
+    measure();
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure);
+    observer?.observe(root);
+    root.querySelectorAll(':scope > *').forEach((el) => observer?.observe(el));
+    return () => observer?.disconnect();
+  }, [layout, hasPlayer]);
+  useEffect(
+    () => () => {
+      document.documentElement.style.removeProperty('--classic-map-bottom');
+      document.documentElement.style.removeProperty('--classic-map-right');
+    },
+    [],
+  );
 
   if (!state || !currentPid || !player) return null;
 
   const cash = Math.round(player.cash);
   const left = hoursLeft(player.minutesLeft);
+  const room = measured ?? layout.room;
+  const area = { width: Math.max(1, screen.width - room.right), height: Math.max(1, screen.height - room.top - room.bottom) };
+  const scale = layout.scale;
 
-  // The corner furniture, as pixel art. The hours line only reads while the
-  // clock is hovered (PLAN §2), but its room is always kept so nothing jumps.
-  // A touch screen has no hover, so there it always reads (PLAN §7).
-  const barModel: ChromeModel = {
-    arrange: 'row',
-    buttons: [
-      { key: 'goals', label: 'GOALS' },
-      { key: 'stats', label: 'STATISTICS' },
-      { key: 'options', label: 'OPTIONS' },
-    ],
-  };
+  // The furniture, as pixel art. The hours line only reads while the clock is
+  // hovered (PLAN §2), but its room is always kept so nothing jumps. A touch
+  // screen has no hover, so there it always reads (PLAN §7).
+  const barModel: ChromeModel = { arrange: layout.mode === 'rail' ? 'stack' : 'row', buttons: BAR_BUTTONS };
   const readoutModel: ChromeModel = {
     arrange: 'stack',
     display: [`$${cash.toLocaleString()}`, clockHover || screen.touch ? `${left}H LEFT` : ' '],
-    buttons: [{ key: 'end', label: 'END TURN', enabled: walking === null }],
+    // Not while the start-of-week cards are still to be read, nor mid-walk.
+    buttons: [{ key: 'end', label: 'END TURN', enabled: walking === null && card === null }],
   };
-
-  // One scale for the clock and both boxes: ×2 when it fits, smaller on a
-  // phone. Measured against a wide cash figure so it never jumps as cash grows.
-  const barBox = layoutChrome(barModel);
-  const readoutBox = layoutChrome({ ...readoutModel, display: ['$9,999,999', '60H LEFT'] });
-  const scale = dock
-    ? chromeScale(
-        screen,
-        Math.max(barBox.width, CLOCK_ART + 8 + readoutBox.width),
-        Math.max(CLOCK_ART + 12, readoutBox.height) + barBox.height + 8,
-        0.36,
-      )
-    : chromeScale(screen, 2 * Math.max(barBox.width, readoutBox.width) + CLOCK_ART + 24, CLOCK_ART + 12, 0.45);
 
   const barEl = (
     <div className="classic-bar-left">
@@ -618,40 +644,56 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
   };
 
   return (
-    <div className={`hud-root classic-root${dock ? ' is-docked' : ''}`}>
+    <div ref={rootRef} className={`hud-root classic-root is-${layout.mode}`}>
       <MapControls scene={scene} />
 
       <div className="classic-turn">
         {`${player.name.toUpperCase()} — TOKEN ${assignTokens(state.playerOrder)[currentPid]!.token}`}
       </div>
 
-      {dock ? (
-        <div className="classic-dock" ref={dockRef}>
+      {layout.mode === 'dock' && (
+        <div className="classic-dock">
           <div className="classic-dock-row">
             {clockEl}
             {readoutEl}
           </div>
           {barEl}
         </div>
-      ) : (
+      )}
+      {layout.mode === 'rail' && (
+        // One column, or two on a screen too short for one (`layout.split`).
+        <div className="classic-rail">
+          {layout.split >= 3 ? (
+            <div className="classic-rail-col">
+              {clockEl}
+              {readoutEl}
+              {barEl}
+            </div>
+          ) : layout.split === 2 ? (
+            <>
+              <div className="classic-rail-col">
+                {clockEl}
+                {readoutEl}
+              </div>
+              <div className="classic-rail-col">{barEl}</div>
+            </>
+          ) : (
+            <>
+              <div className="classic-rail-col">{clockEl}</div>
+              <div className="classic-rail-col">
+                {readoutEl}
+                {barEl}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+      {layout.mode === 'corners' && (
         <>
           {barEl}
           {clockEl}
           {readoutEl}
         </>
-      )}
-
-      {tip && !blocked && selected !== null && (
-        // A finger's first tap: the tooltip pinned at the top of the map, with
-        // GO for the second tap's job (the same building tapped again also goes).
-        <div className="classic-tip is-pinned">
-          <span>{tip.text}</span>
-          {tip.canGo && (
-            <button type="button" className="classic-go" onClick={() => goRef.current(selected)}>
-              GO
-            </button>
-          )}
-        </div>
       )}
 
       {tip && !blocked && selected === null && (
@@ -660,63 +702,79 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
         </div>
       )}
 
-      {cardModel && (
-        <div className="classic-modal">
-          <PixelPanel model={cardModel} width={320} maxListRows={8} onButton={() => setDismissed((n) => n + 1)} />
-        </div>
-      )}
+      <div className="classic-area" style={{ top: room.top, right: room.right, bottom: room.bottom }}>
+        {tip && !blocked && selected !== null && (
+          // A finger's first tap: the tooltip pinned at the top of the map, with
+          // GO for the second tap's job (the same building tapped again also goes).
+          <div className="classic-tip is-pinned">
+            <span>{tip.text}</span>
+            {tip.canGo && (
+              <button type="button" className="classic-go" onClick={() => goRef.current(selected)}>
+                GO
+              </button>
+            )}
+          </div>
+        )}
 
-      {!cardModel && overlay === 'closed' && (
-        <div className="classic-modal">
-          <PixelPanel model={closedModel} width={300} maxListRows={4} onButton={() => setOverlay('none')} />
-        </div>
-      )}
+        {cardModel && (
+          <div className="classic-modal">
+            <PixelPanel model={cardModel} room={area} width={320} maxListRows={8} onButton={() => setDismissed((n) => n + 1)} />
+          </div>
+        )}
 
-      {!cardModel && overlay === 'goals' && (
-        <div className="classic-modal">
-          <PixelPanel model={goalsModel(state)} width={360} maxListRows={15} onButton={() => setOverlay('none')} />
-        </div>
-      )}
+        {!cardModel && overlay === 'closed' && (
+          <div className="classic-modal">
+            <PixelPanel model={closedModel} room={area} width={300} maxListRows={4} onButton={() => setOverlay('none')} />
+          </div>
+        )}
 
-      {!cardModel && overlay === 'options' && (
-        <OptionsPanel
-          onClose={() => setOverlay('none')}
-          onNewGame={() => store.reset()}
-          animation={{ on: ambient, onChange: setAmbientState }}
-        />
-      )}
+        {!cardModel && overlay === 'goals' && (
+          <div className="classic-modal">
+            <PixelPanel model={goalsModel(state)} room={area} width={360} maxListRows={15} onButton={() => setOverlay('none')} />
+          </div>
+        )}
 
-      {!cardModel && overlay === 'stats' && (
-        <div className="classic-modal">
-          <PixelPanel model={statsModel(state, player)} width={400} maxListRows={16} onButton={() => setOverlay('none')} />
-        </div>
-      )}
-
-      {!cardModel && overlay === 'none' && windowModel && windowActions && (
-        <div className="classic-modal">
-          <PixelPanel
-            model={windowModel}
-            width={380}
-            maxListRows={11}
-            hint={`${left}H LEFT`}
-            onRow={(i) => {
-              const row = windowActions.rows[i];
-              if (!row) return;
-              if (row.action) act(row.action);
-              else if (row.group) setGroup(row.group);
-            }}
-            onButton={(i) => {
-              const btn = windowActions.buttons[i];
-              if (!btn) return;
-              if (btn.action) act(btn.action);
-              else if (btn.key === 'back') setGroup(null);
-              else setOpenLoc(null);
-            }}
+        {!cardModel && overlay === 'options' && (
+          <OptionsPanel
+            onClose={() => setOverlay('none')}
+            onNewGame={() => store.reset()}
+            animation={{ on: ambient, onChange: setAmbientState }}
           />
-        </div>
-      )}
+        )}
 
-      {store.error && <div className="hud-toast">{store.error}</div>}
+        {!cardModel && overlay === 'stats' && (
+          <div className="classic-modal">
+            <PixelPanel model={statsModel(state, player)} room={area} width={400} maxListRows={16} onButton={() => setOverlay('none')} />
+          </div>
+        )}
+
+        {!cardModel && overlay === 'none' && windowModel && windowActions && (
+          <div className="classic-modal">
+            <PixelPanel
+              model={windowModel}
+              room={area}
+              width={380}
+              maxListRows={11}
+              hint={`${left}H LEFT`}
+              onRow={(i) => {
+                const row = windowActions.rows[i];
+                if (!row) return;
+                if (row.action) act(row.action);
+                else if (row.group) setGroup(row.group);
+              }}
+              onButton={(i) => {
+                const btn = windowActions.buttons[i];
+                if (!btn) return;
+                if (btn.action) act(btn.action);
+                else if (btn.key === 'back') setGroup(null);
+                else setOpenLoc(null);
+              }}
+            />
+          </div>
+        )}
+
+        {store.error && <div className="hud-toast">{store.error}</div>}
+      </div>
     </div>
   );
 }

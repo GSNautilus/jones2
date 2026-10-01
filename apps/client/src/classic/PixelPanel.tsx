@@ -34,6 +34,8 @@ export interface PixelPanelProps {
   onButton?: (index: number) => void;
   /** Shown above the buttons when nothing is hovered. */
   hint?: string;
+  /** CSS pixels the window may use (the room the furniture leaves); the whole viewport when absent. */
+  room?: { width: number; height: number };
 }
 
 interface Drag {
@@ -44,7 +46,7 @@ interface Drag {
   touch: boolean;
 }
 
-export function PixelPanel({ model, width = 360, maxListRows = 12, onRow, onButton, hint }: PixelPanelProps) {
+export function PixelPanel({ model, width = 360, maxListRows = 12, onRow, onButton, hint, room }: PixelPanelProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const screen = useScreen();
   const [scroll, setScroll] = useState(0);
@@ -60,7 +62,12 @@ export function PixelPanel({ model, width = 360, maxListRows = 12, onRow, onButt
     if (hover !== null) setHover(null);
   }
 
-  const fit = useMemo(() => fitPanel(model, { width, maxListRows }, screen), [model, width, maxListRows, screen]);
+  const roomW = room?.width;
+  const roomH = room?.height;
+  const fit = useMemo(
+    () => fitPanel(model, { width, maxListRows }, roomW && roomH ? { ...screen, width: roomW, height: roomH } : screen),
+    [model, width, maxListRows, screen, roomW, roomH],
+  );
   const scale = fit.scale;
   const dev = devicePixels(scale, screen.dpr);
 

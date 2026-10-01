@@ -2,7 +2,10 @@
  * The classic screen's chrome. There is very little of it on purpose: the board
  * fills the stage and the only permanent furniture is the clock at the bottom
  * centre, the cash readout with END TURN at the bottom right, and the three
- * small buttons at the bottom left (PLAN §2).
+ * small buttons at the bottom left (PLAN §2). A short screen moves them to a
+ * rail down the right, a portrait one to a dock under the map (PLAN §7).
+ * Windows live in `.classic-area`, the room the furniture leaves, so they
+ * never cover it.
  */
 
 .classic-root {
@@ -18,14 +21,33 @@
 
 /* Centre window ----------------------------------------------------------- */
 
+/* The room between the top row and the furniture; ClassicScreen sets its edges. */
+.hud-root > .classic-area {
+  position: absolute;
+  left: 0;
+  pointer-events: none;
+  z-index: 40;
+}
+.classic-area > * {
+  pointer-events: auto;
+}
 .classic-modal {
   position: absolute;
   inset: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  /* Centred by auto margins, so a window taller than the room scrolls rather than spilling. */
+  overflow: auto;
   background: rgba(20, 16, 26, 0.35);
-  z-index: 40;
+}
+.classic-modal > * {
+  flex: none;
+  margin: auto;
+}
+.classic-area > .hud-toast {
+  top: 8px;
+  bottom: auto;
+  max-width: calc(100% - 24px);
+  z-index: 1;
 }
 .classic-panel {
   display: block;
@@ -50,6 +72,11 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
+}
+/* hud.css floats the clock on its own; here its wrapper places it, so it has a real size to measure. */
+.classic-clock .hud-clock-classic {
+  position: static;
+  transform: none;
 }
 .hud-week-plate {
   font-family: var(--hud-font, monospace);
@@ -137,13 +164,37 @@
   background: #c9a04a;
   border: 2px solid #1f1b24;
   z-index: 20;
+  /* A long name is cut rather than run under the map buttons. */
+  max-width: calc(100% - var(--classic-map-right, 0px) - 200px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.classic-root.is-rail > .hud-mapcontrols {
+  right: calc(var(--classic-map-right, 0px) + 10px);
 }
 
-/* Portrait dock (PLAN §7) -------------------------------------------------- */
+/* Rail and dock (PLAN §7) ------------------------------------------------- */
 
-/* The map shrinks to the space above the dock; ClassicScreen sets the height. */
-.stage:has(.classic-root.is-docked) .stage-map {
-  bottom: var(--classic-dock-h, 0px);
+/* The map gives up the rail's or the dock's space; ClassicScreen measures it. */
+.stage:has(.classic-root) .stage-map {
+  right: var(--classic-map-right, 0px);
+  bottom: var(--classic-map-bottom, 0px);
+}
+.classic-rail {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) 8px;
+  background: var(--hud-wood-dark, #43301c);
+  border-left: 3px solid var(--hud-ink, #1f1b24);
+  z-index: 20;
 }
 .classic-dock {
   position: absolute;
@@ -159,6 +210,12 @@
   border-top: 3px solid var(--hud-ink, #1f1b24);
   z-index: 20;
 }
+.classic-rail-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
 .classic-dock-row {
   display: flex;
   align-items: center;
@@ -168,7 +225,9 @@
 .classic-dock .classic-clock,
 .classic-dock .classic-readout,
 .classic-dock .classic-bar-left,
-.classic-dock .hud-clock-classic {
+.classic-rail .classic-clock,
+.classic-rail .classic-readout,
+.classic-rail .classic-bar-left {
   position: static;
   transform: none;
 }
@@ -195,7 +254,7 @@
 .classic-tip.is-pinned {
   position: absolute;
   left: 50%;
-  top: calc(max(12px, env(safe-area-inset-top)) + 40px);
+  top: 4px;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
@@ -248,7 +307,7 @@
 /* Options ----------------------------------------------------------------- */
 
 .classic-options {
-  width: min(360px, calc(100vw - 32px));
+  width: min(360px, calc(100% - 16px));
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
 }
 .classic-options .hud-frame-body {
