@@ -15,6 +15,10 @@
 }
 * { box-sizing: border-box; }
 html, body, #root { height: 100%; margin: 0; }
+/* A phone's address bar comes and goes; the dynamic height follows it. */
+@supports (height: 100dvh) { html, body, #root { height: 100dvh; } }
+/* No rubber-band bounce or pull-to-refresh behind the board. */
+html, body { overscroll-behavior: none; }
 body {
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
   background: var(--bg);

@@ -31,6 +31,10 @@ Pure, unit-tested (no DOM, no React):
 - `layout.ts` — the window's geometry in NATIVE pixels, plus `hitPanel`. One
   layout, used by both the painter and the mouse, so they cannot drift.
 - `screens.ts` — the GOALS and STATISTICS models.
+- `screen.ts` — sizing for the device (PLAN §7): crisp scales in whole device
+  pixels, `fitPanel` (a window's scale, width, rows), `chromeScale`, `usesDock`.
+  `useScreen.ts` is the React hook that feeds it.
+- `touch.ts` — two-tap travel: `tapResult` decides select / act / clear.
 - `paint.ts` — draws a `PanelModel` into a pixel-art `Surface` with the art
   package's own primitives (9-slice frame, title plate, portrait, bubble, rows,
   buttons). `fontSafe` blanks what the 5x7 font cannot draw (no lowercase, no
@@ -48,6 +52,10 @@ React:
   window, goals/statistics/options, the bottom bar with END TURN.
 
 ## Things worth knowing
+- Touch (PLAN §7): every canvas here uses pointer events, so mouse, pen and
+  finger share one path. A finger's first map tap runs the same `preview` the
+  mouse hover does; `go` is what a click does. The window's `density: 'touch'`
+  only changes row and button heights; the desktop's pixels are identical.
 - The map hover/pick handlers are registered **once** and read everything
   volatile through refs. Re-registering them on every render would run the effect
   cleanup, which clears the route and the clock preview the hover just set.

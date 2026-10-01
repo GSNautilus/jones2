@@ -132,4 +132,19 @@ describe('pickNode', () => {
   it('returns null on empty ground far from everything', () => {
     expect(pickNode(TOWN, ground.picks, -100000, -100000)).toBeNull();
   });
+
+  it('with a finger slop, takes the nearest building a tap just missed', () => {
+    const empty = { ...TOWN, nodes: [] } as Town;
+    const picks = [
+      { id: 'bank', x: 100, y: 100, w: 40, h: 30 },
+      { id: 'shop', x: 200, y: 100, w: 40, h: 30 },
+    ];
+    // 6px right of the bank: a miss for a mouse, a hit for a finger.
+    expect(pickNode(empty, picks, 145, 110)).toBeNull();
+    expect(pickNode(empty, picks, 145, 110, 10)).toBe('bank');
+    // Nearer the shop than the bank: the shop.
+    expect(pickNode(empty, picks, 195, 110, 10)).toBe('shop');
+    // Beyond the slop: still nothing.
+    expect(pickNode(empty, picks, 170, 110, 10)).toBeNull();
+  });
 });

@@ -276,15 +276,31 @@ export function pickRectFor(node: TownNode, sprite: Sprite): PickRect {
  * once inside the full radius after. Without the first pass a junction that
  * happens to sit under a neighbouring building's facade would be impossible to
  * click, which matters a lot in the editor.
+ *
+ * `slop` (native px) is for a finger: when nothing is hit, the building whose
+ * pick box is nearest, within that distance, is taken instead.
  */
-export function pickNode(town: Town, picks: PickRect[], nx: number, ny: number): NodeId | null {
+export function pickNode(town: Town, picks: PickRect[], nx: number, ny: number, slop = 0): NodeId | null {
   const near = nearestNode(town, nx, ny, JUNCTION_HIT_RADIUS / 2, true);
   if (near) return near;
   for (let i = picks.length - 1; i >= 0; i--) {
     const r = picks[i]!;
     if (nx >= r.x && nx < r.x + r.w && ny >= r.y && ny < r.y + r.h) return r.id;
   }
-  return nearestNode(town, nx, ny, JUNCTION_HIT_RADIUS, false);
+  const node = nearestNode(town, nx, ny, JUNCTION_HIT_RADIUS, false);
+  if (node || slop <= 0) return node;
+  let best: NodeId | null = null;
+  let bestD = slop * slop;
+  for (const r of picks) {
+    const dx = Math.max(r.x - nx, 0, nx - (r.x + r.w - 1));
+    const dy = Math.max(r.y - ny, 0, ny - (r.y + r.h - 1));
+    const d = dx * dx + dy * dy;
+    if (d <= bestD) {
+      bestD = d;
+      best = r.id;
+    }
+  }
+  return best;
 }
 
 function nearestNode(

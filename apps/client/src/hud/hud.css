@@ -28,6 +28,9 @@
   height: 100%;
   overflow: hidden;
   background: var(--hud-wood-dark);
+  /* Touch (PLAN §7): no double-tap zoom, no grey flash on a tap. */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .stage-map {
   position: absolute;

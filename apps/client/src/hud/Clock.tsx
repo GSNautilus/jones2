@@ -124,8 +124,13 @@ export interface ClockProps {
   minutesLeft: number;
   minutesBudget: number;
   week: number;
-  /** Integer magnification of the 96px art. 2 => 192 css px. */
+  /**
+   * Magnification of the 96px art in CSS pixels. 2 => 192 css px. May be an
+   * in-between value (×1.33 on a phone) when `dpr` makes it whole device pixels.
+   */
   scale?: number;
+  /** Device pixels per CSS pixel; the canvas backing store is sized by it. */
+  dpr?: number;
   /**
    * `full` is the Jones 2 screen's clock (day/time plates and the LED readout).
    * `classic` is the original's: the face with WEEK #N under it and nothing
@@ -134,7 +139,7 @@ export interface ClockProps {
   variant?: 'full' | 'classic';
 }
 
-export function Clock({ minutesLeft, minutesBudget, week, scale = 2, variant = 'full' }: ClockProps) {
+export function Clock({ minutesLeft, minutesBudget, week, scale = 2, dpr = 1, variant = 'full' }: ClockProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const offRef = useRef<HTMLCanvasElement | null>(null);
   const imageRef = useRef<ImageData | null>(null);
@@ -149,7 +154,10 @@ export function Clock({ minutesLeft, minutesBudget, week, scale = 2, variant = '
   previewRef.current = preview;
   leftRef.current = minutesLeft;
 
-  const px = CLOCK_ART * Math.max(1, Math.round(scale));
+  // `px` is the backing store (whole device pixels per art pixel); `css` the
+  // size on the page. With dpr 1 and an integer scale they are the same.
+  const px = CLOCK_ART * Math.max(1, Math.round(scale * dpr));
+  const css = dpr === 1 ? px : CLOCK_ART * scale;
 
   const paint = useMemo(() => {
     return () => {
@@ -226,7 +234,7 @@ export function Clock({ minutesLeft, minutesBudget, week, scale = 2, variant = '
           width={px}
           height={px}
           className="hud-clock-face"
-          style={{ width: px, height: px }}
+          style={{ width: css, height: css }}
           aria-label={`${formatHM(reading.left)} left this week, week ${week}`}
           role="img"
         />
@@ -242,7 +250,7 @@ export function Clock({ minutesLeft, minutesBudget, week, scale = 2, variant = '
         width={px}
         height={px}
         className="hud-clock-face"
-        style={{ width: px, height: px }}
+        style={{ width: css, height: css }}
         aria-label={`${formatHM(reading.left)} left this week, day ${reading.day}, week ${week}`}
         role="img"
       />

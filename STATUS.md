@@ -293,6 +293,16 @@ Decisions in the DESIGN.md log (2026-09-30, "Expansions").
   pack: submit-turn runs the sim. Local games work as soon as the site is published.
 - Not done: balance runner has no vehicle/pet strategy yet; no voice lines for the new clerks.
 
+## Phones and touch (DONE 2026-10-01)
+Decisions in the DESIGN.md log (2026-10-01, "Phones and touch") and PLAN §7. Classic screen only, both maps; mouse play unchanged.
+- **Crisp sizing** (`src/classic/screen.ts`, pure): `crispScales` offers ×2, ×1 and every step that lands on whole device pixels (×1.67, ×1.33 on a 3× phone); `fitPanel` picks a window's scale, width and visible rows for the screen (the designed ×2 window on a desktop, unchanged); `chromeScale` sizes the clock and corner boxes; `usesDock` (portrait, under 900px wide). `useScreen` hook tracks viewport, DPR and `pointer: coarse`. Canvases (`PixelPanel`, `PixelChrome`, `Clock`) size their backing store in device pixels.
+- **Window on touch:** `layout.ts` `density: 'touch'` (rows 16, buttons 24 native); `PixelPanel` on pointer events: drag to scroll (`scrollAfterDrag`), tap a greyed row/button to show its reason on the status line. Long titles widen the plate and drop leading words (`fitTitle`: "GRATUITY YIELD BANK").
+- **Map on touch:** `src/classic/touch.ts` `tapResult` (two-tap travel); `ClassicScreen` splits the old hover/pick into `preview`/`go`, pins the tooltip at the top of the map with a GO button. `TownScene`: 10px tap slop for a finger, pinch steps the zoom, a release after a pinch is not a tap, pointercancel never picks; `pickNode(…, slop)` takes the nearest building a finger just missed (14 CSS px).
+- **Portrait dock:** clock + cash/END TURN side by side, GOALS/STATISTICS/OPTIONS under; the map shrinks above it (`--classic-dock-h`, `.stage:has(.classic-root.is-docked)`); safe-area insets. Hours-left always shown on touch.
+- **Page:** `viewport-fit=cover`, `100dvh`, no overscroll bounce, no double-tap zoom on the stage, no selection/callout on the board.
+- Tests: client 372 (+24: screen, touch, pick slop, title). Verified in headless Edge with real touch events (scratch CDP driver, not in the repo): portrait 390×664@3 on Riverton and the ring (card, board, first tap → tooltip + GO, second tap walks and opens the window, greyed-row reason), landscape 844×390@3, stats list drag-scroll, pinch 1→4→1 with no stray tap, desktop 1440×900 unchanged.
+- Not done: no zoom level below ×1, so on a phone Riverton shows about a fifth of the town at once (pan, or pinch in); a sub-×1 overview step would need the map canvas to render at device resolution. Not yet tried on a real phone (iOS audio unlock, Safari's `:has` and `100dvh` are the things to watch).
+
 ## Milestone 4 — art pass (NOT STARTED)
 ## Milestone 5 — sound + polish (NOT STARTED)
 

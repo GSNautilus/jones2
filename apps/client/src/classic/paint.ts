@@ -77,7 +77,9 @@ function drawRow(s: Surface, model: PanelModel, index: number, r: Rect, hovered:
     ink = enabled ? C.ink : C.white;
   }
 
-  const y = r.y + 1;
+  // Text sits centred in the row: one pixel down in a mouse row, more in a
+  // taller touch row. The leader and bar follow the text, not the row.
+  const y = r.y + Math.floor((r.h - GLYPH_H) / 2);
   // The right-hand columns are placed first so the name can be cut to fit the
   // gap that is left: several classic job titles are longer than the window.
   let right = r.x + r.w - 4;
@@ -104,12 +106,12 @@ function drawRow(s: Surface, model: PanelModel, index: number, r: Rect, hovered:
     const bx = Math.max(textEnd, r.x + Math.round(r.w * BAR_COLUMN));
     const bw = Math.max(0, right - bx);
     if (bw > 4) {
-      box(s, bx, r.y + 2, bw, r.h - 4, C.slateDark, C.ink);
+      box(s, bx, y + 1, bw, 6, C.slateDark, C.ink);
       const fill = Math.round((bw - 2) * Math.max(0, Math.min(1, row.bar)));
-      if (fill > 0) rect(s, bx + 1, r.y + 3, fill, r.h - 6, row.bar >= 1 ? C.green : C.gold);
+      if (fill > 0) rect(s, bx + 1, y + 2, fill, 4, row.bar >= 1 ? C.green : C.gold);
     }
   } else if (!row.header && right > textEnd) {
-    leader(s, textEnd, right, r.y + r.h - 4, hovered ? ink : C.creamShade);
+    leader(s, textEnd, right, y + 5, hovered ? ink : C.creamShade);
   }
 }
 
@@ -119,7 +121,7 @@ export function paintPanel(s: Surface, model: PanelModel, layout: PanelLayout, s
 
   const t = layout.title;
   nine(s, UI.title_plate!, PLATE_INSETS, t.x, t.y, t.w, t.h);
-  drawTextCentred(s, t.x, t.y + Math.round((t.h - GLYPH_H) / 2), t.w, fontSafe(model.title), C.cream, { spacing: 1 });
+  drawTextCentred(s, t.x, t.y + Math.round((t.h - GLYPH_H) / 2), t.w, fontSafe(layout.titleText), C.cream, { spacing: 1 });
 
   if (layout.portrait && model.portrait) {
     const p = layout.portrait;

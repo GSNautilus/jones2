@@ -8,6 +8,13 @@
 .classic-root {
   font-family: var(--hud-font, monospace);
 }
+/* A long press on the board selects nothing and opens no callout (PLAN §7). */
+.classic-root,
+.stage:has(.classic-root) .stage-map {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
 
 /* Centre window ----------------------------------------------------------- */
 
@@ -24,6 +31,8 @@
   display: block;
   image-rendering: pixelated;
   cursor: pointer;
+  /* A finger drags the list; the page must not scroll or zoom instead. */
+  touch-action: none;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
 }
 
@@ -32,7 +41,7 @@
 .classic-clock {
   position: absolute;
   left: 50%;
-  bottom: 8px;
+  bottom: max(8px, env(safe-area-inset-bottom));
   transform: translateX(-50%);
   z-index: 20;
 }
@@ -56,13 +65,14 @@
 
 .classic-readout {
   position: absolute;
-  right: 12px;
-  bottom: 12px;
+  right: max(12px, env(safe-area-inset-right));
+  bottom: max(12px, env(safe-area-inset-bottom));
   z-index: 20;
 }
 .classic-chrome {
   display: block;
   image-rendering: pixelated;
+  touch-action: manipulation;
   filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.35));
 }
 .classic-options-row {
@@ -107,8 +117,8 @@
 
 .classic-bar-left {
   position: absolute;
-  left: 12px;
-  bottom: 12px;
+  left: max(12px, env(safe-area-inset-left));
+  bottom: max(12px, env(safe-area-inset-bottom));
   display: flex;
   gap: 6px;
   z-index: 20;
@@ -116,8 +126,8 @@
 
 .classic-turn {
   position: absolute;
-  left: 12px;
-  top: 12px;
+  left: max(12px, env(safe-area-inset-left));
+  top: max(12px, env(safe-area-inset-top));
   padding: 4px 10px;
   font-family: var(--hud-font, monospace);
   font-size: 12px;
@@ -127,6 +137,40 @@
   background: #c9a04a;
   border: 2px solid #1f1b24;
   z-index: 20;
+}
+
+/* Portrait dock (PLAN §7) -------------------------------------------------- */
+
+/* The map shrinks to the space above the dock; ClassicScreen sets the height. */
+.stage:has(.classic-root.is-docked) .stage-map {
+  bottom: var(--classic-dock-h, 0px);
+}
+.classic-dock {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+  background: var(--hud-wood-dark, #43301c);
+  border-top: 3px solid var(--hud-ink, #1f1b24);
+  z-index: 20;
+}
+.classic-dock-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.classic-dock .classic-clock,
+.classic-dock .classic-readout,
+.classic-dock .classic-bar-left,
+.classic-dock .hud-clock-classic {
+  position: static;
+  transform: none;
 }
 
 /* Hover tooltip ----------------------------------------------------------- */
@@ -145,6 +189,35 @@
   background: #f3e9c8;
   border: 2px solid #1f1b24;
   box-shadow: 2px 2px 0 rgba(31, 27, 36, 0.5);
+}
+
+/* A finger's first tap: pinned under the top row, never under the finger. */
+.classic-tip.is-pinned {
+  position: absolute;
+  left: 50%;
+  top: calc(max(12px, env(safe-area-inset-top)) + 40px);
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100% - 24px);
+  white-space: normal;
+  font-size: 13px;
+  padding: 6px 6px 6px 10px;
+  pointer-events: auto;
+}
+.classic-go {
+  flex: none;
+  min-width: 56px;
+  min-height: 36px;
+  font-family: var(--hud-font, monospace);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #1f1b24;
+  background: linear-gradient(180deg, var(--hud-brass-light, #e6c877), var(--hud-brass, #c9a04a));
+  border: 2px solid #1f1b24;
+  touch-action: manipulation;
 }
 
 /* Setup ------------------------------------------------------------------- */

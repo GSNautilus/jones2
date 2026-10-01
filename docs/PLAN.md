@@ -288,3 +288,28 @@ against the current `availableActions` shape, which will not change).
 - Shoreline tiles for the river; the two empty plaza squares; camera clamp at the town edge.
 - Editor: curve-point handles; streets-first editing.
 - Server / async multiplayer (Milestone 3) once classic play feels right hot-seat.
+
+## 7. Phones and touch  **DECIDED** (2026-10-01, DESIGN log)
+
+Classic screen only, both maps. Mouse play is unchanged.
+
+**Sizing.** Art scales in whole device pixels (`scale = k / devicePixelRatio`), so a phone can
+show it at ×1.33 or ×1 and stay crisp. One pure module picks the scale and the window width
+and row count from the screen: the desktop answer (×2, the designed width) whenever it fits,
+otherwise the largest crisp scale with a narrower window. Applies to the centre window, the
+corner boxes and the clock.
+
+**Touch in the window.** Taller rows and buttons (a `touch` density in `layout.ts`); drag to
+scroll the list; a tap on a greyed row or button shows its reason on the status line (the
+hover text). Pointer events throughout, so mouse, pen and finger share one path.
+
+**Touch on the map.** Two-tap travel (select, then the same building again or GO). Tap
+threshold ~10px for a finger (3px for a mouse); a near miss picks the closest building; pinch
+steps the zoom. The hours-left line is always shown on a touch screen (no hover to reveal it).
+
+**Portrait.** A dock under the map: clock left, cash + hours + END TURN right, the three buttons
+in a row beneath; respects the phone's safe area. The map shrinks to the space above it.
+Windows still cover the whole screen.
+
+**Page.** `100dvh` instead of `100%`/`100vh` heights, no page bounce or double-tap zoom, no
+text selection on long press, `viewport-fit=cover`.

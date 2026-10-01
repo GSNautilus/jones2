@@ -65,6 +65,14 @@ const BACKDROP = '#20241d';
 
 const EMPTY_TOWN: Town = { id: 'empty', name: 'empty', startNode: '', nodes: [], edges: [] };
 
+/** CSS pixels a press may move and still count as a click (mouse) or a tap (finger). */
+const MOUSE_TAP_SLOP = 3;
+const TOUCH_TAP_SLOP = 10;
+/** A finger that just misses a building still picks it, within this many CSS pixels. */
+const TOUCH_PICK_SLOP = 14;
+/** Finger spread ratio that steps the zoom one level. */
+const PINCH_STEP = 1.35;
+
 /** True when the user has asked the OS for less motion; ambient life then starts off. */
 function prefersReducedMotion(): boolean {
   try {
@@ -115,6 +123,15 @@ class PixelTownScene implements TownScene {
   private startX = 0;
   private startY = 0;
   private movedFar = false;
+  /** How far a press may wander and still be a tap: a finger jitters more than a mouse. */
+  private tapSlop = MOUSE_TAP_SLOP;
+  private touchPick = false;
+  /** Fingers down on the canvas, for the pinch. */
+  private readonly fingers = new Map<number, { x: number; y: number }>();
+  /** Finger spread when the zoom last stepped; null when not pinching. */
+  private pinchDist: number | null = null;
+  /** A pinch happened during this press, so its release is not a tap. */
+  private pinched = false;
 
   constructor(options: TownSceneOptions = {}) {
     this.ambientOn = options.ambient ?? !prefersReducedMotion();
@@ -325,17 +342,44 @@ class PixelTownScene implements TownScene {
     const sy = ev.clientY - rect.top;
     const t = screenToTown(sx, sy, this.view);
     const n = screenToNative(sx, sy, this.view);
-    const node = this.ground ? pickNode(this.town, this.ground.picks, n.x, n.y) : null;
+    const slop = this.touchPick ? TOUCH_PICK_SLOP / this.view.zoom : 0;
+    const node = this.ground ? pickNode(this.town, this.ground.picks, n.x, n.y, slop) : null;
     return { node, x: t.x, y: t.y };
+  }
+
+  private fingerSpread(): { dist: number; x: number; y: number } | null {
+    if (this.fingers.size < 2 || !this.canvas) return null;
+    const [a, b] = [...this.fingers.values()];
+    const rect = this.canvas.getBoundingClientRect();
+    return {
+      dist: Math.hypot(a!.x - b!.x, a!.y - b!.y),
+      x: (a!.x + b!.x) / 2 - rect.left,
+      y: (a!.y + b!.y) / 2 - rect.top,
+    };
   }
 
   private readonly onPointerDown = (ev: PointerEvent): void => {
     if (!this.canvas || ev.button !== 0) return;
+    if (ev.pointerType !== 'mouse') {
+      this.fingers.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+      if (this.fingers.size === 1) this.pinched = false;
+      if (this.fingers.size >= 2) {
+        // A second finger turns the press into a pinch; nothing is picked at the end of it.
+        this.canvas.setPointerCapture?.(ev.pointerId);
+        if (this.drag !== 'node') {
+          this.pinchDist = this.fingerSpread()?.dist ?? null;
+          this.pinched = true;
+        }
+        return;
+      }
+    }
     this.canvas.setPointerCapture?.(ev.pointerId);
     this.pointerId = ev.pointerId;
     this.startX = ev.clientX;
     this.startY = ev.clientY;
     this.movedFar = false;
+    this.touchPick = ev.pointerType !== 'mouse';
+    this.tapSlop = this.touchPick ? TOUCH_TAP_SLOP : MOUSE_TAP_SLOP;
     const hit = this.hitAt(ev);
     if (this.options.editable && this.options.onDragStart && hit.node) {
       this.drag = 'node';
@@ -347,6 +391,18 @@ class PixelTownScene implements TownScene {
 
   private readonly onPointerMove = (ev: PointerEvent): void => {
     if (!this.canvas) return;
+    if (this.fingers.has(ev.pointerId)) this.fingers.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+    if (this.pinchDist !== null) {
+      const spread = this.fingerSpread();
+      if (!spread || this.pinchDist <= 0) return;
+      const ratio = spread.dist / this.pinchDist;
+      // Integer zoom levels, so the pinch steps rather than glides.
+      if (ratio >= PINCH_STEP || ratio <= 1 / PINCH_STEP) {
+        this.setZoomAt(stepZoom(this.view.zoom, ratio > 1 ? -1 : 1), spread.x, spread.y);
+        this.pinchDist = spread.dist;
+      }
+      return;
+    }
     if (this.drag === 'none') {
       const now = Date.now();
       if (!this.options.onHover) return;
@@ -360,7 +416,9 @@ class PixelTownScene implements TownScene {
     if (this.pointerId !== null && ev.pointerId !== this.pointerId) return;
     const dx = ev.clientX - this.startX;
     const dy = ev.clientY - this.startY;
-    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) this.movedFar = true;
+    if (Math.abs(dx) > this.tapSlop || Math.abs(dy) > this.tapSlop) this.movedFar = true;
+    // Within the slop a finger's jitter neither pans nor spoils the tap.
+    if (!this.movedFar && this.drag === 'pan') return;
     if (this.drag === 'node') {
       this.options.onDrag?.(this.hitAt(ev));
       return;
@@ -375,12 +433,29 @@ class PixelTownScene implements TownScene {
   };
 
   private readonly onPointerUp = (ev: PointerEvent): void => {
+    this.fingers.delete(ev.pointerId);
+    if (this.pinchDist !== null) {
+      this.canvas?.releasePointerCapture?.(ev.pointerId);
+      if (this.fingers.size >= 2) return;
+      this.pinchDist = null;
+      // One finger left on the glass carries on panning from where it is.
+      const [rest] = [...this.fingers.entries()];
+      if (rest && this.drag === 'pan') {
+        this.pointerId = rest[0];
+        this.startX = rest[1].x;
+        this.startY = rest[1].y;
+        this.movedFar = true;
+        return;
+      }
+    }
     if (this.drag === 'none' || !this.canvas) return;
+    if (this.pointerId !== null && ev.pointerId !== this.pointerId) return;
     const wasNode = this.drag === 'node';
     this.drag = 'none';
     this.canvas?.releasePointerCapture?.(ev.pointerId);
     this.pointerId = null;
-    if (!this.movedFar) this.options.onPick?.(this.hitAt(ev));
+    const tap = !this.movedFar && !this.pinched && ev.type !== 'pointercancel';
+    if (tap) this.options.onPick?.(this.hitAt(ev));
     if (wasNode) this.options.onDragEnd?.();
   };
 

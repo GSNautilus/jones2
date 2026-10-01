@@ -13,6 +13,9 @@ import { GLYPH_H, GLYPH_W } from '@jones2/pixelart';
 export const CHAR_W = GLYPH_W + 1;
 export const LINE_H = GLYPH_H + 3;
 export const ROW_H = 10;
+/** Rows and buttons on a touch screen: tall enough for a finger at a phone's scale. */
+export const TOUCH_ROW_H = 16;
+export const TOUCH_BUTTON_H = 24;
 
 export const PORTRAIT_W = 56;
 export const PORTRAIT_H = 64;
@@ -74,7 +77,11 @@ export interface PanelOptions {
   maxListRows?: number;
   /** First visible row. */
   scroll?: number;
+  /** 'touch' lays rows and buttons out taller for a finger. */
+  density?: Density;
 }
+
+export type Density = 'mouse' | 'touch';
 
 export interface RowBox {
   /** Index into `model.rows`. */
@@ -91,6 +98,8 @@ export interface PanelLayout {
   width: number;
   height: number;
   title: Rect;
+  /** The title as it fits the plate (see `fitTitle`). */
+  titleText: string;
   portrait: Rect | null;
   bubble: { rect: Rect; lines: string[] } | null;
   list: Rect;
@@ -120,6 +129,17 @@ export function fitText(text: string, px: number): string {
   if (max <= 0) return '';
   if (text.length <= max) return text;
   return `${text.slice(0, Math.max(0, max - 1))}.`;
+}
+
+/**
+ * A title cut to `px` by dropping words from the FRONT, so the noun survives:
+ * "PACIFIC INTERNATIONAL GRAND GRATUITY YIELD BANK" becomes "GRATUITY YIELD
+ * BANK" in a narrow window. A last word that alone is too long is cut.
+ */
+export function fitTitle(text: string, px: number): string {
+  const words = text.split(/\s+/).filter(Boolean);
+  while (words.length > 1 && textWidth(words.join(' ')) > px) words.shift();
+  return fitText(words.join(' '), px);
 }
 
 /** Greedy word wrap at a pixel width. Long words are hard-split. */
@@ -154,7 +174,13 @@ function clamp(v: number, lo: number, hi: number): number {
 }
 
 /** Buttons flow left to right and wrap; returns their boxes and the total height. */
-function layoutButtons(buttons: readonly PanelButton[], x: number, y: number, maxW: number): { boxes: ButtonBox[]; height: number } {
+function layoutButtons(
+  buttons: readonly PanelButton[],
+  x: number,
+  y: number,
+  maxW: number,
+  buttonH: number,
+): { boxes: ButtonBox[]; height: number } {
   const boxes: ButtonBox[] = [];
   let cx = x;
   let cy = y;
@@ -163,20 +189,26 @@ function layoutButtons(buttons: readonly PanelButton[], x: number, y: number, ma
     const w = Math.max(MIN_BUTTON_W, textWidth(b.label) + 16);
     if (cx > x && cx + w > x + maxW) {
       cx = x;
-      cy += BUTTON_H + BUTTON_GAP;
+      cy += buttonH + BUTTON_GAP;
       rows += 1;
     }
-    boxes.push({ index, rect: { x: cx, y: cy, w, h: BUTTON_H } });
+    boxes.push({ index, rect: { x: cx, y: cy, w, h: buttonH } });
     cx += w + BUTTON_GAP;
   });
-  return { boxes, height: rows === 0 ? 0 : rows * BUTTON_H + (rows - 1) * BUTTON_GAP };
+  return { boxes, height: rows === 0 ? 0 : rows * buttonH + (rows - 1) * BUTTON_GAP };
 }
 
 export function layoutPanel(model: PanelModel, opts: PanelOptions = {}): PanelLayout {
   const width = opts.width ?? 360;
   const maxListRows = opts.maxListRows ?? 12;
+  const touch = opts.density === 'touch';
+  const rowH = touch ? TOUCH_ROW_H : ROW_H;
+  const buttonH = touch ? TOUCH_BUTTON_H : BUTTON_H;
 
-  const title: Rect = { x: 40, y: 4, w: width - 80, h: TITLE_H };
+  // A title too long for the plate widens it, then loses leading words.
+  const wide = textWidth(model.title) + 16 > width - 80;
+  const title: Rect = wide ? { x: 20, y: 4, w: width - 40, h: TITLE_H } : { x: 40, y: 4, w: width - 80, h: TITLE_H };
+  const titleText = fitTitle(model.title, title.w - 12);
 
   const portrait: Rect | null = model.portrait
     ? { x: width - PAD - PORTRAIT_W, y: TITLE_H + 12, w: PORTRAIT_W, h: PORTRAIT_H }
@@ -204,7 +236,7 @@ export function layoutPanel(model: PanelModel, opts: PanelOptions = {}): PanelLa
   const listY = headBottom + 8;
   const listW = width - PAD * 2;
   const visible = model.rows.length === 0 ? 0 : Math.min(model.rows.length, maxListRows);
-  const listH = visible * ROW_H;
+  const listH = visible * rowH;
   const list: Rect = { x: listX, y: listY, w: listW, h: listH };
 
   const maxScroll = Math.max(0, model.rows.length - visible);
@@ -214,7 +246,7 @@ export function layoutPanel(model: PanelModel, opts: PanelOptions = {}): PanelLa
   const rowW = listW - (maxScroll > 0 ? SCROLLBAR_W + 2 : 0);
   const rows: RowBox[] = [];
   for (let i = 0; i < visible; i++) {
-    rows.push({ index: scroll + i, rect: { x: listX, y: listY + i * ROW_H, w: rowW, h: ROW_H } });
+    rows.push({ index: scroll + i, rect: { x: listX, y: listY + i * rowH, w: rowW, h: rowH } });
   }
 
   let scrollbar: PanelLayout['scrollbar'] = null;
@@ -229,17 +261,18 @@ export function layoutPanel(model: PanelModel, opts: PanelOptions = {}): PanelLa
   const status: Rect = { x: PAD, y: statusY, w: width - PAD * 2, h: GLYPH_H + 2 };
 
   const buttonsY = statusY + status.h + 6;
-  const laid = layoutButtons(model.buttons, PAD, buttonsY, width - PAD * 2);
+  const laid = layoutButtons(model.buttons, PAD, buttonsY, width - PAD * 2, buttonH);
   const height = buttonsY + laid.height + 14;
 
   return {
     width,
     height,
     title,
+    titleText,
     portrait,
     bubble,
     list,
-    rowH: ROW_H,
+    rowH,
     rows,
     scrollbar,
     scroll,
@@ -267,6 +300,14 @@ export function hitPanel(layout: PanelLayout, model: PanelModel, x: number, y: n
     return { kind: 'row', index: r.index };
   }
   return null;
+}
+
+/**
+ * The first visible row after dragging the list by `dy` native pixels from
+ * `startScroll` (a drag down shows earlier rows, like any touch list).
+ */
+export function scrollAfterDrag(model: PanelModel, layout: PanelLayout, startScroll: number, dy: number): number {
+  return clampScroll(model, layout, startScroll - dy / layout.rowH);
 }
 
 /** Clamp a scroll offset to the list's range. */

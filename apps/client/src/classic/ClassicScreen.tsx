@@ -4,7 +4,8 @@
  * readout with the END TURN button at the bottom right, and GOALS /
  * STATISTICS / OPTIONS at the bottom left. Everything else is a centre window
  * over the map — start-of-week cards, the location window, goals, statistics,
- * options.
+ * options. On a portrait screen the three move into a dock under the map, and
+ * a finger travels with two taps (PLAN §7).
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { MutableRefObject } from 'react';
@@ -24,7 +25,11 @@ import type { PanelModel } from './layout';
 import { PixelPanel } from './PixelPanel';
 import { OptionsPanel } from './OptionsPanel';
 import { PixelChrome } from './PixelChrome';
-import type { ChromeModel } from './chrome';
+import { layoutChrome, type ChromeModel } from './chrome';
+import { CLOCK_ART } from '../hud/Clock';
+import { chromeScale, usesDock } from './screen';
+import { useScreen } from './useScreen';
+import { isTouchPointer, tapResult, type TapTarget } from './touch';
 
 const AMBIENT_KEY = 'jones2-ambient';
 
@@ -96,9 +101,16 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
   };
   const [overlay, setOverlay] = useState<Overlay>('none');
   const [closedName, setClosedName] = useState('');
-  const [tip, setTip] = useState<{ x: number; y: number; text: string } | null>(null);
+  const [tip, setTip] = useState<{ x: number; y: number; text: string; canGo: boolean } | null>(null);
   const [clockHover, setClockHover] = useState(false);
   const mouse = useRef({ x: 0, y: 0 });
+  const screen = useScreen();
+  // Two-tap travel (PLAN §7): the building a finger has tapped once.
+  const [selected, setSelected] = useState<NodeId | null>(null);
+  const selectedRef = useRef(selected);
+  selectedRef.current = selected;
+  /** The kind of pointer that pressed last: a tap on the map acts on it. */
+  const pointerRef = useRef('mouse');
 
   const stateRef = useRef(state);
   stateRef.current = state;
@@ -109,8 +121,17 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
       mouse.current = { x: e.clientX, y: e.clientY };
       setTip((t) => (t ? { ...t, x: e.clientX, y: e.clientY } : t));
     };
+    // Capture, so it is known before the map turns the press into a pick.
+    const onDown = (e: PointerEvent) => {
+      pointerRef.current = e.pointerType;
+      mouse.current = { x: e.clientX, y: e.clientY };
+    };
     window.addEventListener('mousemove', onMove);
-    return () => window.removeEventListener('mousemove', onMove);
+    window.addEventListener('pointerdown', onDown, true);
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('pointerdown', onDown, true);
+    };
   }, []);
 
   const player = state && currentPid ? state.players[currentPid] : null;
@@ -324,58 +345,63 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
   const openRef = useRef(openWindow);
   openRef.current = openWindow;
 
+  // `preview` is what hovering does: route, clock wedge, tooltip. It reports
+  // what the spot is, so a finger's tap can decide whether it is a first tap
+  // (preview only) or the second (go). `go` is what a click does.
+  const goRef = useRef<(node: NodeId) => void>(() => undefined);
   useEffect(() => {
-    hoverRef.current = (hit: PickResult) => {
+    const clear = () => {
+      scene.setRoute(null);
+      setPreview(null);
+      setTip(null);
+    };
+    const preview = (hit: PickResult): { target: TapTarget; canGo: boolean } => {
+      const none = { target: 'none' as const, canGo: false };
       const s = stateRef.current;
       const currentPid = pidRef.current;
       const graph = graphRef.current;
       const travelOptions = optionsRef.current;
       if (blockedRef.current || !s || !currentPid || !hit.node || !graph) {
-        scene.setRoute(null);
-        setPreview(null);
-        setTip(null);
-        return;
+        clear();
+        return none;
       }
       const loc = graph.node(hit.node).location;
       if (!loc) {
-        scene.setRoute(null);
-        setPreview(null);
-        setTip(null);
-        return;
+        clear();
+        return none;
       }
       const p = s.players[currentPid]!;
       const name = locationName(loc);
-      const at = { x: mouse.current.x, y: mouse.current.y };
+      const at = { x: mouse.current.x, y: mouse.current.y, canGo: false };
       if (isArrivalLocation(loc)) {
         scene.setRoute(null);
         setPreview(null);
         setTip({ ...at, text: `${name} · Arrivals only` });
-        return;
+        return { target: 'arrival', canGo: false };
       }
       if (!isClassicLocation(loc, s.config.expansions)) {
         scene.setRoute(null);
         setPreview(null);
         setTip({ ...at, text: travelTooltip({ name, hours: 0, hoursLeft: 0, enabled: false, closed: true }) });
-        return;
+        return { target: 'closed', canGo: false };
       }
       if (hit.node === p.node) {
         scene.setRoute(null);
         setPreview(null);
         setTip({ ...at, text: travelTooltip({ name, hours: 0, hoursLeft: 0, enabled: false, here: true }) });
-        return;
+        return { target: 'here', canGo: false };
       }
       const opt = travelOptions.find((o) => travelTo(o.action) === hit.node);
       if (!opt) {
-        scene.setRoute(null);
-        setPreview(null);
-        setTip(null);
-        return;
+        clear();
+        return none;
       }
       const route = graph.bestRoute(p.node, hit.node, ['walk']);
       scene.setRoute(route?.path ?? null);
       setPreview(opt.minutes);
       setTip({
         ...at,
+        canGo: opt.enabled,
         text: travelTooltip({
           name,
           hours: hoursOf(opt.minutes),
@@ -384,14 +410,15 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
           reason: opt.reason,
         }),
       });
+      return { target: 'travel', canGo: opt.enabled };
     };
-    pickRef.current = (hit: PickResult) => {
+    const go = (node: NodeId) => {
       const s = stateRef.current;
       const currentPid = pidRef.current;
       const graph = graphRef.current;
       const travelOptions = optionsRef.current;
-      if (blockedRef.current || !s || !currentPid || !hit.node || !graph) return;
-      const loc = graph.node(hit.node).location;
+      if (blockedRef.current || !s || !currentPid || !graph) return;
+      const loc = graph.node(node).location;
       if (!loc) return;
       setTip(null);
       scene.setRoute(null);
@@ -402,14 +429,14 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
         setOverlay('closed');
         return;
       }
-      if (hit.node === s.players[currentPid]!.node) {
+      if (node === s.players[currentPid]!.node) {
         openRef.current(loc);
         return;
       }
-      const opt = travelOptions.find((o) => travelTo(o.action) === hit.node);
+      const opt = travelOptions.find((o) => travelTo(o.action) === node);
       if (!opt || !opt.enabled) return;
       const from = s.players[currentPid]!.node;
-      const route = graph.bestRoute(from, hit.node, ['walk']);
+      const route = graph.bestRoute(from, node, ['walk']);
       // Wheels & Whiskers: the token rides its best vehicle, visibly quicker than walking.
       const vehicle = bestVehicle(s.players[currentPid]!);
       storeRef.current.act(opt.action);
@@ -423,6 +450,33 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
         openRef.current(loc);
       }
     };
+    goRef.current = (node) => {
+      setSelected(null);
+      go(node);
+    };
+    hoverRef.current = (hit: PickResult) => {
+      // A finger's selection stays put while a pen or mouse wanders.
+      if (selectedRef.current !== null) return;
+      preview(hit);
+    };
+    pickRef.current = (hit: PickResult) => {
+      if (!isTouchPointer(pointerRef.current)) {
+        if (hit.node) go(hit.node);
+        return;
+      }
+      if (blockedRef.current) return;
+      const seen = preview(hit);
+      const result = tapResult(seen.target, hit.node !== null && hit.node === selectedRef.current, seen.canGo);
+      if (result === 'act' && hit.node) {
+        setSelected(null);
+        go(hit.node);
+      } else if (result === 'select') {
+        setSelected(hit.node);
+      } else {
+        setSelected(null);
+        clear();
+      }
+    };
     return () => {
       pickRef.current = null;
       hoverRef.current = null;
@@ -430,6 +484,12 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
       setPreview(null);
     };
   }, [pickRef, hoverRef, scene, setPreview]);
+
+  // A selection does not survive a window, a card or a change of player.
+  useEffect(() => {
+    if (blocked) setSelected(null);
+  }, [blocked]);
+  useEffect(() => setSelected(null), [currentPid]);
 
   // ---- the window ----------------------------------------------------------
   const windowActions = useMemo(() => {
@@ -444,6 +504,30 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
     [windowActions],
   );
 
+  // ---- portrait dock (PLAN §7) ---------------------------------------------
+  // On a portrait phone or tablet the furniture moves into a dock under the
+  // map, and the map shrinks to the space above it (classic.css reads the
+  // dock's height from --classic-dock-h).
+  const dock = usesDock(screen);
+  const dockRef = useRef<HTMLDivElement | null>(null);
+  const hasPlayer = player !== null;
+  useEffect(() => {
+    const el = dockRef.current;
+    const root = document.documentElement;
+    if (!dock || !el) {
+      root.style.removeProperty('--classic-dock-h');
+      return undefined;
+    }
+    const set = () => root.style.setProperty('--classic-dock-h', `${el.offsetHeight}px`);
+    set();
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(set);
+    observer?.observe(el);
+    return () => {
+      observer?.disconnect();
+      root.style.removeProperty('--classic-dock-h');
+    };
+  }, [dock, hasPlayer]);
+
   if (!state || !currentPid || !player) return null;
 
   const cash = Math.round(player.cash);
@@ -451,6 +535,7 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
 
   // The corner furniture, as pixel art. The hours line only reads while the
   // clock is hovered (PLAN §2), but its room is always kept so nothing jumps.
+  // A touch screen has no hover, so there it always reads (PLAN §7).
   const barModel: ChromeModel = {
     arrange: 'row',
     buttons: [
@@ -461,9 +546,60 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
   };
   const readoutModel: ChromeModel = {
     arrange: 'stack',
-    display: [`$${cash.toLocaleString()}`, clockHover ? `${left}H LEFT` : ' '],
+    display: [`$${cash.toLocaleString()}`, clockHover || screen.touch ? `${left}H LEFT` : ' '],
     buttons: [{ key: 'end', label: 'END TURN', enabled: walking === null }],
   };
+
+  // One scale for the clock and both boxes: ×2 when it fits, smaller on a
+  // phone. Measured against a wide cash figure so it never jumps as cash grows.
+  const barBox = layoutChrome(barModel);
+  const readoutBox = layoutChrome({ ...readoutModel, display: ['$9,999,999', '60H LEFT'] });
+  const scale = dock
+    ? chromeScale(
+        screen,
+        Math.max(barBox.width, CLOCK_ART + 8 + readoutBox.width),
+        Math.max(CLOCK_ART + 12, readoutBox.height) + barBox.height + 8,
+        0.36,
+      )
+    : chromeScale(screen, 2 * Math.max(barBox.width, readoutBox.width) + CLOCK_ART + 24, CLOCK_ART + 12, 0.45);
+
+  const barEl = (
+    <div className="classic-bar-left">
+      <PixelChrome
+        model={barModel}
+        scale={scale}
+        dpr={screen.dpr}
+        onButton={(key) => setOverlay(key as 'goals' | 'stats' | 'options')}
+        titles={{ goals: 'Everyone’s progress toward the four goals', stats: 'Your money, job, degrees and possessions', options: 'Sound, animation, new game' }}
+      />
+    </div>
+  );
+  const clockEl = (
+    <div className="classic-clock" onMouseEnter={() => setClockHover(true)} onMouseLeave={() => setClockHover(false)}>
+      <Clock
+        minutesLeft={player.minutesLeft}
+        minutesBudget={player.minutesBudget}
+        week={state.week}
+        scale={scale}
+        dpr={screen.dpr}
+        variant="classic"
+      />
+    </div>
+  );
+  const readoutEl = (
+    <div className="classic-readout">
+      <PixelChrome
+        model={readoutModel}
+        scale={scale}
+        dpr={screen.dpr}
+        titles={{ end: left > 0 ? `End your turn with ${left}h unspent` : 'End your turn' }}
+        onButton={() => {
+          setOpenLoc(null);
+          store.act({ type: 'endWeek' });
+        }}
+      />
+    </div>
+  );
 
   const cardModel: PanelModel | null = card
     ? {
@@ -482,46 +618,43 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
   };
 
   return (
-    <div className="hud-root classic-root">
+    <div className={`hud-root classic-root${dock ? ' is-docked' : ''}`}>
       <MapControls scene={scene} />
-
-      <div className="classic-bar-left">
-        <PixelChrome
-          model={barModel}
-          onButton={(key) => setOverlay(key as 'goals' | 'stats' | 'options')}
-          titles={{ goals: 'Everyone’s progress toward the four goals', stats: 'Your money, job, degrees and possessions', options: 'Sound, animation, new game' }}
-        />
-      </div>
 
       <div className="classic-turn">
         {`${player.name.toUpperCase()} — TOKEN ${assignTokens(state.playerOrder)[currentPid]!.token}`}
       </div>
 
-      <div
-        className="classic-clock"
-        onMouseEnter={() => setClockHover(true)}
-        onMouseLeave={() => setClockHover(false)}
-      >
-        <Clock
-          minutesLeft={player.minutesLeft}
-          minutesBudget={player.minutesBudget}
-          week={state.week}
-          variant="classic"
-        />
-      </div>
+      {dock ? (
+        <div className="classic-dock" ref={dockRef}>
+          <div className="classic-dock-row">
+            {clockEl}
+            {readoutEl}
+          </div>
+          {barEl}
+        </div>
+      ) : (
+        <>
+          {barEl}
+          {clockEl}
+          {readoutEl}
+        </>
+      )}
 
-      <div className="classic-readout">
-        <PixelChrome
-          model={readoutModel}
-          titles={{ end: left > 0 ? `End your turn with ${left}h unspent` : 'End your turn' }}
-          onButton={() => {
-            setOpenLoc(null);
-            store.act({ type: 'endWeek' });
-          }}
-        />
-      </div>
+      {tip && !blocked && selected !== null && (
+        // A finger's first tap: the tooltip pinned at the top of the map, with
+        // GO for the second tap's job (the same building tapped again also goes).
+        <div className="classic-tip is-pinned">
+          <span>{tip.text}</span>
+          {tip.canGo && (
+            <button type="button" className="classic-go" onClick={() => goRef.current(selected)}>
+              GO
+            </button>
+          )}
+        </div>
+      )}
 
-      {tip && !blocked && (
+      {tip && !blocked && selected === null && (
         <div className="classic-tip" style={{ left: tip.x + 14, top: tip.y + 16 }}>
           {tip.text}
         </div>
