@@ -22,6 +22,24 @@ export const EDUCATION_PER_DEGREE = 9;
 export const CAREER_DEPENDABILITY_MULTIPLIER = 1.25;
 export const CAREER_UNEMPLOYED_VALUE = 0;
 
+// --- Experience (fan wiki "Experience", docs/original-rules-extra.md) ---
+/** Every player starts with 10 Experience; it never goes down. */
+export const EXPERIENCE_START = 10;
+/** Gained per paid work session, while under the job's Maximum Experience. */
+export const EXPERIENCE_PER_WORK_SESSION = 1;
+/** Gained on every new job (not a raise). Not capped: the wiki's job-hopping example reaches 20 as a Cook. */
+export const EXPERIENCE_PER_NEW_JOB = 2;
+/** Maximum Experience = 10 + job's Required Experience + 5 * degree count. */
+export function maxExperience(requiredExperience: number, degreeCount: number): number {
+  return 10 + requiredExperience + 5 * degreeCount;
+}
+
+/**
+ * "## No Openings": in the first 4 weeks the "Poor Work History" refusal is suppressed, so a
+ * dependability shortfall reads as "No openings" (without shutting that job for the week).
+ */
+export const POOR_WORK_HISTORY_HIDDEN_UNTIL_WEEK = 4;
+
 // --- Dependability ("# Dependability") ---
 export const DEPENDABILITY_START = 20;
 /** Lost at the start of every Turn, floor 0. "## Dependibility Stat" (1980-1986). */

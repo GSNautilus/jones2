@@ -147,17 +147,34 @@ describe('the location window', () => {
     const blocked = w.rows.filter((r) => !r.enabled);
     expect(blocked.length).toBeGreaterThan(0);
     for (const r of blocked) expect(r.reason).toBeTruthy();
-    // Enabled rows come first so the affordable things are at the top.
-    const firstDisabled = w.rows.findIndex((r) => !r.enabled);
-    expect(w.rows.slice(0, firstDisabled).every((r) => r.enabled)).toBe(true);
   });
 
-  it('keeps the sim s order when asked not to sort', () => {
-    const state = goTo(createGame(config()), 'university');
-    const sorted = buildLocationWindow(state, 'p0', 'university');
-    const raw = buildLocationWindow(state, 'p0', 'university', { sort: false });
-    expect(raw.rows.length).toBe(sorted.rows.length);
-    expect(raw.rows.map((r) => r.key).sort()).toEqual(sorted.rows.map((r) => r.key).sort());
+  it('never moves a row: the order is the same broke or rich', () => {
+    for (const loc of ['monolith', 'zmart', 'qt_clothing', 'socket_city', 'university', 'blacks_market']) {
+      const state = goTo(createGame(config()), loc);
+      state.players.p0!.cash = 0;
+      const broke = buildLocationWindow(state, 'p0', loc).rows.map((r) => r.key);
+      state.players.p0!.cash = 100_000;
+      const rich = buildLocationWindow(state, 'p0', loc).rows.map((r) => r.key);
+      state.players.p0!.cash = 100;
+      const some = buildLocationWindow(state, 'p0', loc);
+      expect(rich, loc).toEqual(broke);
+      expect(some.rows.map((r) => r.key), loc).toEqual(broke);
+      // With $100 some rows are affordable and some not, and they stay interleaved.
+      if (loc === 'monolith') expect(some.rows.map((r) => r.enabled)).toContain(false);
+    }
+  });
+
+  it('lists Monolith Burgers in the original s order', () => {
+    const w = buildLocationWindow(goTo(createGame(config()), 'monolith'), 'p0', 'monolith');
+    expect(w.rows.map((r) => r.action?.type === 'buyFood' && r.action.foodId)).toEqual([
+      'hamburgers',
+      'cheeseburger',
+      'astro_chicken',
+      'fries',
+      'shakes',
+      'colas',
+    ]);
   });
 
   it('lists the Employment Office by business, then the jobs of the one picked', () => {

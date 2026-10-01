@@ -41,8 +41,8 @@ function key(s: Sprite): string {
 describe('clerk portraits', () => {
   const entries = Object.entries(PORTRAITS);
 
-  it('has one portrait per classic location and nothing else', () => {
-    expect(Object.keys(PORTRAITS).sort()).toEqual([...CLASSIC_LOCATION_IDS].sort());
+  it('has one portrait per classic location and per expansion building, and nothing else', () => {
+    expect(Object.keys(PORTRAITS).sort()).toEqual([...CLASSIC_LOCATION_IDS, 'auto', 'pet_store'].sort());
     expect([...PORTRAIT_KEYS].sort()).toEqual([...CLASSIC_LOCATION_IDS].sort());
   });
 

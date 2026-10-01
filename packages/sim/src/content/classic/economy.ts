@@ -82,19 +82,58 @@ export const CRASH_STOCK_PENALTY: Record<'minor' | 'moderate' | 'major', number>
 export const BOOM_STOCK_HAPPINESS = 5;
 
 /** Additional, separate penalties a crash may trigger (cumulative with the base crash happiness in happiness.ts). */
-export const CRASH_JOB_LOSS_HAPPINESS = -7; // major crash only
-export const CRASH_WAGE_CUT_HAPPINESS = -3; // moderate or major crash
+export const CRASH_JOB_LOSS_HAPPINESS = -7;
+export const CRASH_WAGE_CUT_HAPPINESS = -3;
 
 /**
- * NOTE: the wiki gives no percentage/dollar figures for how much a crash or boom actually moves
- * prices/wages beyond: "During a Market Crash, Rents can reach half their baseline values"
- * ("# Rent" > "## Switching Apartments", 709-713), and "up to 100% chance" of job loss "in the
- * worst type of Crash" ("# Jobs" > "## Losing a Job", 1647) — no per-severity percentage table.
- * Left unspecified rather than invented.
+ * The economy itself. Source: the fan wiki's "Economy", "Market Crash" and "Economic Boom" pages
+ * (docs/original-rules-extra.md). Two hidden numbers: a trend from -3 to +3 (where the economy
+ * is heading) and a reading from -30 to +90 (where it is). Every economy-priced thing costs
+ * base * (1 + reading / 60): 50% to 250% of base. A player's current wage and rent never move
+ * with it; the wages on offer, shop prices, tuition and new-apartment rents do.
  */
-export const CRASH_RENT_MIN_FRACTION = 0.5; // the one concrete number given
-export const CRASH_JOB_LOSS_CHANCE_DOCUMENTED = false;
-export const CRASH_WAGE_CUT_PERCENT_DOCUMENTED = false;
+export const ECONOMY_READING_RANGE = { min: -30, max: 90 } as const;
+export const ECONOMY_TREND_RANGE = { min: -3, max: 3 } as const;
+export const ECONOMY_READING_PER_PRICE_POINT = 60;
+/** Price multiplier for a reading: 1 + reading/60. */
+export function economyMultiplier(reading: number): number {
+  return 1 + reading / ECONOMY_READING_PER_PRICE_POINT;
+}
+
+/**
+ * Chance of a crash, and separately of a boom, at the start of each Turn (CD-ROM):
+ * 1 / (1 + 30 * players). With one Turn per player per Week that is about 1 in 31 a week
+ * whatever the table size.
+ */
+export function economyEventChancePerTurn(players: number): number {
+  return 1 / (1 + 30 * players);
+}
+/** "Market Crash" > "Triggering a Crash": only when the reading is at least 80. */
+export const CRASH_MIN_READING = 80;
+/**
+ * "Economic Boom" > "Triggering a Boom" gives "no more than 120", which is outside the
+ * reading's own range; the same page says a boom needs the economy "neutral or slightly better
+ * than neutral". We read that as a reading of at most +15 (prices at most 25% over base).
+ */
+export const BOOM_MAX_READING = 15;
+/** Each crash severity is equally likely. */
+export const CRASH_SEVERITIES = ['minor', 'moderate', 'major'] as const;
+/**
+ * The trend jumps by 3: a crash turns a strong economy neutral and a neutral one into the worst
+ * decline; a boom the reverse.
+ */
+export const EVENT_TREND_SHIFT = 3;
+/** After the trend moves, prices drop (crash) or rise (boom) by this fraction at once. */
+export const CRASH_PRICE_DROP: Record<'minor' | 'moderate' | 'major', number> = { minor: 0.05, moderate: 0.1, major: 0.15 };
+export const BOOM_PRICE_RISE = 0.1;
+/**
+ * Firings and pay cuts, per employed player: a moderate crash fires half of them and cuts the
+ * rest to 80% of their wage (rounded down); a major crash fires everyone and empties every bank
+ * account. A minor crash only moves the economy.
+ */
+export const CRASH_FIRE_CHANCE: Record<'minor' | 'moderate' | 'major', number> = { minor: 0, moderate: 0.5, major: 1 };
+export const CRASH_PAY_CUT_TO = 0.8;
+export const MAJOR_CRASH_WIPES_BANK = true;
 
 /**
  * Week gating for crashes/booms differs by game version — "# Month" > "## Delayed Events"

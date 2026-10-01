@@ -202,7 +202,7 @@ Steps 1–3 of the plan's work breakdown are built (three agents, ~276k + 266k +
 
 - **Original sounds extracted (2026-09-16):** `tools/sci/` (new workspace `@jones2/sci`) reads the floppy release's SCI resource files (6-byte map entries, 8-byte headers, LZW1 method 2), parses the SCI1 sound resources (per-device tracks, 60 Hz deltas) and writes the MT-32 arrangement as standard MIDI (`assets/sierra/source/midi/`, 34 files + manifest), then renders them with spessasynth_core and the MuseScore General soundfont (git-ignored) to `assets/sierra/source/ogg/` (8.7 MB) via ffmpeg, with an audition page `assets/sierra/source/index.html` for naming them into `assets/sierra/source/names.json`. 8 tests (the two against the real game files skip when F: is absent). See `tools/sci/README.md`. Not wired into the client yet.
 
-- **Audio in the client (2026-09-16):** `apps/client/src/audio/` — `map.ts` turns `assets/sierra/audio/names.json` (the audition-page names) into a sound map by keyword (music/theme → rotation; cash, hired, refused, buy, study, graduate, travel, door, weekend, card, end week, win, click) with an `overrides` block; `events.ts` maps player-log events to moments; `player.ts` plays SFX and rotates the music with 2 s fades and a 5 s rest, never repeating a piece back to back, with mute/volume in localStorage. `ClassicScreen` starts the music on mount, plays a sound for every new log entry, at walk start, on window open and per card; SOUND ON/OFF button above the cash readout. The OGGs are served from `assets/sierra/audio/ogg/` (copied from `assets/sierra/source/ogg/`). `names.json` now carries the 27 names from the audition (rotation = 9 random pieces; theme 6 at game start; start-of-turn 9 at the first card; cash register 23 for work, purchases and payments; hired 45; refused/can't 44; time's up 29 on End week; rent due 27; forgot to eat 20; new clothes 28; economy 32/34 from the news card; university 41 on entering Hi-Tech U; graduation 42; new-game screen 10; robbed 8, sick 21 and shady 100 reserved). Stingers (theme, start of turn, university, graduation, new game) pause the rotation and it resumes after the rest. 15 tests.
+- **Audio in the client (2026-09-16):** `apps/client/src/audio/` — `map.ts` turns `assets/sierra/audio/names.json` (the audition-page names) into a sound map by keyword (music/theme → rotation; cash, hired, refused, buy, study, graduate, travel, door, weekend, card, end week, win, click) with an `overrides` block; `events.ts` maps player-log events to moments; `player.ts` plays SFX and rotates the music with 2 s fades and a 5 s rest, never repeating a piece back to back, with mute/volume in localStorage. `ClassicScreen` starts the music on mount, plays a sound for every new log entry, at walk start, on window open and per card; SOUND ON/OFF button above the cash readout. The OGGs are served from `assets/sierra/audio/ogg/` (copied from `assets/sierra/source/ogg/`). `names.json` now carries the 27 names from the audition (rotation = 8 random pieces — sound 7, the intro sequence, taken out 2026-09-30 as too loud and busy; theme 6 at game start; start-of-turn 9 at the first card; cash register 23 for work, purchases and payments; hired 45; refused/can't 44; time's up 29 on End week; rent due 27; forgot to eat 20; new clothes 28; economy 32/34 from the news card; university 41 on entering Hi-Tech U; graduation 42; new-game screen 10; robbed 8, sick 21 and shady 100 reserved). Stingers (theme, start of turn, university, graduation, new game) pause the rotation and it resumes after the rest. 15 tests.
 
 - **CD edition (2026-09-17):** `Jones3x/CD` (git-ignored copy of the 1992 CD-ROM release). Its 533 spoken lines (34 min, raw 8-bit PCM at 11025 Hz) are extracted by `tools/sci/src/voices.ts` to `assets/sierra/source/voice/ogg/` (11 MB). Its `NNNN.snd` files carry General MIDI tracks, now layered over the floppy set in `assets/sierra/source/midi` and re-rendered (sound 100 stays MT-32).
 
@@ -222,6 +222,8 @@ Steps 1–3 of the plan's work breakdown are built (three agents, ~276k + 266k +
   - **Pixel chrome:** the bottom-left GOALS / STATISTICS / OPTIONS bar and the bottom-right cash readout with END TURN are painted pixel art (`src/classic/chrome.ts` layout + paint, `PixelChrome.tsx` canvas with hover/pressed states and `data-buttons` for the screenshot harness): the window frame nine-slice, a dark readout with the cash doubled in green and the hours line (clock hover) under it, the catalogue's gold buttons.
   - Tests: pixelart 484 (+5), client 294 (+12: ambient, chrome, camera), town 57. Screenshots: `art/sheets/ui-classic-chrome.png`, `riverton-traffic.png`, `ui-week-resolved.png`. Verified in headless Edge: chrome and hover, cars and a flock moving between two shots on Riverton, a played week ending in the log.
 
+- **Fixed menu order (2026-09-30, DESIGN decision log):** `menu.ts` no longer moves affordable rows to the top (`byEnabled` and `WindowOptions.sort` removed); rows keep the sim's order and grey out in place. Sim lists now match the original: Monolith ends Shakes, Colas; QT Clothing is Suit, Dress, Casual; Z-Mart follows `ZMART_SHELF` (`content/classic/items.ts`); the broker always lists a Sell row per stock ("You hold none" when empty). Tests: order unchanged broke vs rich at six buildings, Monolith/QT/Z-Mart/Socket City orders, stable broker rows. Noticed, not changed: Z-Mart's Color TV is $450 in `items.ts` but $349 in the wiki table (the 33% saving agrees with $349), and Z-Mart's 6-of-17 weekly stock rotation is not implemented (everything is always on sale).
+
 **Classic balance, first look** (30 games × 60 weeks; run it directly, npm swallows the flags):
 ```powershell
 npx tsx apps/balance/src/run.ts --ruleset classic --games 30 --weeks 60 --town riverton
@@ -233,8 +235,8 @@ Everything through Milestone 2c is committed (latest: 777736f, 2026-09-19). The 
 plays on both maps and a human has played it through; the voice lines are checked by ear.
 Decided 2026-09-22: no 2-hour entry charge; balance (degrees, clothes softlock, food prices) is
 parked as good enough for now. Remaining, in order:
-1. **Jones 2 expansion buildings:** the roadmap for turning Riverton's closed buildings into
-   the Jones 2 game. Under discussion (see DESIGN.md decision log).
+1. **Jones 2 expansion buildings:** the system and the first pack, Wheels & Whiskers, are
+   built (section below). Next packs to design; health is the key of a future one.
 2. Additive sim tweaks the client wants: price/payout and kind on `ActionOption`, amounts for
    bank and stock actions, player portraits at setup.
 3. Polish: the classic ring's destination halos are too wide and run together on the top row.
@@ -246,6 +248,51 @@ Plan (DESIGN decision log 2026-09-22), in order:
 3. DONE 2026-09-26. Project ref adqanptxzjlxoiwhvvvk (URL https://adqanptxzjlxoiwhvvvk.supabase.co); both migrations applied; 573 files in the private bucket, public URL refuses them. Setup steps: `docs/SUPABASE.md`. `supabase/` from `supabase init` (CLI is a root devDependency; anonymous sign-ins on in `config.toml`). Migration `…000000_games.sql`: games, seats, snapshots, turns, RLS, `redeem_seat(token)`, `my_seats()`, helper functions. Migration `…000100_sierra_bucket.sql`: private `sierra` bucket, readable only by a session holding a seat. `tools/host` (`@jones2/host`): `upload-assets` script (skips unchanged files, refuses a public bucket) and 30 tests, 21 of them the access rules on PGlite with a Supabase stand-in (`test/supabase-stub.ts`).
 4. DONE 2026-09-30: deployed by the user and smoke-tested live (CORS preflight answered by our handler; a request carrying only the publishable key reaches the function and is refused by the Auth lookup). Publishable key (public, goes in the client build): sb_publishable_18EYuISjhr_S2X06LDyRiA_0JIpi13q. Anonymous sign-ins were still OFF on 2026-09-30 (Auth said anonymous_provider_disabled); step 5 needs them on. Redeploy with `npm run deploy -w @jones2/server` after any sim or server change (`docs/SUPABASE.md` §4). Sim: in-week dice now come from a per-player weekly stream (`classic/state.ts` `playerRoll`); `src/online.ts` has `checkTurn`, `mergeWeek` (earliest-in-week order, contested actions fall through with a note), `resolveOnlineWeek`; 14 tests, one of them shown to fail under the old shared stream. `packages/server` (`@jones2/server`): `submitTurn` (one transaction, game row locked, last submission resolves, identical retry accepted), `handle` (CORS, caller via Supabase Auth), bundled by esbuild into the function; 43 tests on PGlite, including the step 3 access-rule tests moved here from `tools/host`. `supabase/functions/submit-turn/index.ts` is only wiring. Still untested live: postgres.js against the real database (needs a signed-in, seated player; the first real game in step 5 is that test).
 5. PUBLISHED 2026-09-30 at https://gsnautilus.github.io/jones2/ (repo GSNautilus/jones2, public). Before the first push the history was rewritten twice: commit emails to 194151465+GSNautilus@users.noreply.github.com (also set as this repo's git user.email), and a personal folder path scrubbed; backups of each pre-rewrite history sit beside the project folder as Jones2-backup-*.bundle (they contain what was removed; never upload them). Migration `…0930000000_play.sql` (save_draft, week_status, ping) is live. `tools/host`: new-game, list-games, reissue-seat (`docs/SUPABASE.md` §5). Client `src/online/`: route, api, the `OnlineGame` state machine (13 tests against an in-memory server), OnlineRoot/JoinScreen/OnlineGames; audio switches to the bucket once seated. Workflows: `pages.yml` (npm ci, npm test, build with JONES2_BASE=/jones2/, deploy; ~1 min) and `keepalive.yml`. Checked live: site and script load, no audio is served from Pages, anonymous sign-in works, submit-turn reaches the database (404 for a missing game), an unseated session reads nothing. First real test game (2026-09-30, user in two browser windows): playing worked; two bugs found and fixed the same day. (1) Every hand-in failed with a 500: postgres.js asks the server for parameter types and JSON-encoded our already-encoded JSON, so actions reached the turns check as a string; parameters are now `$n::text::jsonb`, covered by `packages/server/test/postgresjs.test.ts` (PGlite served over a socket, driven by postgres.js). Function redeployed. (2) No audio online: the classic screen loaded the sound map in its first effect, before OnlineRoot's effect switched the loader to the bucket (child effects run first); the switch now happens during OnlineRoot's first render. Retried: both weeks handed in, the week resolved, the recap played, audio works from the bucket. End-to-end verified live. 2026-10-01: invite links made permanent (DESIGN decision log 2026-10-01): migration `…1001000000_permanent_links.sql` adds `seat_devices` and drops `seats.user_id`; existing seat holders were carried over; applied live with the function redeployed straight after. reissue-seat now signs out every device on the old link; list-games shows devices per player. 2026-10-02: hosting from the site (DESIGN decision log 2026-10-02): migration `…1002000000_hosting.sql` (host_keys, host_devices, seats.link, host_* functions; 11 tests in `packages/server/test/hosting.test.ts`), `npm run host-link`, client HostKeyScreen / HostPanel / the new game screen's Where: Online. Needs the user to run host-link once, then test creating a game from the site. The test game (players Test A, Test B) is still in the database; harmless. The extractor's real-file tests now need JONES_GAME_DIR (floppy) and Jones3x/CD.
+## Classic rules accuracy pass (DONE 2026-09-30)
+The classic sim checked rule by rule against the fan wiki, including nine pages the original
+extract lacked (now `docs/original-rules-extra.md`; the full decision is in the DESIGN.md log).
+- Economy rewritten (`classic/economy.ts`): hidden trend and reading, crash only at reading 80+,
+  boom only at +15 or less, ~1/31 a week each, equal severities, documented price shocks,
+  firings, 80% pay cuts and the major crash's bank wipe. State gains optional `reading`/`trend`
+  (older saves derive them from `index`, which stays the price multiplier). Over 200 simulated
+  100-week games: ~1.5 booms and ~0.3 crashes a game, economy hot 9% of weeks.
+- Experience (start 10, +2 per hire, cap 10 + req + 5/degree), no clip of over-cap stats,
+  early "No openings", no Happiness for a refused raise, 4-course limit.
+- Week start split in two (`openWeek` / `continueWeek`) around the win check; order now the
+  wiki's Turn page; spoilage before starvation; low-clothes reminder; Donations.
+- Rent debt accrues monthly and counts against Liquid Assets; rent office only at month end or
+  on extension (`extensionUntil`, the due week no longer moves); loan payments stack a month
+  each; default tracked as `loanMissed`, cleared one payment per missed month.
+- Z-Mart: 6 random shelf rows per player per week (`zmartStock`); paid prices recorded
+  (`itemPaid`, pawn `paidPrice`) for repairs, redemption and net worth; one of each item pawned.
+- 20 new tests in `packages/sim/test/classic-rules.test.ts`; all workspaces green.
+- **Needs a server redeploy** (`npm run deploy -w @jones2/server`) together with the next site
+  publish: submit-turn runs the sim, and both sides must agree on the rules.
+
+## Expansions: Wheels & Whiskers (BUILT 2026-09-30, not yet committed or published)
+Decisions in the DESIGN.md log (2026-09-30, "Expansions").
+- Sim: `GameConfig.expansions`; `content/classic/expansions.ts` (EXPANSIONS, EXPANSION_LOCATIONS
+  for `auto` and `pet_store` with greetings, EXPANSION_ITEMS: 4 vehicles and 6 pets,
+  `ALL_CLASSIC_ITEMS`, `isOpenLocation`, `locationInfo`, `expansionsFor`, `expansionProblem`);
+  `createClassicGame` refuses an unknown pack or one the map cannot host. `locationAt`/`isClosed`
+  follow the game's packs. Travel uses `bestVehicle` and `rideHours`; travel events carry
+  `vehicle` and `pet`. Vehicle breakdowns ride the appliance roll (bill only); `petComfort` gives
+  +1 a week; pets cannot be pawned. 12 tests in `test/classic-expansions.test.ts`.
+- Client: new game screen **Expansions…** button and `ExpansionsWindow` (Jones 2 map only;
+  `src/game/expansions.ts` pure helpers); `classic/locations.ts` takes the game's packs (CLOSED
+  boards, tooltips, clicks); stats screen names expansion items. Map contract (`map/api.ts`):
+  `FigureStyle.pet` and a `vehicle` on the moving pose; `figures.ts` draws riders, player cars
+  and the following pet; the walk is quicker on wheels; the weekly replay rides too.
+- Art (`packages/pixelart`): `props/rides.ts` (skateboard, bicycle, `rideCar` in any colour and
+  heading), `props/pets.ts` (six pets, two frames, both facings, `PET_MOTION`), clerk portraits
+  for Honest Al and the Pet Store clerk.
+- Tests: sim 147, client 347, pixelart 497, all workspaces green. Checked in headless Edge: the
+  picker (config saved with `expansions`), no CLOSED board on the two buildings, a sports car
+  with a dragon driving to Z-Mart on the road (2h charged), Honest Al's window with portrait.
+- **Needs a server redeploy** (`npm run deploy -w @jones2/server`) before an online game uses a
+  pack: submit-turn runs the sim. Local games work as soon as the site is published.
+- Not done: balance runner has no vehicle/pet strategy yet; no voice lines for the new clerks.
+
 ## Milestone 4 — art pass (NOT STARTED)
 ## Milestone 5 — sound + polish (NOT STARTED)
 

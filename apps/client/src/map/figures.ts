@@ -9,7 +9,7 @@
 import type { NodeId, Town, TransportMode } from '@jones2/town';
 import type { Sprite } from '@jones2/pixelart';
 import type { FigurePose, FigureStyle } from './api';
-import { type ArtSet, PX_PER_UNIT } from './art';
+import { type ArtSet, PX_PER_UNIT, petMotion } from './art';
 import { textWidth } from './font';
 import { facingOf, poseAlongEdge } from './roads';
 import { blit, blitAnchored, createSurface, fillRect, get, put, strokeRect, text, type RenderPalette, type Surface } from './surface';
@@ -93,6 +93,12 @@ export interface ResolvedFigure {
   emphasis: boolean;
   /** What the figure is doing, for the bubble above its name plate. Empty when idle. */
   caption: string;
+  /** Heading of travel in radians (0 = east); 0 when standing. */
+  angle: number;
+  /** What a moving token rides (a sim item id), or undefined on foot. */
+  vehicle: string | undefined;
+  /** The token's pet (a sim item id), if any. */
+  pet: string | undefined;
 }
 
 function nodeAt(town: Town, id: NodeId) {
@@ -115,6 +121,7 @@ export function resolveFigure(
     marker,
     emphasis: fig.style.emphasis === true,
     caption: fig.style.caption ?? '',
+    pet: fig.style.pet,
   };
   if (fig.pose.kind === 'at') {
     const n = nodeAt(town, fig.pose.node);
@@ -125,6 +132,8 @@ export function resolveFigure(
       ny: n.y * PX_PER_UNIT,
       dir: 's',
       frame: 0,
+      angle: 0,
+      vehicle: undefined,
     };
   }
   const { from, to, t } = fig.pose;
@@ -135,6 +144,8 @@ export function resolveFigure(
     nx: p.x * PX_PER_UNIT,
     ny: p.y * PX_PER_UNIT,
     dir: facingOf(p.dx, p.dy),
+    angle: Math.atan2(p.dy, p.dx),
+    vehicle: fig.pose.vehicle,
     // Frames 1 and 2 are the stride; 0 is the idle stance, kept for 'at'.
     frame: 1 + (Math.floor(timeMs / WALK_FRAME_MS) % 2),
   };
@@ -180,10 +191,11 @@ export function drawFigure(
     }
     // A player: the little walker on the ground (idle at a door, striding
     // along a route) with the numbered token floating over their head.
-    const dx = tokenOffset(marker.n);
-    const walker = art.character(f.dir, f.frame, pal.hex(f.tint));
-    blitAnchored(s, walker, x + dx, y, { ghost: f.ghost });
-    drawToken(s, pal, sprite, x + dx, y - (walker.anchorY + 1) - TOKEN_HOVER, f.ghost, tokenBig(f), ink);
+    // Seats spread apart so tokens at one door never overlap; a vehicle keeps to the road.
+    const dx = f.vehicle ? 0 : tokenOffset(marker.n);
+    drawPet(s, art, pal, f, x + dx, y);
+    const top = drawRider(s, art, pal, f, x + dx, y);
+    drawToken(s, pal, sprite, x + dx, top - TOKEN_HOVER, f.ghost, tokenBig(f), ink);
     return;
   }
 
@@ -202,6 +214,90 @@ export function drawFigure(
   }
 
   blitAnchored(s, sprite, x, y, { ghost: f.ghost });
+}
+
+/** A hex colour darkened for a car's sills. */
+export function shadeHex(hex: string, k = 0.7): string {
+  const n = parseInt(hex.replace('#', ''), 16);
+  const ch = (shift: number) => Math.round(((n >> shift) & 255) * k).toString(16).padStart(2, '0');
+  return `#${ch(16)}${ch(8)}${ch(0)}`;
+}
+
+/**
+ * A player's body on the map, on whatever they ride (Wheels & Whiskers): on foot the walker
+ * strides; on a skateboard or bicycle the walker stands still on it; in a car the walker is
+ * inside and only the car shows, in the player's colour. Returns the y just above the top, where
+ * the token floats.
+ */
+function drawRider(s: Surface, art: ArtSet, pal: RenderPalette, f: ResolvedFigure, x: number, y: number): number {
+  const ghost = { ghost: f.ghost };
+  const tint = pal.hex(f.tint);
+  const v = f.vehicle;
+  if ((v === 'used_car' || v === 'sports_car') && art.playerCar) {
+    const car = art.playerCar(v, f.angle, tint, pal.hex(shadeHex(f.tint)));
+    blitAnchored(s, car, x, y - CAR_LIFT, ghost);
+    return y - CAR_LIFT - car.anchorY - 1;
+  }
+  if ((v === 'skateboard' || v === 'bicycle') && art.ride) {
+    const walker = art.character(f.dir, 0, tint);
+    const lift = v === 'bicycle' ? BIKE_LIFT : 0;
+    if (v === 'skateboard') blitAnchored(s, art.ride(v, f.dir), x, y + 1, ghost);
+    blitAnchored(s, walker, x, y - lift, ghost);
+    // The bicycle goes over the walker's legs so its frame shows.
+    if (v === 'bicycle') blitAnchored(s, art.ride(v, f.dir), x, y, ghost);
+    return y - lift - (walker.anchorY + 1);
+  }
+  const walker = art.character(f.dir, f.frame, tint);
+  blitAnchored(s, walker, x, y, ghost);
+  return y - (walker.anchorY + 1);
+}
+
+/** A car is centred a little above the token's ground point; a cyclist sits this far up. */
+const CAR_LIFT = 4;
+const BIKE_LIFT = 4;
+/** How far behind its owner a pet trails, on foot or riding, and where it sits at a door. */
+const PET_LAG = 11;
+const PET_LAG_CAR = 15;
+const PET_SIDE = 11;
+const PET_SIDE_CAR = 14;
+const PET_REST_DX = 8;
+const PET_REST_DY = 2;
+
+/**
+ * The player's best pet (Wheels & Whiskers): trailing behind along the way, sitting beside the
+ * player at a door. Fish swim and owls and dragons fly at head height with a shadow under them.
+ */
+function drawPet(s: Surface, art: ArtSet, pal: RenderPalette, f: ResolvedFigure, x: number, y: number): void {
+  if (!f.pet || !art.pet) return;
+  const now = Date.now();
+  const moving = f.frame !== 0;
+  let px = x + PET_REST_DX;
+  let py = y + PET_REST_DY;
+  let dir: 'e' | 'w' = 'w';
+  if (moving) {
+    // Behind on an east-west leg; alongside on a north-south one, where straight behind
+    // would hide the pet under the rider or the token.
+    const car = f.vehicle === 'used_car' || f.vehicle === 'sports_car';
+    const lag = car ? PET_LAG_CAR : PET_LAG;
+    const cos = Math.cos(f.angle);
+    const sin = Math.sin(f.angle);
+    const side = Math.abs(sin) > 0.5 ? (car ? PET_SIDE_CAR : PET_SIDE) : 0;
+    px = Math.round(x - cos * lag + side);
+    py = Math.round(y - sin * PET_LAG * 0.3);
+    dir = Math.abs(cos) < 0.3 ? 'w' : cos >= 0 ? 'e' : 'w';
+  }
+  const motion = petMotion(f.pet);
+  const frame = motion === 'ground' ? (moving ? Math.floor(now / WALK_FRAME_MS) % 2 : 0) : Math.floor(now / 220) % 2;
+  const sprite = art.pet(f.pet, dir, frame);
+  if (!sprite) return;
+  let lift = 0;
+  if (motion !== 'ground') {
+    lift = (motion === 'fly' ? 12 : 8) + Math.round(Math.sin(now / 280) * 1.5);
+    const shade = pal.index('shadow', [70, 66, 86]);
+    for (let i = -2; i <= 2; i++) put(s, px + i, py, shade);
+    for (let i = -1; i <= 1; i++) put(s, px + i, py + 1, shade);
+  }
+  blitAnchored(s, sprite, px, py - lift, { ghost: f.ghost });
 }
 
 /** True when a token draws at double size: the emphasised (active) player, never a ghost. */

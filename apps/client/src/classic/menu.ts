@@ -122,18 +122,11 @@ export function toRow(o: ActionOption): WindowRow {
   return row;
 }
 
-/** Sort rows so the affordable ones come first but the order is otherwise stable. */
-function byEnabled(rows: WindowRow[]): WindowRow[] {
-  return [...rows.filter((r) => r.enabled), ...rows.filter((r) => !r.enabled)];
-}
-
 export interface WindowOptions {
   /** How many times this window has been opened, for greeting rotation. */
   visit?: number;
   /** The group the player has drilled into (e.g. an employer at the Employment Office). */
   group?: string | null;
-  /** Put the disabled rows after the enabled ones (default true). */
-  sort?: boolean;
   /**
    * What the clerk says instead of the greeting: the outcome of the last
    * action taken in this window ("Hired as Cook at $6/h.", "Refused: no
@@ -190,7 +183,9 @@ export function buildLocationWindow(
     title: inGroup ? inGroup.toUpperCase() : locationName(locationId).toUpperCase(),
     portrait: portraitFor(locationId),
     greeting: opts.say || greetingFor(locationId, opts.visit ?? 0),
-    rows: opts.sort === false || inGroup === null && groups.length ? rows : byEnabled(rows),
+    // Never re-sorted: rows keep the sim's order (the original's shelf order),
+    // greyed in place when unaffordable, so nothing jumps as cash or time changes.
+    rows,
     buttons,
   };
 }

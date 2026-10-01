@@ -33,14 +33,6 @@ export const FIRED_HAPPINESS = -5;
  */
 export const APPLICATION_LUCK_INCLUSIVE = true;
 
-/**
- * GUESS: Maximum Experience is described only as "mostly based on the Job's Required Experience"
- * plus +5 per Degree. Mirrored from the documented Maximum Dependability formula
- * (20 + required + 5 * degrees).
- */
-export function maxExperience(requiredExperience: number, degreeCount: number): number {
-  return 20 + requiredExperience + 5 * degreeCount;
-}
 
 // ---------------------------------------------------------------------------
 // Items
@@ -54,18 +46,6 @@ export function maxExperience(requiredExperience: number, degreeCount: number): 
 export const ONE_UNIT_PER_ITEM = true;
 
 // ---------------------------------------------------------------------------
-// Rent
-// ---------------------------------------------------------------------------
-
-/**
- * GUESS: the wiki says an unpaid month becomes a Rent Debt that is garnished from wages, and
- * that a player "may remain in Rent Debt indefinitely", but never says whether the following
- * months' rent keeps piling on top. We pause accrual while a debt stands and restart the monthly
- * cycle once it clears, so a bad month cannot spiral into an unpayable debt.
- */
-export const RENT_DEBT_PAUSES_ACCRUAL = true;
-
-// ---------------------------------------------------------------------------
 // Bank
 // ---------------------------------------------------------------------------
 
@@ -77,48 +57,23 @@ export const BANK_FREE_AMOUNTS = true;
 // ---------------------------------------------------------------------------
 
 /**
- * The wiki describes one "Economic Index" that prices, wages and rents all track, but gives no
- * formula and no range. GUESS: a bounded random walk starting at 1.
+ * The original keeps two hidden numbers (content/classic/economy.ts has the documented facts):
+ * a trend from -3 to +3 and a reading from -30 to +90 that sets every price. The wiki calls the
+ * weekly update "quite complex" and does not give it, so the walk below is a GUESS built to show
+ * the documented behaviour: a strong economy tends to get stronger and a weak one weaker, and
+ * the CD-ROM version climbs back out of a slump.
  */
-export const ECONOMY_START = 1;
-export const ECONOMY_DRIFT = 0.03; // GUESS: +/- per week
-export const ECONOMY_MIN = 0.6; // GUESS
-export const ECONOMY_MAX = 1.5; // GUESS
-
-/** GUESS: per-week chance of each event, once the CD-ROM week gate (week 8) has passed. */
-export const BOOM_CHANCE = 1 / 12;
-export const CRASH_CHANCE = 1 / 10;
-/** GUESS: severity split of a crash. */
-export const CRASH_SEVERITY_WEIGHTS: { severity: 'minor' | 'moderate' | 'major'; weight: number }[] = [
-  { severity: 'minor', weight: 0.5 },
-  { severity: 'moderate', weight: 0.3 },
-  { severity: 'major', weight: 0.2 },
-];
-
-/** GUESS: how far a boom/crash shoves the economy index. */
-export const BOOM_INDEX_DELTA = 0.15;
-export const CRASH_INDEX_DELTA: Record<'minor' | 'moderate' | 'major', number> = {
-  minor: -0.1,
-  moderate: -0.2,
-  major: -0.35,
-};
-
+/** GUESS: reading points moved per week per point of trend (a +3 trend crosses the range in ~13 weeks). */
+export const READING_PER_TREND = 3;
+/** GUESS: +/- random reading points on top of the trend each week. */
+export const READING_NOISE = 4;
+/** GUESS: base chance each week that the trend moves up, and (separately) down, one step. */
+export const TREND_STEP_CHANCE = 0.2;
 /**
- * GUESS: the wiki says a crash can cost jobs ("up to 100% chance in the worst type of Crash")
- * and wages, with no table. Chances per severity, rolled per employed player.
+ * GUESS: extra chance of a step back toward neutral at the ends of the range (scaled by how far
+ * out the reading is), so the economy recovers from a slump and does not sit at the ceiling.
  */
-export const CRASH_JOB_LOSS_CHANCE: Record<'minor' | 'moderate' | 'major', number> = {
-  minor: 0,
-  moderate: 0,
-  major: 0.5,
-};
-export const CRASH_WAGE_CUT_CHANCE: Record<'minor' | 'moderate' | 'major', number> = {
-  minor: 0,
-  moderate: 0.25,
-  major: 0.5,
-};
-/** GUESS: size of the wage cut a crash inflicts. */
-export const CRASH_WAGE_CUT_FRACTION = 0.2;
+export const TREND_RECOVERY_CHANCE = 0.3;
 
 // ---------------------------------------------------------------------------
 // Stocks

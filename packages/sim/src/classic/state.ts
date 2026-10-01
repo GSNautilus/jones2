@@ -6,7 +6,7 @@
 import { nextFloat, seedRng, type RngState } from '../rng';
 import type { Delta, GameState, PlayerState } from '../types';
 import {
-  CLASSIC_ITEMS,
+  ALL_CLASSIC_ITEMS,
   CLASSIC_JOBS,
   CLASSIC_STOCKS,
   CLOTHING_TIER_ORDER,
@@ -15,11 +15,13 @@ import {
   LESSONS_PER_DEGREE,
   MIN_LESSONS_WITH_EXTRA_CREDIT,
   maxDependability,
+  maxExperience,
   type ClassicClothingTier,
+  type ClassicItem,
 } from '../content/classic';
-import { maxExperience } from './config';
 
-export type ItemSource = 'socket_city' | 'zmart' | 'pawn_shop';
+
+export type ItemSource = 'socket_city' | 'zmart' | 'pawn_shop' | 'auto' | 'pet_store';
 
 /** One card of the start-of-week sequence, in the order it happened. */
 export interface WeekStartEvent {
@@ -82,6 +84,12 @@ export interface ClassicPlayerState {
   items: string[];
   /** Where each owned item came from: sets its weekly breakage chance. */
   itemSource: Record<string, ItemSource>;
+  /** What was actually paid for each owned item: repairs, redemption and net worth use it. Absent in older saves. */
+  itemPaid?: Record<string, number>;
+  /** This week's Z-Mart shelf (6 of its rows, rolled at week start). Absent in older saves: everything is on sale. */
+  zmartStock?: string[];
+  /** Weeks in a row the player has started with no clothes at all (a Donation comes at 2). */
+  nakedWeeks?: number;
 
   housing: 'lowcost' | 'security_apts';
   /** Monthly rent locked in at lease time. */
@@ -100,6 +108,8 @@ export interface ClassicPlayerState {
   loanDefaults: number;
   hasHadLoan: boolean;
   inDefault: boolean;
+  /** Monthly loan payments missed and not yet made up; in default until this is back to 0. */
+  loanMissed?: number;
 
   /** Stock id -> units held. */
   stocks: Record<string, number>;
@@ -113,15 +123,21 @@ export interface ClassicPlayerState {
 export interface PawnedItem {
   itemId: string;
   ownerId: string;
-  /** Original purchase price, for the redeem/buy price. */
+  /** List price of the item where it was bought: the pawn payout scales it by today's economy. */
   basePrice: number;
+  /** What the owner actually paid: redeeming or buying it back costs half of this. Absent in older saves. */
+  paidPrice?: number;
   pawnedWeek: number;
   source: ItemSource;
 }
 
 export interface ClassicGameState {
-  /** The one economic index prices, wages and rents all track. */
+  /** The price multiplier every price, listed wage and new rent tracks: 1 + reading/60. */
   index: number;
+  /** The original's hidden economic reading, -30..+90 (content/classic/economy.ts). Absent in older saves. */
+  reading?: number;
+  /** The original's hidden economic trend, -3..+3. Absent in older saves. */
+  trend?: number;
   /** Per-stock multiplier on its base price (T-Bills stay at 1). */
   stockFactor: Record<string, number>;
   /** This week's front page. */
@@ -203,9 +219,18 @@ export function stockValue(s: GameState, p: PlayerState): number {
   return total;
 }
 
-/** Cash + bank + stocks, less loan debt. "# Wealth Goal" > "## Liquid Assets". */
+/**
+ * Cash + bank + stocks, less loan debt and rent debt. "# Wealth Goal" > "## Liquid Assets";
+ * both debts count against it ("# Bank" > "## Loans", "# Rent Office" > "### Pay Garnishment").
+ */
 export function liquidAssets(s: GameState, p: PlayerState): number {
-  return p.cash + p.savings + stockValue(s, p) - p.loan;
+  return p.cash + p.savings + stockValue(s, p) - p.loan - cp(p).rentDebt;
+}
+
+/** What the player paid for an item, falling back to its list price for older saves. */
+export function itemPaidPrice(p: PlayerState, itemId: string): number {
+  const c = cp(p);
+  return c.itemPaid?.[itemId] ?? itemBasePrice(itemId, c.itemSource[itemId] ?? 'zmart');
 }
 
 /** Does the player own clothing at least as good as `tier`, with weeks left? */
@@ -244,14 +269,38 @@ export function freshCapacity(p: PlayerState): number {
   return c.items.includes('freezer') ? FRIDGE_FREEZER_CAPACITY : FRIDGE_CAPACITY;
 }
 
+/** New from Socket City or an expansion store: 1/51. Z-Mart and second-hand: 1/36. */
 export function itemBreakChance(p: PlayerState, itemId: string): number {
   const src = cp(p).itemSource[itemId] ?? 'zmart';
-  return src === 'socket_city' ? 1 / 51 : 1 / 36;
+  return src === 'zmart' || src === 'pawn_shop' ? 1 / 36 : 1 / 51;
 }
 
 export function itemBasePrice(itemId: string, source: ItemSource): number {
-  const item = CLASSIC_ITEMS[itemId];
+  const item = ALL_CLASSIC_ITEMS[itemId];
   if (!item) return 0;
+  if (item.price !== undefined) return item.price;
   if (source === 'socket_city') return item.socketCityPrice ?? item.zmartPrice ?? 0;
   return item.zmartPrice ?? item.socketCityPrice ?? 0;
+}
+
+/** The fastest vehicle the player owns, or null on foot. Owned means not in the pawn shop. */
+export function bestVehicle(p: PlayerState): ClassicItem | null {
+  let best: ClassicItem | null = null;
+  for (const id of cp(p).items) {
+    const item = ALL_CLASSIC_ITEMS[id];
+    if (item?.travelFactor === undefined) continue;
+    if (!best || item.travelFactor < best.travelFactor!) best = item;
+  }
+  return best;
+}
+
+/** The pet shown on the map: the dearest one, the most recently bought on a tie. */
+export function bestPet(p: PlayerState): ClassicItem | null {
+  let best: ClassicItem | null = null;
+  for (const id of cp(p).items) {
+    const item = ALL_CLASSIC_ITEMS[id];
+    if (item?.category !== 'pet') continue;
+    if (!best || (item.price ?? 0) >= (best.price ?? 0)) best = item;
+  }
+  return best;
 }

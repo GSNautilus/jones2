@@ -5,7 +5,8 @@
  *
  * The town draws 35 buildings. The classic ruleset uses 13 of them; the Bus
  * Depot is the arrival point; the other 21 are scenery and get a CLOSED board
- * hung on them (PLAN §1 decision 2).
+ * hung on them (PLAN §1 decision 2), except those the game's expansions open
+ * (`GameConfig.expansions`, the `expansions` argument below).
  */
 import { classic } from '@jones2/sim';
 import type { Town } from '@jones2/town';
@@ -15,9 +16,9 @@ export const CLASSIC_LOCATION_IDS: readonly string[] = Object.keys(classic.CLASS
 
 const CLASSIC_SET = new Set(CLASSIC_LOCATION_IDS);
 
-/** Is this sim location id one the classic ruleset opens? */
-export function isClassicLocation(id: string | null | undefined): boolean {
-  return !!id && CLASSIC_SET.has(id);
+/** Is this location open: one of the 13, or opened by one of the game's expansions? */
+export function isClassicLocation(id: string | null | undefined, expansions?: readonly string[]): boolean {
+  return !!id && (CLASSIC_SET.has(id) || classic.isOpenLocation(id, expansions));
 }
 
 /**
@@ -29,22 +30,22 @@ export function isArrivalLocation(id: string | null | undefined): boolean {
   return id === 'bus_depot';
 }
 
-/** A building that exists on the map but is shut in the classic ruleset. */
-export function isClosedLocation(id: string | null | undefined): boolean {
-  return !!id && !CLASSIC_SET.has(id) && !isArrivalLocation(id);
+/** A building that exists on the map but is shut in this game. */
+export function isClosedLocation(id: string | null | undefined, expansions?: readonly string[]): boolean {
+  return !!id && !isClassicLocation(id, expansions) && !isArrivalLocation(id);
 }
 
 /** Display name for any location id, classic or not. */
 export function locationName(id: string): string {
-  const c = classic.CLASSIC_LOCATIONS[id as classic.ClassicLocationId];
+  const c = classic.locationInfo(id);
   return c ? c.name : (id.replace(/_/g, ' ').toUpperCase());
 }
 
 /** Every node on the town that carries a shut location, with its location id. */
-export function closedNodes(town: Town): { node: string; location: string }[] {
+export function closedNodes(town: Town, expansions?: readonly string[]): { node: string; location: string }[] {
   const out: { node: string; location: string }[] = [];
   for (const n of town.nodes) {
-    if (n.location && isClosedLocation(n.location)) out.push({ node: n.id, location: n.location });
+    if (n.location && isClosedLocation(n.location, expansions)) out.push({ node: n.id, location: n.location });
   }
   return out;
 }
@@ -63,7 +64,7 @@ const FALLBACK_GREETING: Record<string, string> = {
  * opened, so a second visit gets the next line rather than the same one.
  */
 export function greetingFor(id: string, n: number): string {
-  const loc = classic.CLASSIC_LOCATIONS[id as classic.ClassicLocationId];
+  const loc = classic.locationInfo(id);
   const lines = loc?.greetings ?? [];
   if (lines.length === 0) return FALLBACK_GREETING[id] ?? '';
   return lines[greetingIndex(id, n)]!;
@@ -71,7 +72,7 @@ export function greetingFor(id: string, n: number): string {
 
 /** Which of the location's greetings visit `n` shows (the spoken line follows it). */
 export function greetingIndex(id: string, n: number): number {
-  const loc = classic.CLASSIC_LOCATIONS[id as classic.ClassicLocationId];
+  const loc = classic.locationInfo(id);
   const len = loc?.greetings.length ?? 0;
   if (len === 0) return 0;
   return ((n % len) + len) % len;

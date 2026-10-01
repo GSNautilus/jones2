@@ -5,7 +5,7 @@
  */
 import { useState } from 'react';
 import type { ComponentType } from 'react';
-import { getGraph, type GameState, type PlayerEvent, type PlayerId, type WeekReport } from '@jones2/sim';
+import { bestPet, getGraph, type GameState, type PlayerEvent, type PlayerId, type WeekReport } from '@jones2/sim';
 import type { NodeId, Town, TownGraph } from '@jones2/town';
 import type { TownScene } from '../map/api';
 import type { GameStore } from './store';
@@ -21,7 +21,7 @@ export interface ReplayProps {
   logs: Record<PlayerId, PlayerEvent[]>;
   starts: Record<PlayerId, NodeId>;
   /** `label` is the figure's map label (a token marker for the classic screen); the name when absent. */
-  players: Record<PlayerId, { name: string; color: string; label?: string }>;
+  players: Record<PlayerId, { name: string; color: string; label?: string; pet?: string }>;
   onDone?: () => void;
 }
 
@@ -146,12 +146,12 @@ export function ResolveScreen({ store, scene, ReplayView, onExit }: ResolveScree
     // the recap, each on its own seat beside the door so nobody overlaps.
     const classic = state.config.ruleset === 'classic';
     const tokens = assignTokens(state.playerOrder);
-    const players: Record<PlayerId, { name: string; color: string; label?: string }> = {};
+    const players: Record<PlayerId, { name: string; color: string; label?: string; pet?: string }> = {};
     for (const id of state.playerOrder) {
       const name = state.players[id]!.name;
       const t = tokens[id]!;
       players[id] = classic
-        ? { name, color: t.color, label: tokenLabel(t.token, name) }
+        ? { name, color: t.color, label: tokenLabel(t.token, name), pet: bestPet(state.players[id]!)?.id }
         : { name, color: playerColors[id] ?? '#888888' };
     }
     return (

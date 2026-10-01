@@ -19,6 +19,15 @@ export type ClassicLocationId =
   | 'lowcost'
   | 'security_apts';
 
+/** Expansion packs (content/classic/expansions.ts): each opens some of Riverton's closed buildings. */
+export type ExpansionId = 'wheels_whiskers';
+
+/** Buildings an expansion opens. Ids match the town's node `location`s. */
+export type ExpansionLocationId = 'auto' | 'pet_store';
+
+/** Any building the classic ruleset can open: the 13 always, the rest by expansion. */
+export type OpenLocationId = ClassicLocationId | ExpansionLocationId;
+
 /** The 11 degrees. "# Degrees", "## List of Degrees" (original-rules.md:2379-2436). */
 export type ClassicDegreeId =
   | 'junior_college'

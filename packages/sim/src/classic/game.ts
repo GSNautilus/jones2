@@ -1,5 +1,5 @@
 /** Building a classic game: the classic player and the week-1 start-of-week sequence. */
-import { DEPENDABILITY_START, CLASSIC_HOUSING, RELAXATION, STARTING_CASUAL_WEEKS, STARTING_HOUSING } from '../content/classic';
+import { DEPENDABILITY_START, EXPERIENCE_START, CLASSIC_HOUSING, RELAXATION, STARTING_CASUAL_WEEKS, STARTING_HOUSING, expansionProblem } from '../content/classic';
 import { getGraph } from '../helpers';
 import { seedRng } from '../rng';
 import type { GameConfig, GameState, PlayerState } from '../types';
@@ -13,7 +13,7 @@ export function newClassicPlayerState(): ClassicPlayerState {
     wage: 0,
     jobId: null,
     dependability: DEPENDABILITY_START,
-    experience: 0,
+    experience: EXPERIENCE_START,
     relaxation: RELAXATION.start,
     raises: 0,
     degrees: [],
@@ -83,6 +83,8 @@ function newPlayer(id: string, name: string, startNode: string): PlayerState {
 }
 
 export function createClassicGame(config: GameConfig): GameState {
+  const problem = expansionProblem(config.townId, config.expansions);
+  if (problem) throw new Error(problem);
   const graph = getGraph(config.townId);
   const start = graph.town.startNode;
   const players: Record<string, PlayerState> = {};

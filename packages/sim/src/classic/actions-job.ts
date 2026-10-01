@@ -4,7 +4,7 @@
  * rata, and a University lesson takes whatever is left with no penalty.
  */
 import { travelHourMultiplier } from '@jones2/town';
-import { travelHours } from '../content/classic';
+import { rideHours, travelHours } from '../content/classic';
 import {
   APPLICATION_LUCK_ROLL_MAX,
   CLASSIC_JOBS,
@@ -13,6 +13,10 @@ import {
   DEPENDABILITY_NEW_JOB_FLOOR,
   DEPENDABILITY_PER_WORK_SESSION,
   ENROLLMENT_FEE_BASE,
+  EXPERIENCE_PER_NEW_JOB,
+  EXPERIENCE_PER_WORK_SESSION,
+  MAX_ACTIVE_COURSES,
+  POOR_WORK_HISTORY_HIDDEN_UNTIL_WEEK,
   LESSON_HOURS,
   RELAXATION,
   RENT_DEBT_GARNISH_FRACTION,
@@ -27,8 +31,8 @@ import { nextInt } from '../rng';
 import type { Action, Delta } from '../types';
 import * as K from './config';
 import { d, earn, happy, pay } from './effects';
-import { degreeCount, hasUniform, jobOf, lessonsNeeded, maxDep, maxExp, playerRoll } from './state';
-import { DEGREE_BY_ID, MINUTES, listedWage, monthAfter, priceOf, requiredDep, type Ctx, type Spec } from './context';
+import { bestPet, bestVehicle, degreeCount, hasUniform, jobOf, lessonsNeeded, maxDep, maxExp, playerRoll } from './state';
+import { DEGREE_BY_ID, MINUTES, listedWage, priceOf, requiredDep, type Ctx, type Spec } from './context';
 
 /** Travel, work, apply, raise, enrol, lesson, relax, end the week. Null if not one of those. */
 export function jobSpec(cx: Ctx, a: Action): Spec | string | null {
@@ -39,7 +43,11 @@ export function jobSpec(cx: Ctx, a: Action): Spec | string | null {
       const route = graph.bestRoute(p.node, a.to, ['walk']);
       if (!route) return 'No route';
       const name = graph.node(a.to).name ?? a.to;
-      const hours = travelHours(route.minutes, travelHourMultiplier(graph.town));
+      const multiplier = travelHourMultiplier(graph.town);
+      const vehicle = bestVehicle(p);
+      const hours = vehicle
+        ? rideHours(route.minutes, multiplier, vehicle.travelFactor!)
+        : travelHours(route.minutes, multiplier);
       return {
         label: `Go to ${name} (${hours}h)`,
         hours,
@@ -49,7 +57,8 @@ export function jobSpec(cx: Ctx, a: Action): Spec | string | null {
         run: () => {
           p.node = a.to;
           if (!p.visited.includes(a.to)) p.visited.push(a.to);
-          return { text: `Walked to ${name}`, deltas: [], path: route.path };
+          const text = vehicle ? `${vehicle.verb ?? 'Rode'} to ${name}` : `Walked to ${name}`;
+          return { text, deltas: [], path: route.path, vehicle: vehicle?.id, pet: bestPet(p)?.id };
         },
       };
     }
@@ -89,14 +98,14 @@ export function jobSpec(cx: Ctx, a: Action): Spec | string | null {
             c.everGarnished = true;
             net -= garnish;
             if (c.rentDebt > 0) net -= RENT_DEBT_INTEREST_FEE;
-            else c.rentDueWeek = monthAfter(state.week); // debt cleared: the monthly cycle restarts
             deltas.push(d('cash', -garnish, 'rent garnished'));
           }
           earn(p, net, 'wages', deltas);
+          // Only while under the cap; a degree bonus above it is left alone, not clipped.
           const depBefore = c.dependability;
-          c.dependability = Math.min(maxDep(p), c.dependability + DEPENDABILITY_PER_WORK_SESSION);
+          if (c.dependability < maxDep(p)) c.dependability = Math.min(maxDep(p), c.dependability + DEPENDABILITY_PER_WORK_SESSION);
           const expBefore = c.experience;
-          c.experience = Math.min(maxExp(p), c.experience + 1);
+          if (c.experience < maxExp(p)) c.experience = Math.min(maxExp(p), c.experience + EXPERIENCE_PER_WORK_SESSION);
           if (c.dependability !== depBefore) deltas.push(d('dependability', c.dependability - depBefore, 'work'));
           if (c.experience !== expBefore) deltas.push(d('experience', c.experience - expBefore, 'work'));
           c.week.workSessions++;
@@ -131,6 +140,10 @@ export function jobSpec(cx: Ctx, a: Action): Spec | string | null {
           }
           if (missing.length) {
             happy(p, 'job_refused', deltas);
+            // Early on, a dependability shortfall is reported as "No openings" (the job is not shut).
+            if (missing.length === 1 && missing[0] === 'dependability' && state.week <= POOR_WORK_HISTORY_HIDDEN_UNTIL_WEEK) {
+              return { text: `Refused ${job.title}: no openings.`, deltas };
+            }
             return { text: `Refused ${job.title}: not enough ${missing.join(', ')}.`, deltas };
           }
           if (!job.alwaysHired) {
@@ -148,6 +161,8 @@ export function jobSpec(cx: Ctx, a: Action): Spec | string | null {
           c.jobId = job.id;
           c.wage = wage;
           c.raises = 0;
+          c.experience += EXPERIENCE_PER_NEW_JOB;
+          deltas.push(d('experience', EXPERIENCE_PER_NEW_JOB, 'new job'));
           state.jobHolders[job.id] = [...(state.jobHolders[job.id] ?? []), p.id];
           if (c.dependability < DEPENDABILITY_NEW_JOB_FLOOR) {
             const gain = DEPENDABILITY_NEW_JOB_FLOOR - c.dependability;
@@ -178,7 +193,7 @@ export function jobSpec(cx: Ctx, a: Action): Spec | string | null {
           const deltas: Delta[] = [];
           const need = raiseDependabilityThreshold(requiredDep(job.dependability), c.raises);
           if (c.dependability < need) {
-            happy(p, 'job_refused', deltas);
+            // No happiness is lost: the original's table only docks a refused *new* job.
             return { text: `Refused a raise: you need ${need} dependability.`, deltas };
           }
           c.wage = wage;
@@ -207,6 +222,7 @@ export function jobSpec(cx: Ctx, a: Action): Spec | string | null {
           if (c.degrees.includes(deg.id)) return 'Already graduated';
           if (c.enrolled.includes(deg.id)) return 'Already enrolled';
           if (deg.prereq && !c.degrees.includes(deg.prereq)) return `Requires ${DEGREE_BY_ID[deg.prereq]!.name}`;
+          if (c.enrolled.length >= MAX_ACTIVE_COURSES) return `At most ${MAX_ACTIVE_COURSES} courses at once`;
           return null;
         },
         run: () => {

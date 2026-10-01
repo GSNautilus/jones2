@@ -118,3 +118,34 @@
   font-weight: 700;
   opacity: 0.75;
 }
+
+/* Expansions: the button on the setup card and the picker window over it. */
+.setup-expansions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.setup-expansions .hud-tagline {
+  margin: 0;
+}
+.expansions-stage {
+  position: fixed;
+  z-index: 30;
+}
+.expansion-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px dotted var(--hud-panel-shade);
+  cursor: pointer;
+}
+.expansion-row input {
+  flex: none;
+  width: auto;
+  margin-top: 3px;
+}
+.expansion-blurb {
+  display: block;
+  font-size: 13px;
+}

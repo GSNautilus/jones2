@@ -22,12 +22,23 @@ export interface FigureStyle {
   emphasis?: boolean;
   /** What the figure is doing right now, in a bubble above the name plate (the week recap). */
   caption?: string;
+  /** A pet that follows the figure (a sim item id: 'dog', 'clownfish'...). Token figures only. */
+  pet?: string;
 }
 
 /** Where a figure is, either standing at a node or part-way along an edge. */
 export type FigurePose =
   | { kind: 'at'; node: NodeId; ghost?: boolean; mode?: TransportMode }
-  | { kind: 'between'; from: NodeId; to: NodeId; t: number; ghost?: boolean; mode?: TransportMode };
+  | {
+      kind: 'between';
+      from: NodeId;
+      to: NodeId;
+      t: number;
+      ghost?: boolean;
+      mode?: TransportMode;
+      /** What a token figure rides while moving (a sim item id: 'bicycle', 'sports_car'...). */
+      vehicle?: string;
+    };
 
 export interface PickResult {
   /** Node under the cursor, if any (location nodes and junctions). */

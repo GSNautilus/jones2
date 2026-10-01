@@ -18,12 +18,17 @@ export interface ClassicClothingOption {
   happiness: number;
 }
 
+/**
+ * Order is QT Clothing's rack, top to bottom, as the original lists it: Business Suit, Dress,
+ * Casual (wiki table and a screenshot of the original agree). Z-Mart's rows are placed by
+ * ZMART_SHELF in items.ts, not by this order.
+ */
 export const CLASSIC_CLOTHES: ClassicClothingOption[] = [
+  { tier: 'business', store: 'qt_clothing', price: 295, weeks: 13, happiness: 2 },
+  { tier: 'dress', store: 'qt_clothing', price: 125, weeks: 13, happiness: 1 },
   { tier: 'casual', store: 'qt_clothing', price: 73, weeks: 11, happiness: 0 },
   { tier: 'casual', store: 'zmart', price: 35, weeks: 9, happiness: 0 },
-  { tier: 'dress', store: 'qt_clothing', price: 125, weeks: 13, happiness: 1 },
   { tier: 'dress', store: 'zmart', price: 90, weeks: 9, happiness: 0 },
-  { tier: 'business', store: 'qt_clothing', price: 295, weeks: 13, happiness: 2 },
 ];
 
 /** Ordering used to compare "at least this good" for a job's uniform requirement. */
@@ -34,3 +39,16 @@ export const CLOTHING_TIER_ORDER: ClassicClothingTier[] = ['casual', 'dress', 'b
 export const STARTING_CASUAL_WEEKS = 6;
 /** Every category loses 1 week at the start of each Turn, worn or not. */
 export const WEEKLY_CLOTHING_DECAY = 1;
+
+/**
+ * "Donation" (fan wiki, CD-ROM version; docs/original-rules-extra.md): after two turns running
+ * with no clothes, with under $300 cash and under $300 net worth, a relative sends the price of
+ * QT Clothing's clothes for the player's job uniform ($50 with no job) plus $1-100.
+ */
+export const DONATION = {
+  nakedWeeks: 2,
+  maxCash: 300,
+  maxNetWorth: 300,
+  noJobAmount: 50,
+  extra: { min: 1, max: 100 },
+} as const;

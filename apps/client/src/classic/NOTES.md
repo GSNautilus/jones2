@@ -21,7 +21,9 @@ Pure, unit-tested (no DOM, no React):
   (everything else: applications, lessons, purchases, banking, stocks, pawn,
   moving house), and (b) `splitLabel`, which lifts the money out of the sim's
   label so the row can be set with a dotted leader. `travel` and `endWeek` never
-  appear in a window. DONE is a button with a null action.
+  appear in a window. DONE is a button with a null action. Rows are never
+  re-sorted: the sim's order is the original's shelf order, and an unaffordable
+  row greys out in place so nothing moves as cash or time changes.
 - `cards.ts` — the start-of-week deck from `PlayerState.classic.weekStart`: the
   sim's order, one heading per step id, deltas as lines.
 - `tooltip.ts` — "Bank · 2h", or "Not enough time: 3h, 2h left".

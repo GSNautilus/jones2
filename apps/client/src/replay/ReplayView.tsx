@@ -22,7 +22,7 @@ export interface ReplayViewProps {
   logs: Record<PlayerId, PlayerEvent[]>;
   starts: Record<PlayerId, NodeId>;
   /** `label` is the figure's map label (a token marker, say); the name when absent. */
-  players: Record<PlayerId, { name: string; color: string; label?: string }>;
+  players: Record<PlayerId, { name: string; color: string; label?: string; pet?: string }>;
   onDone?: () => void;
 }
 
@@ -66,6 +66,7 @@ export function ReplayView({ scene, town, graph, logs, starts, players, onDone }
         const p = players[id];
         if (!p) continue;
         figures[id] = { color: p.color, label: p.label ?? p.name };
+        if (p.pet) figures[id]!.pet = p.pet;
         const caption = captions[id];
         if (caption) figures[id]!.caption = caption;
       }

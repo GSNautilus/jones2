@@ -6,6 +6,10 @@ import type { ClassicFoodId } from './ids';
  * (4453-4515), "# Soft Drinks" (4600-4634), "# Black's Market" > "## Items" (3952-4003),
  * "# Fresh Food" (4519-4596), "# Lottery" (6195-6273).
  */
+/**
+ * Declaration order below IS the counter's menu order, top to bottom, as the original lists it
+ * (the wiki tables and a screenshot of the original agree: ... Fries, Shakes, Colas).
+ */
 export type ClassicFoodCategory = 'fast_food' | 'soft_drink' | 'fresh_food';
 
 export interface ClassicFood {
@@ -26,8 +30,8 @@ export const CLASSIC_FOODS: Record<ClassicFoodId, ClassicFood> = {
   fries: { id: 'fries', name: 'Fries', category: 'fast_food', price: 65, happiness: 0 },
 
   // Soft Drinks — Monolith Burgers. No Starvation effect; not added to inventory.
-  colas: { id: 'colas', name: 'Colas', category: 'soft_drink', price: 69, happiness: 1 },
   shakes: { id: 'shakes', name: 'Shakes', category: 'soft_drink', price: 102, happiness: 2 },
+  colas: { id: 'colas', name: 'Colas', category: 'soft_drink', price: 69, happiness: 1 },
 
   // Fresh Food — Black's Market. 1 unit consumed per Turn (needs a Refrigerator or it spoils).
   fresh_food_1_week: { id: 'fresh_food_1_week', name: 'Food for 1 Week', category: 'fresh_food', price: 55, happiness: 1 },

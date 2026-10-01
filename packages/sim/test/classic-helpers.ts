@@ -39,6 +39,12 @@ export function feed(s: GameState, pid: string): GameState {
   return must(next, pid, { type: 'buyFood', foodId: 'hamburgers' });
 }
 
+/** Put all of Z-Mart's shelf on sale for a player this week (it normally rolls 6 rows). */
+export function fullShelf(s: GameState, pid: string): GameState {
+  s.players[pid]!.classic!.zmartStock = undefined;
+  return s;
+}
+
 /** Put a player at a node without spending their week. */
 export function teleport(s: GameState, pid: string, node: string): GameState {
   return { ...s, players: { ...s.players, [pid]: { ...s.players[pid]!, node } } };

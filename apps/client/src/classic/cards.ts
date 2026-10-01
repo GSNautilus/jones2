@@ -28,6 +28,7 @@ export const CARD_TITLES: Record<string, string> = {
   loan: 'THE BANK CALLED',
   consumables: 'WEAR AND TEAR',
   news: 'DAILY NEWS',
+  donation: 'A DONATION',
 };
 
 export const DEFAULT_CARD_TITLE = 'THIS WEEK';

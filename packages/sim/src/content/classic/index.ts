@@ -16,3 +16,4 @@ export * from './happiness';
 export * from './goals';
 export * from './weekend';
 export * from './economy';
+export * from './expansions';

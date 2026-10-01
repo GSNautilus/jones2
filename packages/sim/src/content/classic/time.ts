@@ -66,3 +66,11 @@ export const DOCTOR_VISIT_HOURS = 10; // weekend.ts DOCTOR.hourPenalty
 export function travelHours(routeMinutes: number, hourMultiplier = 1): number {
   return routeHours(routeMinutes) * hourMultiplier;
 }
+
+/**
+ * Travel on a vehicle (expansions.ts): the walking charge times the vehicle's `travelFactor`,
+ * rounded to whole hours (half up), never under one.
+ */
+export function rideHours(routeMinutes: number, hourMultiplier: number, travelFactor: number): number {
+  return Math.max(1, Math.round(travelHours(routeMinutes, hourMultiplier) * travelFactor));
+}

@@ -420,7 +420,56 @@ const SPECS: Record<string, PortraitSpec> = {
     beard: 'sideburns',
     torso: { style: 'uniform', main: C.maroon, shade: C.ink, accent: C.gold },
   },
+
+  /** Honest Al's Autos (Wheels & Whiskers): Al himself, slick hair, loud jacket, gold tooth. */
+  auto: {
+    bg: C.yellowDark,
+    tone: { face: C.skin, shade: C.skinShade },
+    jaw: 'square',
+    headW: 30,
+    eyeGap: 7,
+    hair: { style: 'slick', color: C.ink, shade: C.inkSoft, light: C.slate },
+    brow: 'arched',
+    eyes: 'beady',
+    nose: 'broad',
+    mouth: 'grin',
+    beard: 'thin_tache',
+    torso: { style: 'plaid', main: C.orange, shade: C.orangeDark, accent: C.white, tie: C.green },
+    extra: (g, t) => {
+      put(t, g.cx + 2, g.mouthY, C.gold); // the gold tooth
+    },
+  },
+
+  /** Pet Store (Wheels & Whiskers): a cheerful clerk in an apron, a goldfish bowl at her elbow. */
+  pet_store: {
+    bg: C.pink,
+    tone: { face: C.skinShade, shade: C.trunk },
+    jaw: 'round',
+    headW: 27,
+    eyeGap: 6,
+    hair: { style: 'curly', color: C.orange, shade: C.orangeDark },
+    brow: 'raised',
+    browColor: C.orangeDark,
+    eyes: 'bright',
+    nose: 'button',
+    mouth: 'smile',
+    torso: { style: 'apron', main: C.green, shade: C.greenDark, accent: C.cream },
+    extra: (_g, t) => {
+      // a goldfish bowl in the bottom corner
+      const bx = t.width - 9;
+      const by = t.height - 8;
+      fillCircle(t, bx, by, 6, C.ink);
+      fillCircle(t, bx, by, 5, C.waterLight);
+      hline(t, bx - 5, by - 3, 11, C.white);
+      rect(t, bx - 2, by, 3, 2, C.orange);
+      put(t, bx + 1, by, C.ink);
+      put(t, bx - 3, by + 1, C.orange);
+    },
+  },
 };
+
+/** Clerks for the buildings an expansion opens (sim content/classic/expansions.ts). */
+export const EXPANSION_PORTRAIT_KEYS = ['auto', 'pet_store'] as const;
 
 /** The classic location ids, in the order the contact sheet lays them out. */
 export const PORTRAIT_KEYS = [
@@ -439,9 +488,9 @@ export const PORTRAIT_KEYS = [
   'security_apts',
 ] as const;
 
-/** Clerk portraits keyed by classic location id. */
+/** Clerk portraits keyed by location id: the classic thirteen and the expansions' clerks. */
 export const PORTRAITS: SpriteMap = Object.fromEntries(
-  PORTRAIT_KEYS.map((id) => [id, buildPortrait(SPECS[id])]),
+  [...PORTRAIT_KEYS, ...EXPANSION_PORTRAIT_KEYS].map((id) => [id, buildPortrait(SPECS[id]!)]),
 );
 
 /** The spec a portrait was built from, for tools that want to vary it. */

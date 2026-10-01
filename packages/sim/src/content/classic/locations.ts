@@ -1,4 +1,4 @@
-import type { ClassicLocationId } from './ids';
+import type { ClassicLocationId, OpenLocationId } from './ids';
 
 /**
  * The 13 classic locations, their opening hours, and the clerk's quotes.
@@ -10,7 +10,7 @@ import type { ClassicLocationId } from './ids';
  * "### Renting Security Apartment" quote sets are recorded under `rent_office` below.
  */
 export interface ClassicLocation {
-  id: ClassicLocationId;
+  id: OpenLocationId;
   name: string;
   /** Verbatim/summarised from the location's "## Opening Hours" section. */
   openingHours: string;

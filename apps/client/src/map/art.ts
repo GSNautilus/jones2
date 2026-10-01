@@ -8,7 +8,28 @@
  * plate, so the town never has holes while the catalogue grows.
  */
 import type { TownNode } from '@jones2/town';
-import { CAR_HEADINGS, CHARACTERS, LOCATION_RECIPES, NATURE, PALETTE, PROPS, SKY, TILES, UI, buildFromRef, carTopDown, tintCharacter, walkFrame } from '@jones2/pixelart';
+import {
+  CAR_HEADINGS,
+  CHARACTERS,
+  LOCATION_RECIPES,
+  NATURE,
+  PALETTE,
+  PET_IDS,
+  PET_MOTION,
+  PROPS,
+  SKY,
+  TILES,
+  UI,
+  bicycle,
+  buildFromRef,
+  carTopDown,
+  petSprite,
+  rideCar,
+  skateboard,
+  tintCharacter,
+  walkFrame,
+  type PetId,
+} from '@jones2/pixelart';
 import type { Palette, PixelBuildingRef, Sprite } from './pixelart';
 
 export type TileKind = 'grass' | 'water' | 'path' | 'plaza';
@@ -30,6 +51,12 @@ export interface ArtSet {
   vehicle?(angle: number, colour: number): Sprite;
   /** A sky sprite by catalogue name (`bird_0`, `plane_e`, `heli_w_1`, ...). */
   sky?(name: string): Sprite | undefined;
+  /** A skateboard or bicycle facing `dir`, ridden under a walker. */
+  ride?(kind: 'skateboard' | 'bicycle', dir: Direction): Sprite;
+  /** A player's car along `angle` (radians, 0 = east), painted in palette indices `face`/`shade`. */
+  playerCar?(kind: 'used_car' | 'sports_car', angle: number, face: number, shade: number): Sprite;
+  /** A pet facing east or west, frame 0 or 1; undefined for an unknown pet. */
+  pet?(id: string, dir: 'e' | 'w', frame: number): Sprite | undefined;
 }
 
 /**
@@ -97,6 +124,29 @@ function realArt(): ArtSet {
     sky(name) {
       return SKY[name];
     },
+    ride(kind, dir) {
+      const key = `ride|${kind}|${dir}`;
+      let s = vehicles.get(key);
+      if (!s) {
+        s = kind === 'skateboard' ? skateboard(dir) : bicycle(dir);
+        vehicles.set(key, s);
+      }
+      return s;
+    },
+    playerCar(kind, angle, face, shade) {
+      const step = (Math.PI * 2) / CAR_HEADINGS;
+      const idx = ((Math.round(angle / step) % CAR_HEADINGS) + CAR_HEADINGS) % CAR_HEADINGS;
+      const key = `pcar|${kind}|${idx}|${face}|${shade}`;
+      let s = vehicles.get(key);
+      if (!s) {
+        s = rideCar(idx * step, kind, face, shade);
+        vehicles.set(key, s);
+      }
+      return s;
+    },
+    pet(id, dir, frame) {
+      return (PET_IDS as readonly string[]).includes(id) ? petSprite(id as PetId, dir, frame) : undefined;
+    },
   };
 }
 
@@ -121,4 +171,9 @@ export function usingPlaceholderArt(): boolean {
 /** The town JSON may carry an optional `pixel` recipe per node. */
 export function pixelRef(node: TownNode): PixelBuildingRef | undefined {
   return (node as TownNode & { pixel?: PixelBuildingRef }).pixel;
+}
+
+/** How a pet moves on the map ('ground', 'swim' or 'fly'); 'ground' for anything unknown. */
+export function petMotion(id: string): 'ground' | 'swim' | 'fly' {
+  return PET_MOTION[id as PetId] ?? 'ground';
 }

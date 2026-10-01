@@ -2,18 +2,25 @@
  * The start-of-week sequence. With simultaneous weeks (PLAN §3) it runs at the start of each
  * player's own week, so every player gets the same cards at the same moment.
  *
- * Order (PLAN §3, minus the parts decision 6 dropped):
- *   weekend event -> lottery draw -> starvation (no doctor roll) -> dependability/relaxation tick ->
- *   (no Wild Willy) -> appliance breakdowns -> food spoilage -> household perks ->
- *   rent notice on weeks 4, 8, 12... -> loan notice -> consumables tick -> free newspaper.
- * The win check happens after this, in week.ts.
+ * Order, from the fan wiki's "Turn" page (the economy has already moved, in week.ts):
+ *   openWeek: reset, Z-Mart shelf, stove/microwave comfort, pet comfort  -> (week.ts: win check)
+ *   continueWeek: weekend -> lottery -> computer -> relaxation/dependability tick ->
+ *   (no Wild Willy) -> food spoilage -> starvation (a week of fresh food eaten) -> rent notice ->
+ *   clothes wear out -> loan notice -> appliance breakdowns -> free newspaper -> donation.
+ * The Doctor is not implemented (PLAN §3 decision 6).
  *
  * Each step is pushed onto `p.classic.weekStart` as a card the interface can show.
  */
 import {
   APPLIANCE_BREAKAGE_MIN_CASH,
   APPLIANCE_BREAK_HAPPINESS,
-  CLASSIC_ITEMS,
+  CLASSIC_CLOTHES,
+  ALL_CLASSIC_ITEMS,
+  PET_WEEKLY_HAPPINESS,
+  DONATION,
+  ZMART_RANDOMIZED_SLOTS,
+  ZMART_SHELF,
+  zmartShelfKey,
   DEPENDABILITY_WEEKLY_DECAY,
   DURABLE_WEEKENDS,
   DURABLE_WEEKEND_TRIGGER_CHANCE,
@@ -37,7 +44,8 @@ import { applyDelta } from '../helpers';
 import { chance, nextInt, pick } from '../rng';
 import type { Delta, GameState, PlayerState } from '../types';
 import { d, happy, spend } from './effects';
-import { cg, cp, emptyWeekFlags, freshCapacity, itemBasePrice, itemBreakChance, type WeekStartEvent } from './state';
+import { priceOf } from './context';
+import { bestPet, cg, cp, emptyWeekFlags, freshCapacity, itemBreakChance, itemPaidPrice, jobOf, liquidAssets, type WeekStartEvent } from './state';
 
 const MINUTES = 60;
 
@@ -130,11 +138,16 @@ function lottery(state: GameState, p: PlayerState): void {
   card(p, 'lottery', `You won $${prize} in the lottery!`, deltas);
 }
 
-/** No food bought last week and no fresh food: -20 hours, -2 happiness. No doctor (decision 6). */
+/**
+ * Runs after spoilage, so any fresh food left is in a fridge. A week of it is eaten whether or
+ * not fast food was bought too. No fast food and no fresh food: -20 hours, -2 happiness. No
+ * doctor (decision 6).
+ */
 function starvation(p: PlayerState): void {
   const c = cp(p);
   const starving = !c.ateFastFood && c.freshFood <= 0;
   c.ateFastFood = false;
+  if (c.freshFood > 0) c.freshFood -= 1;
   if (!starving) return;
   const deltas: Delta[] = [];
   p.minutesLeft = Math.max(0, p.minutesLeft - STARVATION_HOUR_PENALTY * MINUTES);
@@ -163,17 +176,18 @@ function breakdowns(state: GameState, p: PlayerState): void {
   const c = cp(p);
   if (p.cash <= APPLIANCE_BREAKAGE_MIN_CASH) return;
   for (const id of [...c.items]) {
-    const item = CLASSIC_ITEMS[id];
-    if (!item || item.category !== 'appliance') continue;
+    const item = ALL_CLASSIC_ITEMS[id];
+    if (!item || (item.category !== 'appliance' && item.category !== 'vehicle')) continue;
     let broke: boolean;
     [state.rng, broke] = chance(state.rng, itemBreakChance(p, id));
     if (!broke) continue;
-    const base = itemBasePrice(id, c.itemSource[id] ?? 'zmart');
+    const base = itemPaidPrice(p, id);
     let pct: number;
     [state.rng, pct] = nextInt(state.rng, Math.round(REPAIR_COST_FRACTION.min * 100), Math.round(REPAIR_COST_FRACTION.max * 100));
     const deltas: Delta[] = [];
     spend(p, (base * pct) / 100, 'repairs', deltas);
-    happy(p, 'appliance_broken', deltas, APPLIANCE_BREAK_HAPPINESS);
+    // A vehicle repair is only a bill (decided 2026-09-30); an appliance also costs happiness.
+    if (item.category === 'appliance') happy(p, 'appliance_broken', deltas, APPLIANCE_BREAK_HAPPINESS);
     card(p, 'breakdown', `Your ${item.name} broke down and needed repairs.`, deltas);
   }
 }
@@ -199,24 +213,35 @@ function spoilage(p: PlayerState): void {
   }
 }
 
-/** Stove or microwave comfort, and the computer's occasional payday. */
-function household(state: GameState, p: PlayerState): void {
+/** Stove or microwave comfort: before the win check, so it can complete the Happiness goal. */
+function comfort(p: PlayerState): void {
   const c = cp(p);
+  if (!c.items.includes('stove') && !c.items.includes('microwave')) return;
   const deltas: Delta[] = [];
-  if (c.items.includes('stove') || c.items.includes('microwave')) {
-    happy(p, 'own_microwave_or_stove', deltas);
-  }
-  if (c.items.includes('computer')) {
-    let paid: boolean;
-    [state.rng, paid] = chance(state.rng, 1 / 7);
-    if (paid) {
-      let amount: number;
-      [state.rng, amount] = nextInt(state.rng, 20, 100);
-      deltas.push(applyDelta(p, d('cash', amount, 'computer work')));
-      happy(p, 'computer_income', deltas);
-    }
-  }
-  if (deltas.length) card(p, 'household', 'Life at home.', deltas);
+  happy(p, 'own_microwave_or_stove', deltas);
+  card(p, 'household', 'Home cooking cheers you up.', deltas);
+}
+
+/** Wheels & Whiskers: owning any pet is +1 a week, however many. Before the win check too. */
+function petComfort(p: PlayerState): void {
+  const pet = bestPet(p);
+  if (!pet) return;
+  const deltas: Delta[] = [];
+  happy(p, 'own_pet', deltas, PET_WEEKLY_HAPPINESS);
+  card(p, 'household', `Your ${pet.name.toLowerCase()} is glad to see you.`, deltas);
+}
+
+/** The computer's occasional payday. */
+function computer(state: GameState, p: PlayerState): void {
+  if (!cp(p).items.includes('computer')) return;
+  let paid: boolean;
+  [state.rng, paid] = chance(state.rng, 1 / 7);
+  if (!paid) return;
+  let amount: number;
+  [state.rng, amount] = nextInt(state.rng, 20, 100);
+  const deltas: Delta[] = [applyDelta(p, d('cash', amount, 'computer work'))];
+  happy(p, 'computer_income', deltas);
+  card(p, 'household', 'You made some money on your computer.', deltas);
 }
 
 function rentNotice(p: PlayerState, week: number): void {
@@ -245,18 +270,68 @@ function loanNotice(p: PlayerState, week: number): void {
   );
 }
 
-/** Clothes wear out, a week of fresh food is eaten, unused tickets are dropped. */
+/**
+ * Every clothing category wears a week, worn or not. A category down to its last week earns a
+ * reminder; a player left with none at all counts toward a Donation.
+ */
 function consumables(p: PlayerState): void {
   const c = cp(p);
   const notes: string[] = [];
+  const low: string[] = [];
   for (const tier of ['casual', 'dress', 'business'] as const) {
     if (c.clothes[tier] > 0) {
       c.clothes[tier] = Math.max(0, c.clothes[tier] - WEEKLY_CLOTHING_DECAY);
       if (c.clothes[tier] === 0) notes.push(`your ${tier} clothes wore out`);
+      else if (c.clothes[tier] <= 1) low.push(tier);
     }
   }
-  if (c.freshFood > 0) c.freshFood -= 1;
+  const naked = Object.values(c.clothes).every((w) => w <= 0);
+  c.nakedWeeks = naked ? (c.nakedWeeks ?? 0) + 1 : 0;
   if (notes.length) card(p, 'consumables', `This week ${notes.join(' and ')}.`);
+  if (low.length) card(p, 'consumables', `Your ${low.join(' and ')} clothes have one week left. Time to buy new clothes.`);
+}
+
+/** Liquid assets plus what was paid for every durable, including any in the pawn shop. */
+function netWorth(state: GameState, p: PlayerState): number {
+  const c = cp(p);
+  let total = liquidAssets(state, p);
+  for (const id of c.items) {
+    const cat = ALL_CLASSIC_ITEMS[id]?.category;
+    if (cat === 'appliance' || cat === 'book' || cat === 'vehicle') total += itemPaidPrice(p, id);
+  }
+  for (const e of cg(state).pawnShop) if (e.ownerId === p.id) total += e.paidPrice ?? e.basePrice;
+  return total;
+}
+
+/**
+ * "Donation" (CD-ROM): two weeks running with no clothes, under $300 cash and under $300 net
+ * worth, and a relative sends what QT Clothing charges this week for your job's uniform ($50
+ * with no job) plus $1-100.
+ */
+function donation(state: GameState, p: PlayerState): void {
+  const c = cp(p);
+  if ((c.nakedWeeks ?? 0) < DONATION.nakedWeeks) return;
+  if (p.cash >= DONATION.maxCash || netWorth(state, p) >= DONATION.maxNetWorth) return;
+  const job = jobOf(p);
+  const suit = job ? CLASSIC_CLOTHES.find((o) => o.store === 'qt_clothing' && o.tier === job.uniform) : undefined;
+  const clothes = suit ? priceOf(state, suit.price) : DONATION.noJobAmount;
+  let extra: number;
+  [state.rng, extra] = nextInt(state.rng, DONATION.extra.min, DONATION.extra.max);
+  const deltas: Delta[] = [applyDelta(p, d('cash', clothes + extra, 'donation'))];
+  c.nakedWeeks = 0;
+  card(p, 'donation', `A relative took pity on you and sent $${clothes + extra} for some clothes.`, deltas);
+}
+
+/** Z-Mart puts 6 of its shelf rows on sale for the week, kept in shelf order. */
+function stockZmart(state: GameState, p: PlayerState): void {
+  const keys = ZMART_SHELF.map(zmartShelfKey);
+  const chosen = new Set<string>();
+  while (chosen.size < Math.min(ZMART_RANDOMIZED_SLOTS, keys.length)) {
+    let k: string;
+    [state.rng, k] = pick(state.rng, keys);
+    chosen.add(k);
+  }
+  cp(p).zmartStock = keys.filter((k) => chosen.has(k));
 }
 
 function newspaper(state: GameState, p: PlayerState): void {
@@ -269,11 +344,10 @@ function newspaper(state: GameState, p: PlayerState): void {
 // ---------------------------------------------------------------------------
 
 /**
- * Reset the week and run the start-of-week sequence for one player. On week 1 (`first`) only the
- * weekend happens: nothing has been consumed yet, so the ticks, notices and checks would all be
- * spurious and would dock a brand-new player 3 dependability before they have played a turn.
+ * The first half of a player's week start: reset the week, stock Z-Mart and give the
+ * stove/microwave comfort. The win check comes next, before the weekend (week.ts).
  */
-export function startWeek(state: GameState, p: PlayerState, first = false): void {
+export function openWeek(state: GameState, p: PlayerState): void {
   const c = cp(p);
   p.node = c.housing;
   p.minutesBudget = HOURS_PER_TURN * MINUTES;
@@ -283,18 +357,35 @@ export function startWeek(state: GameState, p: PlayerState, first = false): void
   p.applications = [];
   c.week = emptyWeekFlags();
   c.weekStart = [];
+  stockZmart(state, p);
+  comfort(p);
+  petComfort(p);
+}
 
+/**
+ * The rest of the week start, after the win check. On week 1 (`first`) only the weekend happens:
+ * nothing has been consumed yet, so the ticks, notices and checks would all be spurious and would
+ * dock a brand-new player 3 dependability before they have played a turn.
+ */
+export function continueWeek(state: GameState, p: PlayerState, first = false): void {
   weekend(state, p);
   if (first) return;
   lottery(state, p);
-  starvation(p);
+  computer(state, p);
   statsTick(p);
   // Wild Willy: not implemented (PLAN §3 decision 6).
-  breakdowns(state, p);
   spoilage(p);
-  household(state, p);
+  starvation(p);
   rentNotice(p, state.week);
-  loanNotice(p, state.week);
   consumables(p);
+  loanNotice(p, state.week);
+  breakdowns(state, p);
   newspaper(state, p);
+  donation(state, p);
+}
+
+/** Both halves at once, for week 1 (there is nothing to win yet). */
+export function startWeek(state: GameState, p: PlayerState, first = false): void {
+  openWeek(state, p);
+  continueWeek(state, p, first);
 }

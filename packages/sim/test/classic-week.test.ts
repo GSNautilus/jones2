@@ -14,7 +14,7 @@ import {
   type Action,
   type GameState,
 } from '../src';
-import { config, endAll, feed, game, must, teleport } from './classic-helpers';
+import { config, endAll, feed, fullShelf, game, must, teleport } from './classic-helpers';
 
 const cards = (s: GameState, pid = 'a') => cp(s.players[pid]!).weekStart.map((c) => c.step);
 
@@ -46,7 +46,7 @@ describe('classic: the start-of-week sequence', () => {
   it('breaks appliances at 1/36 a week, but only above $500 cash', () => {
     const run = (cash: number, weeks: number) => {
       let s = game({ seed: 3 });
-      s = teleport(s, 'a', 'zmart');
+      s = fullShelf(teleport(s, 'a', 'zmart'), 'a');
       s.players.a!.cash = 5000;
       s = must(s, 'a', { type: 'buyItem', itemId: 'bw_tv' });
       let seen = false;
@@ -106,7 +106,8 @@ describe('classic: rent', () => {
     s = teleport(s, 'a', 'rent_office');
     s = must(s, 'a', { type: 'rentExtension' });
     expect(cp(s.players.a!).extensionsApproved).toBe(1);
-    expect(cp(s.players.a!).rentDueWeek).toBe(5);
+    expect(cp(s.players.a!).extensionUntil).toBe(5); // the deadline itself stays on the month end
+    expect(cp(s.players.a!).rentDueWeek).toBe(4);
     cp(s.players.a!).everGarnished = true;
     cp(s.players.a!).week.askedExtension = false;
     cp(s.players.a!).rentDueWeek = 4;

@@ -13,7 +13,7 @@ import { chance } from '../rng';
 import type { Action, Delta } from '../types';
 import { d, earn, happy, pay } from './effects';
 import { liquidAssets, playerRoll, stockPrice } from './state';
-import { monthAfter, priceOf, rentOfficeOpen, type Ctx, type Spec } from './context';
+import { monthAfter, monthEnd, priceOf, rentOfficeOpen, type Ctx, type Spec } from './context';
 
 /** Banking, loans, stocks and everything the Rent Office does. Null if not one of those. */
 export function moneySpec(cx: Ctx, a: Action): Spec | string | null {
@@ -67,7 +67,7 @@ export function moneySpec(cx: Ctx, a: Action): Spec | string | null {
           deltas.push(applyDelta(p, d('loan', size, 'loan')));
           earn(p, size, 'loan', deltas);
           c.hasHadLoan = true;
-          c.loanDueWeek = monthAfter(state.week);
+          if (!c.loanDueWeek) c.loanDueWeek = monthAfter(state.week);
           happy(p, 'bank_loan', deltas);
           return { text: `The bank lent you $${size}.`, deltas };
         },
@@ -93,9 +93,19 @@ export function moneySpec(cx: Ctx, a: Action): Spec | string | null {
           const toDebt = full ? cashCost : 45;
           deltas.push(applyDelta(p, d('loan', -toDebt, 'loan payment')));
           c.week.paidLoan = true;
-          c.inDefault = false;
-          if (p.loan > 0) c.loanDueWeek = state.week + 4;
-          else c.loanDueWeek = 0;
+          const missed = c.loanMissed ?? 0;
+          if (p.loan <= 0) {
+            c.loanDueWeek = 0;
+            c.loanMissed = 0;
+            c.inDefault = false;
+          } else if (state.week >= c.loanDueWeek || missed === 0) {
+            // Covers this month (and pays ahead): the next deadline moves a whole month on.
+            c.loanDueWeek += 4;
+          } else {
+            // Making up a missed month; the default lasts until every missed month is paid.
+            c.loanMissed = missed - 1;
+            c.inDefault = c.loanMissed > 0;
+          }
           return { text: p.loan > 0 ? `Paid $${cashCost} toward your loan.` : 'Loan cleared.', deltas };
         },
       };
@@ -156,7 +166,7 @@ export function moneySpec(cx: Ctx, a: Action): Spec | string | null {
           const here = at('bank');
           if (here) return here;
           if (!c.week.brokerOpen) return 'See the broker first';
-          if (units <= 0) return 'Sell at least one unit';
+          if (units <= 0) return 'You hold none';
           if ((c.stocks[a.stockId] ?? 0) < units) return 'You do not hold that many';
           return null;
         },
@@ -189,7 +199,9 @@ export function moneySpec(cx: Ctx, a: Action): Spec | string | null {
           pay(p, price, 'first month', deltas);
           c.housing = target;
           c.rent = price;
-          c.rentDueWeek = state.week + 4;
+          // One month at the new place from this month's deadline; advances on the old one are forfeit.
+          c.rentDueWeek = Math.min(c.rentDueWeek, monthEnd(state.week)) + 4;
+          c.extensionUntil = 0;
           return { text: `Moved into ${CLASSIC_HOUSING[target].name}.`, deltas };
         },
       };
@@ -213,11 +225,11 @@ export function moneySpec(cx: Ctx, a: Action): Spec | string | null {
           pay(p, amount, 'rent', deltas);
           if (debt > 0) {
             c.rentDebt = 0;
-            c.rentDueWeek = monthAfter(state.week);
             return { text: 'Cleared your rent debt.', deltas };
           }
-          c.rentDueWeek = Math.max(state.week, c.rentDueWeek) + 4;
-          c.extensionUntil = 0;
+          // Each payment pushes the deadline a whole month on from where it was.
+          c.rentDueWeek += 4;
+          if (c.rentDueWeek > state.week) c.extensionUntil = 0;
           return { text: `Paid $${amount} of rent; next due week ${c.rentDueWeek}.`, deltas };
         },
       };
@@ -246,10 +258,9 @@ export function moneySpec(cx: Ctx, a: Action): Spec | string | null {
             return { text: 'Extension refused.', deltas };
           }
           c.extensionsApproved++;
-          c.rentDueWeek = state.week + 1;
           c.extensionUntil = state.week + 1;
           happy(p, 'rent_extension_approved', deltas);
-          return { text: 'Extension approved: rent is due next week.', deltas };
+          return { text: 'Extension approved: pay by the end of next week.', deltas };
         },
       };
 

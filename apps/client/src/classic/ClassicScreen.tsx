@@ -8,7 +8,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { MutableRefObject } from 'react';
-import { availableActions, getGraph, type Action, type ActionOption } from '@jones2/sim';
+import { availableActions, bestPet, bestVehicle, getGraph, type Action, type ActionOption } from '@jones2/sim';
 import type { NodeId } from '@jones2/town';
 import type { FigurePose, FigureStyle, PickResult, TownScene } from '../map/api';
 import { Clock } from '../hud/Clock';
@@ -149,7 +149,7 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
 
   // A walk in progress: the token moves along the route over real time and
   // the window opens when it arrives. Input is blocked meanwhile.
-  const [walking, setWalking] = useState<{ pid: string; plan: WalkPlan; startedAt: number; then: string } | null>(null);
+  const [walking, setWalking] = useState<{ pid: string; plan: WalkPlan; startedAt: number; then: string; vehicle?: string } | null>(null);
   const walkingRef = useRef(walking);
   walkingRef.current = walking;
 
@@ -158,7 +158,7 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
     const dests = travelOptions
       .filter((o) => o.enabled)
       .map((o) => travelTo(o.action))
-      .filter((n): n is NodeId => n !== null && isClassicLocation(graph?.node(n).location));
+      .filter((n): n is NodeId => n !== null && isClassicLocation(graph?.node(n).location, stateRef.current?.config.expansions));
     scene.setHighlight(dests);
   }, [scene, travelOptions, graph]);
 
@@ -172,11 +172,13 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
       const t = tokens[id]!;
       // The player whose turn it is gets the big, bobbing token.
       figures[id] = { color: t.color, label: tokenLabel(t.token, pl.name), emphasis: id === currentPid };
+      const pet = bestPet(pl);
+      if (pet) figures[id]!.pet = pet.id;
       // A walking player's pose is driven by the walk loop, not by state.
       if (walkingRef.current?.pid === id) continue;
       poses[id] = { kind: 'at', node: pl.node, ghost: id !== currentPid };
     }
-    for (const { node, location } of closedNodes(graph.town)) {
+    for (const { node, location } of closedNodes(graph.town, state.config.expansions)) {
       figures[`closed:${location}`] = { color: '#888888', label: CLOSED_LABEL };
       poses[`closed:${location}`] = { kind: 'at', node };
     }
@@ -267,7 +269,8 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
     const tick = () => {
       const elapsed = performance.now() - walking.startedAt;
       const pose = walkPose(walking.plan, elapsed);
-      if (pose) scene.setPoses({ [walking.pid]: { ...pose, ghost: false } });
+      if (pose?.kind === 'between') scene.setPoses({ [walking.pid]: { ...pose, ghost: false, vehicle: walking.vehicle } });
+      else if (pose) scene.setPoses({ [walking.pid]: { ...pose, ghost: false } });
       if (elapsed >= walking.plan.durationMs) {
         scene.follow(null);
         scene.setRoute(null);
@@ -349,7 +352,7 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
         setTip({ ...at, text: `${name} · Arrivals only` });
         return;
       }
-      if (!isClassicLocation(loc)) {
+      if (!isClassicLocation(loc, s.config.expansions)) {
         scene.setRoute(null);
         setPreview(null);
         setTip({ ...at, text: travelTooltip({ name, hours: 0, hoursLeft: 0, enabled: false, closed: true }) });
@@ -394,7 +397,7 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
       scene.setRoute(null);
       setPreview(null);
       if (isArrivalLocation(loc)) return;
-      if (!isClassicLocation(loc)) {
+      if (!isClassicLocation(loc, s.config.expansions)) {
         setClosedName(locationName(loc));
         setOverlay('closed');
         return;
@@ -407,13 +410,15 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
       if (!opt || !opt.enabled) return;
       const from = s.players[currentPid]!.node;
       const route = graph.bestRoute(from, hit.node, ['walk']);
+      // Wheels & Whiskers: the token rides its best vehicle, visibly quicker than walking.
+      const vehicle = bestVehicle(s.players[currentPid]!);
       storeRef.current.act(opt.action);
       if (route && route.path.length > 1) {
-        const plan = planWalk(route.path, (id) => graph.node(id), route.minutes);
+        const plan = planWalk(route.path, (id) => graph.node(id), route.minutes * (vehicle?.travelFactor ?? 1));
         // Leave the route on the ground until the token has walked it.
         scene.setRoute(route.path);
         audio.play('travel');
-        setWalking({ pid: currentPid, plan, startedAt: performance.now(), then: loc });
+        setWalking({ pid: currentPid, plan, startedAt: performance.now(), then: loc, vehicle: vehicle?.id });
       } else {
         openRef.current(loc);
       }

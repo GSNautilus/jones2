@@ -1,11 +1,11 @@
 /** Classic ruleset: time, travel, locations and the player actions. */
 import { describe, expect, it } from 'vitest';
 import { routeHours, travelHourMultiplier, TownGraph, riverton, type Town } from '@jones2/town';
-import { applyAction, availableActions, classic, createGame, cp, describeAction } from '../src';
+import { applyAction, availableActions, classic, createGame, cp, describeAction, type GameState } from '../src';
 
 const { travelHours } = classic;
 const MULT = travelHourMultiplier(riverton as Town);
-import { config, endAll, must, teleport } from './classic-helpers';
+import { config, endAll, fullShelf, game, must, teleport } from './classic-helpers';
 
 const graph = new TownGraph(riverton as Town);
 
@@ -80,7 +80,8 @@ describe('classic: jobs', () => {
     s = must(s, 'a', { type: 'work' });
     expect(s.players.a!.cash - cash).toBe(40);
     expect(cp(s.players.a!).dependability).toBe(21);
-    expect(cp(s.players.a!).experience).toBe(1);
+    // 10 to start, +2 for the new job; the shift adds none, 12 is over the Cook's cap of 10.
+    expect(cp(s.players.a!).experience).toBe(12);
   });
 
   it('refuses a job the player is not qualified for, for -1 happiness', () => {
@@ -163,6 +164,46 @@ describe('classic: Hi-Tech U', () => {
   });
 });
 
+describe('classic: menu order matches the original', () => {
+  const listed = (s: GameState, loc: string): string[] =>
+    availableActions(teleport(s, 'a', loc), 'a')
+      .map((o) => o.action)
+      .filter((a) => a.type === 'buyItem' || a.type === 'buyClothing' || a.type === 'buyFood')
+      .map((a) => (a.type === 'buyItem' ? a.itemId : a.type === 'buyFood' ? a.foodId : `${a.tier} clothes`));
+
+  it('QT Clothing: suit first, casual last', () => {
+    expect(listed(game(), 'qt_clothing')).toEqual(['business clothes', 'dress clothes', 'casual clothes']);
+  });
+
+  it('Z-Mart: its own appliance order, clothes between the books and the tickets', () => {
+    expect(listed(fullShelf(game(), 'a'), 'zmart')).toEqual([
+      'fridge', 'stove', 'stereo', 'color_tv', 'bw_tv', 'microwave', 'vcr',
+      'encyclopedia', 'dictionary', 'atlas', 'casual clothes', 'dress clothes',
+      'baseball_tickets', 'theatre_tickets', 'concert_tickets', 'dog_food', 'eight_track', 'works_of_capote',
+    ]);
+  });
+
+  it('Socket City: fridge to computer', () => {
+    expect(listed(game(), 'socket_city')).toEqual([
+      'fridge', 'freezer', 'stove', 'color_tv', 'vcr', 'stereo', 'microwave', 'hot_tub', 'computer',
+    ]);
+  });
+
+  it('the broker lists Buy and Sell for every stock whether held or not', () => {
+    let s = teleport(game(), 'a', 'bank');
+    s.players.a!.cash = 10_000;
+    s = must(s, 'a', { type: 'broker' });
+    const rows = () => availableActions(s, 'a').filter((o) => o.action.type === 'buyStock' || o.action.type === 'sellStock');
+    const before = rows().map((o) => `${o.action.type}:${(o.action as { stockId: string }).stockId}`);
+    expect(before).toHaveLength(12);
+    expect(rows().find((o) => o.action.type === 'sellStock')!.reason).toBe('You hold none');
+    s = must(s, 'a', { type: 'buyStock', stockId: 'gold', units: 1 });
+    expect(rows().map((o) => `${o.action.type}:${(o.action as { stockId: string }).stockId}`)).toEqual(before);
+    const sellGold = rows().find((o) => o.action.type === 'sellStock' && o.action.stockId === 'gold')!;
+    expect(sellGold.enabled).toBe(true);
+  });
+});
+
 describe('classic: shops', () => {
   it('needs a refrigerator to keep fresh food', () => {
     let s = createGame(config());
@@ -178,7 +219,7 @@ describe('classic: shops', () => {
 
   it('keeps fresh food when a fridge is owned, eating one week per week', () => {
     let s = createGame(config());
-    s = teleport(s, 'a', 'zmart');
+    s = fullShelf(teleport(s, 'a', 'zmart'), 'a');
     s.players.a!.cash = 3000;
     s = must(s, 'a', { type: 'buyItem', itemId: 'fridge' });
     s = teleport(s, 'a', 'blacks_market');
@@ -201,7 +242,7 @@ describe('classic: shops', () => {
 
   it('pawns an item for 40% and lets the owner redeem it', () => {
     let s = createGame(config());
-    s = teleport(s, 'a', 'zmart');
+    s = fullShelf(teleport(s, 'a', 'zmart'), 'a');
     s.players.a!.cash = 3000;
     s = must(s, 'a', { type: 'buyItem', itemId: 'bw_tv' }); // $110 at Z-Mart
     s = teleport(s, 'a', 'pawn');

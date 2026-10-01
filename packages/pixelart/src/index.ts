@@ -9,6 +9,8 @@ export * from './buildings/recipes';
 export * from './tiles/catalogue';
 export * from './nature/catalogue';
 export * from './props/vehicles';
+export * from './props/rides';
+export * from './props/pets';
 export * from './props/vehicles';
 export * from './props/vehicles';
 export * from './props/catalogue';

@@ -63,6 +63,7 @@ type Segment =
       cum: number[];
       total: number;
       mode: TransportMode;
+      vehicle?: string;
       text: string;
       destination: NodeId;
     };
@@ -103,6 +104,7 @@ function buildPlayerTimeline(
         cum,
         total: cum[cum.length - 1]!,
         mode: resolveMode(event),
+        vehicle: event.vehicle,
         text: event.text,
         destination: event.node,
       });
@@ -164,7 +166,7 @@ function poseAndCaption(segment: Segment, minute: number): { pose: FigurePose; c
   const segLen = cum[i + 1]! - segStart;
   const t = segLen > 0 ? clamp((target - segStart) / segLen, 0, 1) : 0;
   return {
-    pose: { kind: 'between', from: path[i]!, to: path[i + 1]!, t, mode: segment.mode },
+    pose: { kind: 'between', from: path[i]!, to: path[i + 1]!, t, mode: segment.mode, ...(segment.vehicle ? { vehicle: segment.vehicle } : {}) },
     caption: segment.text,
   };
 }

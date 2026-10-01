@@ -80,7 +80,7 @@ function degreeNames(c: ReturnType<typeof cp>): string {
 
 function itemNames(c: ReturnType<typeof cp>): string {
   if (c.items.length === 0) return 'none';
-  return c.items.map((id) => classic.CLASSIC_ITEMS[id]?.name ?? id).join(', ');
+  return c.items.map((id) => classic.ALL_CLASSIC_ITEMS[id]?.name ?? id).join(', ');
 }
 
 /** Everything the player owns, earns and is, on one screen. */

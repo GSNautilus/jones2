@@ -7,10 +7,11 @@ import type { NodeId } from '@jones2/town';
 import {
   CLASSIC_DEGREE_LIST,
   CLASSIC_JOBS,
-  CLASSIC_LOCATIONS,
   DEPENDABILITY_TEN_IS_ZERO,
+  isOpenLocation,
+  locationInfo,
   type ClassicDegree,
-  type ClassicLocationId,
+  type OpenLocationId,
 } from '../content/classic';
 import { getGraph } from '../helpers';
 import type { Delta, GameState, PlayerState } from '../types';
@@ -32,20 +33,22 @@ export interface Spec {
   /** Minutes recorded on the event (the route's real minutes for travel). */
   duration?: number;
   check: () => string | null;
-  run: () => { text: string; deltas: Delta[]; path?: NodeId[] };
+  run: () => { text: string; deltas: Delta[]; path?: NodeId[]; vehicle?: string; pet?: string };
 }
 
-/** The classic location the player is standing at, or null (a junction, or a closed building). */
-export function locationAt(state: GameState, p: PlayerState): ClassicLocationId | null {
-  const node = getGraph(state.config.townId).node(p.node);
-  const id = node.location as ClassicLocationId | undefined;
-  return id && CLASSIC_LOCATIONS[id] ? id : null;
+/**
+ * The open building the player is standing at, or null (a junction, or a closed building). The
+ * 13 classic buildings are always open; an expansion's only in a game that has it.
+ */
+export function locationAt(state: GameState, p: PlayerState): OpenLocationId | null {
+  const id = getGraph(state.config.townId).node(p.node).location;
+  return isOpenLocation(id, state.config.expansions) ? id : null;
 }
 
-/** Standing at one of the buildings the classic ruleset does not use. */
+/** Standing at one of the buildings this game keeps shut. */
 export function isClosed(state: GameState, p: PlayerState): boolean {
   const node = getGraph(state.config.townId).node(p.node);
-  return !!node.location && !CLASSIC_LOCATIONS[node.location as ClassicLocationId];
+  return !!node.location && !isOpenLocation(node.location, state.config.expansions);
 }
 
 /** Shop, rent and tuition prices all track the economy index. */
@@ -69,10 +72,17 @@ export function monthAfter(week: number): number {
   return week + 4 - (week % 4);
 }
 
-/** The Rent Office trades only when rent is due, a debt stands, or an extension is running. */
+/** The end of the month `week` falls in (the week itself when it is a month end). */
+export function monthEnd(week: number): number {
+  return week % 4 === 0 ? week : monthAfter(week);
+}
+
+/**
+ * The Rent Office trades on the last week of the month and, for one player, while their rent
+ * extension runs. (Working there opens the door every week but not the counter.)
+ */
 export function rentOfficeOpen(state: GameState, p: PlayerState): boolean {
-  const c = cp(p);
-  return state.week % 4 === 0 || state.week >= c.rentDueWeek || c.rentDebt > 0;
+  return state.week % 4 === 0 || cp(p).extensionUntil >= state.week;
 }
 
 /** The happiness table prices the same item differently by store; most specific id first. */
@@ -92,10 +102,10 @@ export interface Ctx {
   state: GameState;
   p: PlayerState;
   c: ClassicPlayerState;
-  loc: ClassicLocationId | null;
+  loc: OpenLocationId | null;
   graph: ReturnType<typeof getGraph>;
   /** null if the player is standing at `id`, else the reason they are not. */
-  at: (id: ClassicLocationId) => string | null;
+  at: (id: OpenLocationId) => string | null;
 }
 
 export function context(state: GameState, p: PlayerState): Ctx {
@@ -106,6 +116,6 @@ export function context(state: GameState, p: PlayerState): Ctx {
     c: cp(p),
     loc,
     graph: getGraph(state.config.townId),
-    at: (id) => (loc === id ? null : isClosed(state, p) ? 'Closed' : `${CLASSIC_LOCATIONS[id].name} only`),
+    at: (id) => (loc === id ? null : isClosed(state, p) ? 'Closed' : `${locationInfo(id)?.name ?? id} only`),
   };
 }

@@ -1,4 +1,4 @@
-import type { ClassicItemId } from './ids';
+import type { ClassicClothingTier, ClassicItemId } from './ids';
 
 /**
  * Socket City and Z-Mart goods: Durables (Appliances + Books) and Z-Mart-only Tickets/Junk.
@@ -8,7 +8,7 @@ import type { ClassicItemId } from './ids';
  * Tickets and Junk are recorded here too (they're Z-Mart goods); Clothes live in clothes.ts,
  * Food/Lottery/Newspaper live in food.ts and economy.ts per the task's table split.
  */
-export type ClassicItemCategory = 'appliance' | 'book' | 'ticket' | 'junk';
+export type ClassicItemCategory = 'appliance' | 'book' | 'ticket' | 'junk' | 'vehicle' | 'pet';
 
 export interface ClassicItem {
   id: ClassicItemId;
@@ -37,6 +37,13 @@ export interface ClassicItem {
   wildWillyExempt: boolean;
   /** Reduces lessons-to-graduate by 1 alone (Computer) or as a trio (the three books). "### Extra Credit" (2638-2668). */
   extraCredit?: 'computer' | 'reference_set';
+  /** Expansion goods (expansions.ts): the one store that sells it, and its base price there. */
+  store?: 'auto' | 'pet_store';
+  price?: number;
+  /** Vehicles: travel hours as a fraction of walking's. */
+  travelFactor?: number;
+  /** Vehicles: the verb for a trip ("Drove"). */
+  verb?: string;
 }
 
 // "## Repairs" (3704-3750): breakage is checked only if the player has > $500 Cash.
@@ -160,16 +167,44 @@ export const CLASSIC_ITEMS: Record<ClassicItemId, ClassicItem> = {
   },
 };
 
+/** Declaration order above is Socket City's shelf, top to bottom ("# Socket City" > "## Items"). */
 export const CLASSIC_ITEM_LIST: ClassicItem[] = Object.values(CLASSIC_ITEMS);
 
 /**
- * Z-Mart randomizes its stock: 6 of these 17 items (the 10 Appliances/Books/Tickets that can
- * appear there, excluding Freezer/Hot Tub/Computer which are Socket-City-only) are on sale each
- * turn, re-rolled at the start of the next player's turn. "# Z-Mart" > "## Items" (3197-3234).
- * Junk items (Dog Food, 8-Track, Works of Capote) and Tickets appear to always be available per
- * "# Junk"/"# Consumables", which doesn't mention them being part of the 6-item randomised pool;
- * the wiki is not fully explicit about which of the 17 "possible items" are in the randomised
- * pool vs. always on sale, so ZMART_RANDOMIZED_SLOTS is left as a count only.
+ * Z-Mart's shelf, top to bottom, as the original lists it ("# Z-Mart" > "## Items", 3236-3258):
+ * its appliances run in a different order from Socket City's, and its two clothing rows sit
+ * between the books and the tickets.
+ */
+export const ZMART_SHELF: readonly ({ item: ClassicItemId } | { clothing: ClassicClothingTier })[] = [
+  { item: 'fridge' },
+  { item: 'stove' },
+  { item: 'stereo' },
+  { item: 'color_tv' },
+  { item: 'bw_tv' },
+  { item: 'microwave' },
+  { item: 'vcr' },
+  { item: 'encyclopedia' },
+  { item: 'dictionary' },
+  { item: 'atlas' },
+  { clothing: 'casual' },
+  { clothing: 'dress' },
+  { item: 'baseball_tickets' },
+  { item: 'theatre_tickets' },
+  { item: 'concert_tickets' },
+  { item: 'dog_food' },
+  { item: 'eight_track' },
+  { item: 'works_of_capote' },
+];
+
+/**
+ * Z-Mart randomizes its stock: "Out of the 17 possible items, only 6 are available to purchase
+ * each turn", re-rolled at the start of each player's turn ("# Z-Mart" > "## Items", 3197-3234).
+ * The wiki's own shelf table has 18 rows (ZMART_SHELF above); all 18 are in the draw.
  */
 export const ZMART_RANDOMIZED_SLOTS = 6;
 export const ZMART_POSSIBLE_ITEMS = 17;
+
+/** A stable key for one Z-Mart shelf row: the item id, or `clothing:<tier>`. */
+export function zmartShelfKey(row: (typeof ZMART_SHELF)[number]): string {
+  return 'item' in row ? row.item : `clothing:${row.clothing}`;
+}

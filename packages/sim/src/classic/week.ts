@@ -2,42 +2,52 @@
  * Classic week resolution. Weeks are simultaneous (PLAN §3), so:
  *   end-of-week bookkeeping per player (rent debt, loan default)
  *   -> economy for everyone (decision 7)
- *   -> advance the week and run each player's start-of-week sequence
- *   -> win check at week start.
+ *   -> advance the week; each player's week opens (stove/microwave comfort)
+ *   -> win check, before the weekend, as the original's turn start ("Turn" page)
+ *   -> the rest of each player's start-of-week sequence (not run once someone has won).
  */
 import { CLASSIC_HOUSING, RENT_DUE_WEEK_INTERVAL } from '../content/classic';
-import type { Delta, GameState, PlayerState, ResolutionNote, WeekReport } from '../types';
-import { happy } from './effects';
+import type { GameState, PlayerState, ResolutionNote, WeekReport } from '../types';
+import { monthAfter } from './context';
 import { resolveEconomy } from './economy';
 import { goalExcess, goalProgress } from './goals';
 import { cp } from './state';
-import { startWeek } from './turnStart';
+import { continueWeek, openWeek } from './turnStart';
 
-/** Rent unpaid at the deadline becomes rent debt; it is then garnished from wages. */
+/**
+ * Rent unpaid at the deadline (and not covered by an extension running into next week) is added
+ * to the rent debt, every month it goes unpaid ("Garnishment" > "Forced Payments"); the debt is
+ * then garnished from wages. The deadline moves on to the next month end either way.
+ */
 function rentEndOfWeek(state: GameState, p: PlayerState, notes: ResolutionNote[]): void {
   const c = cp(p);
-  // No new rent accrues while a debt stands: classic/config.ts RENT_DEBT_PAUSES_ACCRUAL.
-  if (c.rentDebt > 0) return;
   if (state.week < c.rentDueWeek) return;
-  c.rentDebt = Math.round(c.rent);
+  if (c.extensionUntil > state.week) return;
+  const month = Math.round(c.rent);
+  c.rentDebt = Math.round((c.rentDebt + month) * 100) / 100;
+  c.rentDueWeek = monthAfter(state.week);
   c.extensionUntil = 0;
   notes.push({
     player: p.id,
-    text: `You did not pay the rent on ${CLASSIC_HOUSING[c.housing].name}. $${c.rentDebt} will be garnished from your wages.`,
+    text: `You did not pay the rent on ${CLASSIC_HOUSING[c.housing].name}. You now owe $${Math.round(c.rentDebt)}, garnished from your wages.`,
   });
 }
 
-/** A month with no loan payment is a default: it never forces repayment, it just raises your risk. */
+/**
+ * A month with no loan payment is a default: it never forces repayment, it raises your risk and
+ * keeps you in default until each missed month is made up. The -1 Happiness comes with the
+ * delinquency notice at the next month end (turnStart), once a month.
+ */
 function loanEndOfWeek(state: GameState, p: PlayerState, notes: ResolutionNote[]): void {
   const c = cp(p);
-  if (p.loan <= 0 || c.week.paidLoan) return;
+  if (p.loan <= 0) return;
   if (state.week < c.loanDueWeek) return;
   c.loanDefaults++;
+  c.loanMissed = (c.loanMissed ?? 0) + 1;
   c.inDefault = true;
-  c.loanDueWeek = state.week + RENT_DUE_WEEK_INTERVAL;
-  const deltas: Delta[] = [];
-  happy(p, 'loan_defaulted', deltas);
-  notes.push({ player: p.id, text: `You defaulted on your loan (${c.loanDefaults} so far).`, deltas });
+  c.loanDueWeek += RENT_DUE_WEEK_INTERVAL;
+  if (c.loanDueWeek <= state.week) c.loanDueWeek = monthAfter(state.week);
+  notes.push({ player: p.id, text: `You defaulted on your loan (${c.loanDefaults} so far).` });
 }
 
 /**
@@ -79,9 +89,10 @@ export function resolveWeek(input: GameState): { state: GameState; report: WeekR
   const report: WeekReport = { week: state.week, notes, firedEvents: [], logs, winner: null };
 
   state.week = nextWeek;
-  for (const id of state.playerOrder) startWeek(state, state.players[id]!);
+  for (const id of state.playerOrder) openWeek(state, state.players[id]!);
 
   const winner = checkWinner(state, notes);
+  if (!winner) for (const id of state.playerOrder) continueWeek(state, state.players[id]!);
   report.winner = winner;
   state.history.push(report);
   if (winner) {

@@ -56,6 +56,19 @@ describe('the classic set of buildings', () => {
     expect(closed).toHaveLength(35 - 13 - 1);
     for (const c of closed) expect(isClassicLocation(c.location)).toBe(false);
   });
+
+  it("opens Honest Al's and the Pet Store with Wheels & Whiskers", () => {
+    const ww = ['wheels_whiskers'];
+    expect(isClassicLocation('auto')).toBe(false);
+    expect(isClassicLocation('auto', ww)).toBe(true);
+    expect(isClosedLocation('pet_store', ww)).toBe(false);
+    const closed = closedNodes(TOWN, ww).map((c) => c.location);
+    expect(closed).toHaveLength(35 - 13 - 1 - 2);
+    expect(closed).not.toContain('auto');
+    expect(closed).not.toContain('pet_store');
+    expect(locationName('auto')).toBe("Honest Al's Autos");
+    expect(greetingFor('pet_store', 0)).toMatch(/Pet Store/);
+  });
 });
 
 describe('greetings', () => {

@@ -12,7 +12,7 @@ describe.skipIf(!existsSync(path))('the shipped names.json', () => {
   const map = resolveMap(names);
 
   it('puts exactly the random pieces in the rotation, not the stingers', () => {
-    expect(map.music).toEqual([5, 7, 25, 35, 36, 37, 38, 39, 40]);
+    expect(map.music).toEqual([5, 25, 35, 36, 37, 38, 39, 40]);
   });
 
   it('pins the moments the game uses', () => {

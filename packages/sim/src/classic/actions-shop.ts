@@ -3,7 +3,7 @@ import {
   CLASSIC_CLOTHES,
   CLASSIC_FOODS,
   CLASSIC_HAPPINESS_MAP,
-  CLASSIC_ITEMS,
+  ALL_CLASSIC_ITEMS,
   LOTTERY,
   NEWSPAPER,
   PAWN_FACTOR,
@@ -13,28 +13,44 @@ import {
   REDEEM_WEEKS,
   type ClassicLocationId,
 } from '../content/classic';
-import type { Action, Delta } from '../types';
+import type { Action, Delta, PlayerState } from '../types';
 import { earn, happy, pay } from './effects';
-import { cg, itemBasePrice, type ItemSource } from './state';
+import { cg, cp, itemBasePrice, itemPaidPrice, type ItemSource } from './state';
 import { FRESH_WEEKS, happinessIdForItem, isClosed, priceOf, type Ctx, type Spec } from './context';
+
+/** Is this Z-Mart row on this week's shelf? Older saves have no rolled shelf: everything is. */
+export function zmartStocks(p: PlayerState, key: string): boolean {
+  const stock = cp(p).zmartStock;
+  return !stock || stock.includes(key);
+}
+
+function recordPaid(p: PlayerState, itemId: string, price: number): void {
+  const c = cp(p);
+  c.itemPaid = { ...(c.itemPaid ?? {}), [itemId]: price };
+}
 
 /** Every purchase, pawn and redemption. Null if the action is not one of those. */
 export function shopSpec(cx: Ctx, a: Action): Spec | string | null {
   const { state, p, c, loc, at } = cx;
   switch (a.type) {
     case 'buyItem': {
-      const item = CLASSIC_ITEMS[a.itemId];
+      const item = ALL_CLASSIC_ITEMS[a.itemId];
       if (!item) return 'No such item';
-      const store: ItemSource = loc === 'socket_city' ? 'socket_city' : 'zmart';
-      const base = store === 'socket_city' ? item.socketCityPrice : item.zmartPrice;
+      // Expansion goods have one store; the original's durables are sold at Socket City and Z-Mart.
+      const store: ItemSource = item.store ?? (loc === 'socket_city' ? 'socket_city' : 'zmart');
+      const base = item.store ? item.price : store === 'socket_city' ? item.socketCityPrice : item.zmartPrice;
       const price = base ? priceOf(state, base) : 0;
       return {
         label: `Buy ${item.name} ($${price})`,
         hours: 0,
         cost: price,
         check: () => {
-          if (loc !== 'socket_city' && loc !== 'zmart') return isClosed(state, p) ? 'Closed' : 'Socket City or Z-Mart only';
+          if (item.store) {
+            const here = at(item.store);
+            if (here) return here;
+          } else if (loc !== 'socket_city' && loc !== 'zmart') return isClosed(state, p) ? 'Closed' : 'Socket City or Z-Mart only';
           if (!base) return 'Not sold here';
+          if (store === 'zmart' && !zmartStocks(p, item.id)) return 'Not on the shelf this week';
           if (c.items.includes(item.id)) return 'You already own one';
           return null;
         },
@@ -43,6 +59,7 @@ export function shopSpec(cx: Ctx, a: Action): Spec | string | null {
           pay(p, price, item.name, deltas);
           c.items.push(item.id);
           c.itemSource[item.id] = store;
+          recordPaid(p, item.id, price);
           if (item.category === 'ticket') {
             if (!c.week.ticketsBought.includes(item.id)) {
               c.week.ticketsBought.push(item.id);
@@ -66,7 +83,12 @@ export function shopSpec(cx: Ctx, a: Action): Spec | string | null {
         label: `Buy ${a.tier} clothes ($${price}, ${option.weeks} weeks)`,
         hours: 0,
         cost: price,
-        check: () => at(a.store),
+        check: () => {
+          const here = at(a.store);
+          if (here) return here;
+          if (a.store === 'zmart' && !zmartStocks(p, `clothing:${a.tier}`)) return 'Not on the shelf this week';
+          return null;
+        },
         run: () => {
           const deltas: Delta[] = [];
           pay(p, price, `${a.tier} clothes`, deltas);
@@ -148,8 +170,9 @@ export function shopSpec(cx: Ctx, a: Action): Spec | string | null {
       };
 
     case 'pawnItem': {
-      const item = CLASSIC_ITEMS[a.itemId];
+      const item = ALL_CLASSIC_ITEMS[a.itemId];
       if (!item) return 'No such item';
+      if (item.category === 'pet') return 'The pawn shop does not take pets';
       const base = itemBasePrice(item.id, c.itemSource[item.id] ?? 'zmart');
       const payout = Math.round(base * PAWN_FACTOR * cg(state).index);
       return {
@@ -161,6 +184,7 @@ export function shopSpec(cx: Ctx, a: Action): Spec | string | null {
           if (here) return here;
           if (!c.items.includes(item.id)) return 'You do not own one';
           if (cg(state).pawnShop.length >= PAWN_SHOP_CAPACITY) return 'The pawn shop is full';
+          if (cg(state).pawnShop.some((x) => x.itemId === item.id)) return 'The pawn shop already holds one of those';
           return null;
         },
         run: () => {
@@ -171,6 +195,7 @@ export function shopSpec(cx: Ctx, a: Action): Spec | string | null {
             itemId: item.id,
             ownerId: p.id,
             basePrice: base,
+            paidPrice: itemPaidPrice(p, item.id),
             pawnedWeek: state.week,
             source: c.itemSource[item.id] ?? 'zmart',
           });
@@ -183,9 +208,9 @@ export function shopSpec(cx: Ctx, a: Action): Spec | string | null {
 
     case 'redeemItem': {
       const entry = cg(state).pawnShop.find((x) => x.itemId === a.itemId && x.ownerId === p.id);
-      const item = CLASSIC_ITEMS[a.itemId];
+      const item = ALL_CLASSIC_ITEMS[a.itemId];
       if (!item) return 'No such item';
-      const price = Math.round((entry?.basePrice ?? 0) * REDEEM_FACTOR);
+      const price = Math.round((entry?.paidPrice ?? entry?.basePrice ?? 0) * REDEEM_FACTOR);
       return {
         label: `Redeem ${item.name} ($${price})`,
         hours: 0,
@@ -205,6 +230,7 @@ export function shopSpec(cx: Ctx, a: Action): Spec | string | null {
           shop.pawnShop = shop.pawnShop.filter((x) => x !== entry);
           c.items.push(item.id);
           c.itemSource[item.id] = entry!.source;
+          recordPaid(p, item.id, entry!.paidPrice ?? entry!.basePrice);
           return { text: `Redeemed the ${item.name}.`, deltas };
         },
       };
@@ -212,9 +238,9 @@ export function shopSpec(cx: Ctx, a: Action): Spec | string | null {
 
     case 'buyPawned': {
       const entry = cg(state).pawnShop.find((x) => x.itemId === a.itemId);
-      const item = CLASSIC_ITEMS[a.itemId];
+      const item = ALL_CLASSIC_ITEMS[a.itemId];
       if (!item) return 'No such item';
-      const price = Math.round((entry?.basePrice ?? 0) * REDEEM_FACTOR);
+      const price = Math.round((entry?.paidPrice ?? entry?.basePrice ?? 0) * REDEEM_FACTOR);
       return {
         label: `Buy ${item.name} from the pawn shop ($${price})`,
         hours: 0,
@@ -235,6 +261,7 @@ export function shopSpec(cx: Ctx, a: Action): Spec | string | null {
           shop.pawnShop = shop.pawnShop.filter((x) => x !== entry);
           c.items.push(item.id);
           c.itemSource[item.id] = 'pawn_shop';
+          recordPaid(p, item.id, price);
           return { text: `Bought the ${item.name} at the pawn shop.`, deltas };
         },
       };

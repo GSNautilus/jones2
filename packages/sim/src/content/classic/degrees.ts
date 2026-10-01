@@ -43,6 +43,8 @@ export const LESSONS_PER_DEGREE = 10;
 export const MIN_LESSONS_WITH_EXTRA_CREDIT = 8;
 /** One-time fee to unlock a course slot, adjusted by the economy. "## Enrolling" (2590-2612). */
 export const ENROLLMENT_FEE_BASE = 50;
+/** "Players may enroll in up to 4 courses simultaneously." "# Hi-Tech U" (2569-2571). */
+export const MAX_ACTIVE_COURSES = 4;
 /** Time cost of a single lesson (also the max useful study session). "## Studying" (2630-2634). */
 export const LESSON_HOURS = 6;
 /** A course may run up to this many Hours in total before completion is guaranteed by lesson count. (2569-2571) */

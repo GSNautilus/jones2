@@ -6,6 +6,8 @@ import { CLASSIC_DEFAULT_GOALS, DEFAULT_GOALS, type GameConfig, type GoalTargets
 import { Frame, FrameButton } from '../hud/Frame';
 import { MAX_PLAYERS, tokenColor, tokenNumber } from '../classic/tokens';
 import type { GameStore } from './store';
+import { ExpansionsWindow } from './ExpansionsWindow';
+import { configExpansions, expansionChoices, expansionSummary } from './expansions';
 
 const GOAL_KEYS = ['money', 'happiness', 'education', 'career'] as const;
 
@@ -43,6 +45,10 @@ export function SetupScreen({ store, online }: { store: GameStore; online?: Onli
   const ruleset: Ruleset = 'classic';
   // The map: 'classic' is the original's ring, 'riverton' the Jones 2 town.
   const [townId, setTownId] = useState<string>('classic');
+  // Expansions open closed buildings on the Jones 2 map; ticks are kept across a map switch.
+  const [expansions, setExpansions] = useState<string[]>([]);
+  const [picking, setPicking] = useState(false);
+  const canExpand = expansionChoices(townId).length > 0;
   const [names, setNames] = useState(['Ann', 'Bob', '', '']);
   const [mode, setMode] = useState<'classic' | 'fixed'>('classic');
   const [weeks, setWeeks] = useState(30);
@@ -63,6 +69,7 @@ export function SetupScreen({ store, online }: { store: GameStore; online?: Onli
       .filter((p) => p.name !== '')
       .slice(0, MAX_PLAYERS);
     if (players.length === 0) return null;
+    const chosen = configExpansions(townId, expansions);
     return {
       ruleset,
       mode: isClassic ? 'classic' : mode,
@@ -71,6 +78,8 @@ export function SetupScreen({ store, online }: { store: GameStore; online?: Onli
       seed,
       townId,
       players,
+      // Left out when none, so a plain game's config is unchanged.
+      ...(chosen ? { expansions: chosen } : {}),
     };
   };
 
@@ -127,6 +136,16 @@ export function SetupScreen({ store, online }: { store: GameStore; online?: Onli
           <option value="classic">Classic — the original board, a ring of 13 buildings</option>
           <option value="riverton">Jones 2 — Riverton, the river and highway town</option>
         </select>
+
+        {canExpand && (
+          <>
+            <label>Expansions</label>
+            <div className="setup-expansions">
+              <FrameButton onClick={() => setPicking(true)}>Expansions…</FrameButton>
+              <span className="hud-tagline">{expansionSummary(townId, expansions)}</span>
+            </div>
+          </>
+        )}
 
         <label>Players</label>
         <div className="setup-players">
@@ -195,6 +214,9 @@ export function SetupScreen({ store, online }: { store: GameStore; online?: Onli
           </p>
         )}
       </Frame>
+      {picking && canExpand && (
+        <ExpansionsWindow townId={townId} chosen={expansions} onChange={setExpansions} onClose={() => setPicking(false)} />
+      )}
     </div>
   );
 }

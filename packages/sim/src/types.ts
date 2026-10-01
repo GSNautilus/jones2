@@ -59,6 +59,8 @@ export interface GameConfig {
   seed: number;
   players: PlayerSetup[];
   townId: string;
+  /** Classic ruleset: expansion packs in play (content/classic/expansions.ts). Absent = none. */
+  expansions?: string[];
 }
 
 // ---------------------------------------------------------------------------
@@ -306,6 +308,10 @@ export interface PlayerEvent {
   node: NodeId;
   /** Travel path, for the replay. */
   path?: NodeId[];
+  /** Classic travel: the vehicle ridden (an item id), absent on foot. */
+  vehicle?: string;
+  /** Classic travel: the pet trotting along (the player's best pet), if any. */
+  pet?: string;
   deltas: Delta[];
   text: string;
 }

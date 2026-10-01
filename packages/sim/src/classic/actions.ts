@@ -4,6 +4,8 @@
  * minutes for the replay. The specs themselves live in actions-job / actions-shop / actions-money.
  */
 import {
+  ALL_CLASSIC_ITEMS,
+  EXPANSION_ITEM_LIST,
   CLASSIC_CLOTHES,
   CLASSIC_DEGREE_LIST,
   CLASSIC_FOOD_LIST,
@@ -11,12 +13,14 @@ import {
   CLASSIC_JOB_LIST,
   CLASSIC_STOCK_LIST,
   RELAXATION,
+  ZMART_SHELF,
+  zmartShelfKey,
 } from '../content/classic';
 import { getGraph } from '../helpers';
 import type { Action, ActionError, ActionOption, ActionResult, GameState, PlayerEvent, PlayerState } from '../types';
 import { MINUTES, context, locationAt, type Spec } from './context';
 import { jobSpec } from './actions-job';
-import { shopSpec } from './actions-shop';
+import { shopSpec, zmartStocks } from './actions-shop';
 import { moneySpec } from './actions-money';
 import { cg, cp, jobOf } from './state';
 
@@ -78,13 +82,17 @@ export function availableActions(state: GameState, playerId: string): ActionOpti
       else if (!c.degrees.includes(deg.id)) actions.push({ type: 'enroll', degreeId: deg.id });
     }
   }
-  if (loc === 'socket_city' || loc === 'zmart') {
-    for (const item of CLASSIC_ITEM_LIST) {
-      const sold = loc === 'socket_city' ? item.socketCityPrice : item.zmartPrice;
-      if (sold) actions.push({ type: 'buyItem', itemId: item.id });
+  // Every menu lists in the original's fixed shelf order; the client never re-sorts it.
+  if (loc === 'socket_city') {
+    for (const item of CLASSIC_ITEM_LIST) if (item.socketCityPrice) actions.push({ type: 'buyItem', itemId: item.id });
+  }
+  if (loc === 'zmart') {
+    for (const s of ZMART_SHELF) {
+      if (!zmartStocks(p, zmartShelfKey(s))) continue; // only this week's 6 rows are on sale
+      actions.push('item' in s ? { type: 'buyItem', itemId: s.item } : { type: 'buyClothing', tier: s.clothing, store: 'zmart' });
     }
   }
-  if (loc === 'qt_clothing' || loc === 'zmart') {
+  if (loc === 'qt_clothing') {
     for (const o of CLASSIC_CLOTHES) if (o.store === loc) actions.push({ type: 'buyClothing', tier: o.tier, store: o.store });
   }
   if (loc === 'monolith' || loc === 'blacks_market') {
@@ -99,14 +107,19 @@ export function availableActions(state: GameState, playerId: string): ActionOpti
     actions.push({ type: 'bank', op: 'withdraw', amount: Math.floor(p.savings) });
     actions.push({ type: 'applyLoan' }, { type: 'loanPayment' }, { type: 'broker' });
     if (c.week.brokerOpen) {
+      // A Sell row for every stock, held or not, so rows never shift as holdings change.
       for (const s of CLASSIC_STOCK_LIST) {
         actions.push({ type: 'buyStock', stockId: s.id, units: 1 });
-        if ((c.stocks[s.id] ?? 0) > 0) actions.push({ type: 'sellStock', stockId: s.id, units: c.stocks[s.id]! });
+        actions.push({ type: 'sellStock', stockId: s.id, units: c.stocks[s.id] ?? 0 });
       }
     }
   }
+  if (loc === 'auto' || loc === 'pet_store') {
+    for (const item of EXPANSION_ITEM_LIST) if (item.store === loc) actions.push({ type: 'buyItem', itemId: item.id });
+  }
   if (loc === 'pawn') {
-    for (const id of c.items) actions.push({ type: 'pawnItem', itemId: id });
+    // The pawn shop takes vehicles but not pets.
+    for (const id of c.items) if (ALL_CLASSIC_ITEMS[id]?.category !== 'pet') actions.push({ type: 'pawnItem', itemId: id });
     for (const entry of cg(state).pawnShop) {
       if (entry.ownerId === p.id) actions.push({ type: 'redeemItem', itemId: entry.itemId });
       else actions.push({ type: 'buyPawned', itemId: entry.itemId });
@@ -159,6 +172,8 @@ export function applyAction(state: GameState, playerId: string, action: Action):
     text: out.text,
   };
   if (out.path) event.path = out.path;
+  if (out.vehicle) event.vehicle = out.vehicle;
+  if (out.pet) event.pet = out.pet;
   p.log.push(event);
   return { ok: true, state: next, event };
 }
