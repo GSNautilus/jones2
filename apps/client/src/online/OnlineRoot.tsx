@@ -80,7 +80,7 @@ function Waiting({ game, view }: { game: OnlineGame; view: View }) {
           <p className="hud-tagline">Handing in your week…</p>
         ) : view.submitError ? (
           <>
-            <p className="hud-tagline">Your week did not go through: {view.submitError}</p>
+            <p className="hud-tagline">{view.submitRejected ? `Your week did not go through: ${view.submitError}` : view.submitError}</p>
             <div className="hud-row hud-row-wrap">
               {view.submitRejected ? (
                 <FrameButton onClick={() => void game.restartWeek()}>Play the week again</FrameButton>

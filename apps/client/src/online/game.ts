@@ -226,16 +226,22 @@ export class OnlineGame {
     }
   };
 
-  /** While waiting: has the week moved on? Who is still playing? */
+  /**
+   * While waiting: has the week moved on? Who is still playing? Also after a
+   * hand-in that never heard back (a phone that slept mid-send): the server
+   * may well have the week, and then the page must not sit on the error.
+   */
   refresh = async (): Promise<void> => {
-    if (this.view.phase !== 'waiting' || this.view.submitting || this.view.submitError) return;
+    if (this.view.phase !== 'waiting' || this.view.submitting || this.view.submitRejected) return;
     try {
       const info = await this.api.gameInfo(this.gameId);
       if (info.week > this.week || (info.status === 'finished' && this.view.state?.phase !== 'finished')) {
         await this.load();
         return;
       }
-      this.set({ status: await this.api.weekStatus(this.gameId) });
+      const status = await this.api.weekStatus(this.gameId);
+      const mine = status.find((s) => s.player_id === this.playerId);
+      this.set(mine?.submitted ? { status, submitError: null } : { status });
     } catch {
       /* try again on the next tick */
     }

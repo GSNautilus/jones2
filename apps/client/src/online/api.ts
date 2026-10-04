@@ -144,7 +144,10 @@ export type SubmitAnswer =
   | { ok: true; resolved: boolean; week: number; finished: boolean }
   | { ok: false; status: number; error: string; index?: number };
 
-/** Hand the week to the submit-turn function. Network failures come back as status 0. */
+/** Longer than any real hand-in; a request a sleeping phone dropped must not leave "Handing in your week…" up for good. */
+export const SUBMIT_TIMEOUT_MS = 30_000;
+
+/** Hand the week to the submit-turn function. Network failures and timeouts come back as status 0. */
 export async function submitWeek(gameId: string, week: number, playerId: PlayerId, actions: readonly Action[]): Promise<SubmitAnswer> {
   let res: Response;
   try {
@@ -152,10 +155,11 @@ export async function submitWeek(gameId: string, week: number, playerId: PlayerI
       method: 'POST',
       headers: { apikey: SUPABASE_PUBLISHABLE_KEY, Authorization: `Bearer ${await accessToken()}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ gameId, week, playerId, actions }),
+      signal: AbortSignal.timeout(SUBMIT_TIMEOUT_MS),
     });
   } catch (e) {
     if (e instanceof OnlineError) return { ok: false, status: 401, error: e.message };
-    return { ok: false, status: 0, error: 'Could not reach the game server. Your week is saved; try again.' };
+    return { ok: false, status: 0, error: 'No answer from the game server, so your week may not be in yet. Press Try again.' };
   }
   let body: { accepted?: boolean; resolved?: boolean; week?: number; finished?: boolean; error?: string; index?: number } = {};
   try {

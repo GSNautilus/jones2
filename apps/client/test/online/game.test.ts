@@ -226,6 +226,54 @@ describe('when handing in fails', () => {
     expect(g.getView().phase).toBe('waiting');
   });
 
+  // The server took the week but the answer never arrived (a phone slept mid-send).
+  const loseAnswers = (srv: ReturnType<typeof server>) => {
+    const real = srv.api.submitWeek;
+    srv.api.submitWeek = async (...args) => {
+      await real(...args);
+      return { ok: false, status: 0, error: 'No answer' };
+    };
+  };
+
+  it('a lost answer: the page sees its week is in and stops showing the error', async () => {
+    const srv = server();
+    const g = seat(srv);
+    await g.load();
+    loseAnswers(srv);
+    g.act(END);
+    await vi.waitFor(() => expect(g.getView().submitError).toBe('No answer'));
+    await g.refresh();
+    expect(g.getView()).toMatchObject({ phase: 'waiting', submitError: null });
+    expect(g.getView().status.map((s) => s.submitted)).toEqual([true, false]);
+  });
+
+  it('a lost answer: the page still moves on when the others finish the week', async () => {
+    const srv = server();
+    const g = seat(srv);
+    await g.load();
+    loseAnswers(srv);
+    g.act(END);
+    await vi.waitFor(() => expect(g.getView().submitError).toBe('No answer'));
+    await srv.other('p1', [END]);
+    await g.refresh();
+    await vi.waitFor(() => expect(g.getView().phase).toBe('recap'));
+    g.resolve();
+    await vi.waitFor(() => expect(g.getView().state!.week).toBe(2));
+    g.finishRecap();
+    expect(g.getView().phase).toBe('play');
+  });
+
+  it('a week that really did not go in keeps the error and the Try again', async () => {
+    const srv = server();
+    const g = seat(srv);
+    await g.load();
+    srv.goOffline(true);
+    g.act(END);
+    await vi.waitFor(() => expect(g.getView().submitError).toMatch(/reach/));
+    await g.refresh();
+    expect(g.getView().submitError).toMatch(/reach/);
+  });
+
   it('a second device that already handed in just reloads', async () => {
     const srv = server();
     const g = seat(srv);
