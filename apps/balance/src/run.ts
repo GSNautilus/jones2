@@ -2,6 +2,7 @@
  * Headless balance runner.
  *   npm run balance -- --games 50 --weeks 60 --mode classic
  *   npm run balance -- --ruleset classic --games 30 --weeks 60
+ *   npm run balance -- --ruleset classic --town riverton --expansions wheels_whiskers
  * Plays N games with one player per strategy and reports outcomes.
  */
 import { applyAction, createGame, goalProgress, resolveWeek, totalCredits, careerScore, netWorth, DEFAULT_GOALS, type GameState } from '@jones2/sim';
@@ -19,10 +20,12 @@ const MODE = arg('mode', 'classic') as 'classic' | 'fixed';
 const RULESET = arg('ruleset', 'jones2') as 'classic' | 'jones2';
 /** 'riverton' (the Jones 2 map) or 'classic' (the original's ring). */
 const TOWN = arg('town', RULESET === 'classic' ? 'classic' : 'riverton');
+/** Classic expansion packs, comma-separated (riverton only). */
+const EXPANSIONS = arg('expansions', '').split(',').filter(Boolean);
 const NAMES = Object.keys(STRATEGIES);
 
 if (RULESET === 'classic') {
-  runClassic(GAMES, MAX_WEEKS, TOWN);
+  runClassic(GAMES, MAX_WEEKS, TOWN, EXPANSIONS);
   process.exit(0);
 }
 

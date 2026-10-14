@@ -456,11 +456,12 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
       if (!opt || !opt.enabled) return;
       const from = s.players[currentPid]!.node;
       const route = graph.bestRoute(from, node, ['walk']);
-      // Wheels & Whiskers: the token rides its best vehicle, visibly quicker than walking.
+      // Wheels & Whiskers: the token rides its best vehicle at walking pace, so it stays easy to
+      // follow; a vehicle saves game hours, not real seconds.
       const vehicle = bestVehicle(s.players[currentPid]!);
       storeRef.current.act(opt.action);
       if (route && route.path.length > 1) {
-        const plan = planWalk(route.path, (id) => graph.node(id), route.minutes * (vehicle?.travelFactor ?? 1));
+        const plan = planWalk(route.path, (id) => graph.node(id), route.minutes);
         // Leave the route on the ground until the token has walked it.
         scene.setRoute(route.path);
         audio.play('travel');

@@ -242,4 +242,37 @@ export const random: Strategy = (s, pid, rng) => {
   return opts[Math.floor(rng() * opts.length)]!.action;
 };
 
+/** Wheels & Whiskers pets, the best weekly bonus first. */
+const PET_BUYS: Action[] = ['dragon', 'owl', 'dog', 'cat', 'clownfish', 'goldfish'].map((itemId) => ({ type: 'buyItem', itemId }));
+
+function buyPet(s: GameState, pid: string, floor = 300): Action | null {
+  if (s.players[pid]!.cash < floor) return null;
+  for (const action of PET_BUYS) {
+    const a = doAt(s, pid, 'pet_store', action);
+    if (a) return a;
+  }
+  return null;
+}
+
+/** Pet lover: the shopper, but every spare dollar goes to the Pet Store first. */
+export const petLover: Strategy = (s, pid) =>
+  first(
+    eat(s, pid),
+    rent(s, pid),
+    uniform(s, pid),
+    findJob(s, pid),
+    raise(s, pid),
+    work(s, pid, 6),
+    relax(s, pid),
+    buyPet(s, pid),
+    buyHappiness(s, pid),
+    work(s, pid),
+  );
+
 export const CLASSIC_STRATEGIES: Record<string, Strategy> = { grinder, student, shopper, random };
+
+/** The line-up for a game: with Wheels & Whiskers the pet lover takes the random player's seat. */
+export function classicStrategies(expansions: readonly string[]): Record<string, Strategy> {
+  if (!expansions.includes('wheels_whiskers')) return CLASSIC_STRATEGIES;
+  return { grinder, student, shopper, petLover };
+}

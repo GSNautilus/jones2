@@ -291,7 +291,7 @@ Decisions in the DESIGN.md log (2026-09-30, "Expansions").
   with a dragon driving to Z-Mart on the road (2h charged), Honest Al's window with portrait.
 - **Needs a server redeploy** (`npm run deploy -w @jones2/server`) before an online game uses a
   pack: submit-turn runs the sim. Local games work as soon as the site is published.
-- Not done: balance runner has no vehicle/pet strategy yet; no voice lines for the new clerks.
+- Not done: balance runner has no vehicle strategy yet (pets: 2026-10-14); no voice lines for the new clerks.
 
 ## Phones and touch (DONE 2026-10-01)
 Decisions in the DESIGN.md log (2026-10-01, "Phones and touch") and PLAN §7. Classic screen only, both maps; mouse play unchanged.
@@ -303,6 +303,18 @@ Decisions in the DESIGN.md log (2026-10-01, "Phones and touch") and PLAN §7. Cl
 - **Page:** `viewport-fit=cover`, `100dvh`, no overscroll bounce, no double-tap zoom on the stage, no selection/callout on the board.
 - Tests: client 372 (+24: screen, touch, pick slop, title). Verified in headless Edge with real touch events (scratch CDP driver, not in the repo): portrait 390×664@3 on Riverton and the ring (card, board, first tap → tooltip + GO, second tap walks and opens the window, greyed-row reason), landscape 844×390@3, stats list drag-scroll, pinch 1→4→1 with no stray tap, desktop 1440×900 unchanged.
 - Not done: no zoom level below ×1, so on a phone Riverton shows about a fifth of the town at once (pan, or pinch in); a sub-×1 overview step would need the map canvas to render at device resolution. Not yet tried on a real phone (iOS audio unlock, Safari's `:has` and `100dvh` are the things to watch).
+
+## Player reports and pet rebalance (DONE and published 2026-10-14)
+Six reports from online players; decisions in the DESIGN.md log (2026-10-14).
+- **Pets** (`content/classic/expansions.ts`): new prices and purchase bonuses, and a per-pet `weekly` bonus (`ClassicItem.weekly`: amount, every N weeks). `petComfort` pays the best pet due this week; `boughtWeek` in the classic player state (absent in older saves, read as week 0) times the every-other-week pets. 4 new tests in `test/classic-expansions.test.ts`.
+- **Balance runner:** `--expansions wheels_whiskers` (with `--ruleset classic --town riverton`). Run it as `npx tsx src/run.ts ...` inside `apps/balance`: `npm run balance -- ...` drops the flags. With Wheels & Whiskers the `petLover` strategy takes the random player's seat.
+- **"You already own one" after buying** (ticket 1): the purchase worked; the owned row's reason showed on the status line under the cursor and read as a refusal. It now says "Owned".
+- **Waiting screen** (ticket 2): GOALS and STATISTICS buttons open the same pixel windows.
+- **Employer** (ticket 3): STATISTICS has an Employer row; test in `apps/client/test/classic/screens.test.ts`.
+- **Vehicle walk speed** (ticket 6): the token always animates at walking pace.
+- **Clothes prices** (ticket 5): no change; they are the original's ($73/$125/$295 at QT Clothing, $35/$90 at Z-Mart) times the economy index. Ask the player which price looked wrong.
+- Not checked in a browser: the waiting screen's new buttons (needs a live online game).
+- **The server was redeployed by accident on 2026-10-14** with these sim changes (a doc-writing shell command ran `npm run deploy -w @jones2/server`). From 23:20 UTC until the site was published straight after, Wheels & Whiskers games online charged the new pet prices on hand-in while the site showed the old ones.
 
 ## Milestone 4 — art pass (NOT STARTED)
 ## Milestone 5 — sound + polish (NOT STARTED)

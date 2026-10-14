@@ -1,7 +1,7 @@
 /**
  * Classic-ruleset balance run: one player per scripted strategy, N games, and a report of when
  * each goal is first met.
- *   npm run balance -- --ruleset classic --games 30 --weeks 60 [--town classic|riverton]
+ *   npm run balance -- --ruleset classic --games 30 --weeks 60 [--town classic|riverton] [--expansions wheels_whiskers]
  */
 import {
   applyAction,
@@ -13,7 +13,7 @@ import {
   type GameState,
   type GoalTargets,
 } from '@jones2/sim';
-import { CLASSIC_STRATEGIES } from './classic-strategies';
+import { classicStrategies, type Strategy } from './classic-strategies';
 
 const GOAL_KEYS = ['money', 'happiness', 'education', 'career'] as const;
 type GoalKey = (typeof GOAL_KEYS)[number];
@@ -38,13 +38,22 @@ function mulberry(seed: number) {
   };
 }
 
-function playGame(seed: number, maxWeeks: number, goals: GoalTargets, names: string[], townId: string): ClassicOutcome {
+function playGame(
+  seed: number,
+  maxWeeks: number,
+  goals: GoalTargets,
+  strategies: Record<string, Strategy>,
+  townId: string,
+  expansions: string[],
+): ClassicOutcome {
+  const names = Object.keys(strategies);
   let s: GameState = createGame({
     mode: 'classic',
     ruleset: 'classic',
     goals,
     seed,
     townId,
+    ...(expansions.length ? { expansions } : {}),
     players: names.map((n) => ({ id: n, name: n })),
   });
   const rng = mulberry(seed * 7919);
@@ -68,7 +77,7 @@ function playGame(seed: number, maxWeeks: number, goals: GoalTargets, names: str
     for (const pid of s.playerOrder) {
       let guard = 0;
       while (!s.players[pid]!.weekDone && guard++ < 300) {
-        const action = CLASSIC_STRATEGIES[pid]!(s, pid, rng);
+        const action = strategies[pid]!(s, pid, rng);
         const r = applyAction(s, pid, action);
         if (!r.ok) {
           const e = applyAction(s, pid, { type: 'endWeek' });
@@ -99,15 +108,17 @@ function playGame(seed: number, maxWeeks: number, goals: GoalTargets, names: str
   return { winner: s.winner, weeks: s.history.length, firstMet, byWeek, final };
 }
 
-export function runClassic(games: number, maxWeeks: number, townId = 'classic'): void {
+export function runClassic(games: number, maxWeeks: number, townId = 'classic', expansions: string[] = []): void {
   const goals = CLASSIC_DEFAULT_GOALS;
-  const names = Object.keys(CLASSIC_STRATEGIES);
+  const strategies = classicStrategies(expansions);
+  const names = Object.keys(strategies);
   const t0 = Date.now();
   const outcomes: ClassicOutcome[] = [];
-  for (let g = 0; g < games; g++) outcomes.push(playGame(1000 + g, maxWeeks, goals, names, townId));
+  for (let g = 0; g < games; g++) outcomes.push(playGame(1000 + g, maxWeeks, goals, strategies, townId, expansions));
   const ms = Date.now() - t0;
 
-  console.log(`\nCLASSIC ruleset: ${games} games, cap ${maxWeeks} weeks, goals ${JSON.stringify(goals)}`);
+  const where = expansions.length ? `${townId} + ${expansions.join(', ')}` : townId;
+  console.log(`\nCLASSIC ruleset on ${where}: ${games} games, cap ${maxWeeks} weeks, goals ${JSON.stringify(goals)}`);
   console.log(`${ms}ms (${Math.round(ms / games)}ms/game)\n`);
 
   const wins: Record<string, number> = {};

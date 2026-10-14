@@ -16,7 +16,6 @@ import {
   APPLIANCE_BREAK_HAPPINESS,
   CLASSIC_CLOTHES,
   ALL_CLASSIC_ITEMS,
-  PET_WEEKLY_HAPPINESS,
   DONATION,
   ZMART_RANDOMIZED_SLOTS,
   ZMART_SHELF,
@@ -45,7 +44,7 @@ import { chance, nextInt, pick } from '../rng';
 import type { Delta, GameState, PlayerState } from '../types';
 import { d, happy, spend } from './effects';
 import { priceOf } from './context';
-import { bestPet, cg, cp, emptyWeekFlags, freshCapacity, itemBreakChance, itemPaidPrice, jobOf, liquidAssets, type WeekStartEvent } from './state';
+import { cg, cp, emptyWeekFlags, freshCapacity, itemBreakChance, itemPaidPrice, jobOf, liquidAssets, type WeekStartEvent } from './state';
 
 const MINUTES = 60;
 
@@ -222,13 +221,25 @@ function comfort(p: PlayerState): void {
   card(p, 'household', 'Home cooking cheers you up.', deltas);
 }
 
-/** Wheels & Whiskers: owning any pet is +1 a week, however many. Before the win check too. */
-function petComfort(p: PlayerState): void {
-  const pet = bestPet(p);
-  if (!pet) return;
+/**
+ * Wheels & Whiskers: the best pet whose bonus falls due this week cheers you up; pets do not add
+ * up. An every-other-week pet pays the week after purchase, then every second week. Before the win
+ * check too.
+ */
+function petComfort(state: GameState, p: PlayerState): void {
+  const c = cp(p);
+  let best: { name: string; amount: number } | null = null;
+  for (const id of c.items) {
+    const item = ALL_CLASSIC_ITEMS[id];
+    if (item?.category !== 'pet' || !item.weekly) continue;
+    const owned = state.week - (c.boughtWeek?.[id] ?? 0);
+    if (owned < 1 || (owned - 1) % item.weekly.every !== 0) continue;
+    if (!best || item.weekly.amount >= best.amount) best = { name: item.name, amount: item.weekly.amount };
+  }
+  if (!best) return;
   const deltas: Delta[] = [];
-  happy(p, 'own_pet', deltas, PET_WEEKLY_HAPPINESS);
-  card(p, 'household', `Your ${pet.name.toLowerCase()} is glad to see you.`, deltas);
+  happy(p, 'own_pet', deltas, best.amount);
+  card(p, 'household', `Your ${best.name.toLowerCase()} is glad to see you.`, deltas);
 }
 
 /** The computer's occasional payday. */
@@ -359,7 +370,7 @@ export function openWeek(state: GameState, p: PlayerState): void {
   c.weekStart = [];
   stockZmart(state, p);
   comfort(p);
-  petComfort(p);
+  petComfort(state, p);
 }
 
 /**

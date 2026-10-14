@@ -57,15 +57,15 @@ export const EXPANSION_LOCATIONS: Record<ExpansionLocationId, ClassicLocation & 
   },
 };
 
-/** Weekly happiness for owning any pet, at the start of the week. Not cumulative across pets. */
-export const PET_WEEKLY_HAPPINESS = 1;
-
 /**
  * Vehicles and pets, in shelf order. A vehicle's `travelFactor` scales the walking charge: on
  * Riverton a walk costs 2h per hour band, so 0.75 / 0.625 / 0.5 / 0.375 give ×1.5 / ×1.25 / ×1 /
  * ×0.75, rounded to whole hours (`rideHours`). Vehicles break down like appliances (1/51 a week
  * new, 1/36 second-hand) and the repair bill is a share of what was paid, so a sports car costs
- * the most to fix. Pets give happiness on purchase and `PET_WEEKLY_HAPPINESS` while owned.
+ * the most to fix. Pets give happiness on purchase and, all but the goldfish, a `weekly` bonus
+ * while owned; only the best pet paying that week counts, on top of the stove/microwave comfort.
+ * Priced against the original's happiness (DESIGN decision log 2026-10-14, "Pet rebalance"): the
+ * goldfish is a book, the cat and dog half a microwave, the clownfish and owl a hot tub plus one.
  */
 export const EXPANSION_ITEMS: Record<string, ClassicItem> = {
   skateboard: {
@@ -85,27 +85,32 @@ export const EXPANSION_ITEMS: Record<string, ClassicItem> = {
     travelFactor: 0.375, verb: 'Raced', notes: 'Travel ×0.75 instead of ×2 on Riverton.', wildWillyExempt: false,
   },
   goldfish: {
-    id: 'goldfish', name: 'Goldfish', category: 'pet', store: 'pet_store', price: 30, happiness: 1,
+    id: 'goldfish', name: 'Goldfish', category: 'pet', store: 'pet_store', price: 40, happiness: 1,
     notes: 'Swims along behind you.', wildWillyExempt: true,
   },
   cat: {
-    id: 'cat', name: 'Cat', category: 'pet', store: 'pet_store', price: 120, happiness: 2,
+    id: 'cat', name: 'Cat', category: 'pet', store: 'pet_store', price: 300, happiness: 2,
+    weekly: { amount: 1, every: 2 },
     notes: 'Follows you, when it feels like it.', wildWillyExempt: true,
   },
   dog: {
-    id: 'dog', name: 'Dog', category: 'pet', store: 'pet_store', price: 200, happiness: 2,
+    id: 'dog', name: 'Dog', category: 'pet', store: 'pet_store', price: 400, happiness: 3,
+    weekly: { amount: 1, every: 2 },
     notes: 'Follows you everywhere.', wildWillyExempt: true,
   },
   clownfish: {
-    id: 'clownfish', name: 'Clownfish', category: 'pet', store: 'pet_store', price: 650, happiness: 3,
+    id: 'clownfish', name: 'Clownfish', category: 'pet', store: 'pet_store', price: 1000, happiness: 3,
+    weekly: { amount: 1, every: 1 },
     notes: 'Follows you around town. Do not ask how.', wildWillyExempt: true,
   },
   owl: {
-    id: 'owl', name: 'Owl', category: 'pet', store: 'pet_store', price: 650, happiness: 3,
+    id: 'owl', name: 'Owl', category: 'pet', store: 'pet_store', price: 1000, happiness: 3,
+    weekly: { amount: 1, every: 1 },
     notes: 'Flies along behind you.', wildWillyExempt: true,
   },
   dragon: {
-    id: 'dragon', name: 'Dragon', category: 'pet', store: 'pet_store', price: 4000, happiness: 5,
+    id: 'dragon', name: 'Dragon', category: 'pet', store: 'pet_store', price: 5000, happiness: 5,
+    weekly: { amount: 2, every: 1 },
     notes: 'Flies along behind you. Mind the hedges.', wildWillyExempt: true,
   },
 };

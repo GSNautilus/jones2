@@ -44,6 +44,8 @@ export interface ClassicItem {
   travelFactor?: number;
   /** Vehicles: the verb for a trip ("Drove"). */
   verb?: string;
+  /** Pets: `amount` happiness every `every` weeks while owned, counted from the week after purchase. */
+  weekly?: { amount: number; every: number };
 }
 
 // "## Repairs" (3704-3750): breakage is checked only if the player has > $500 Cash.

@@ -51,7 +51,7 @@ export function shopSpec(cx: Ctx, a: Action): Spec | string | null {
           } else if (loc !== 'socket_city' && loc !== 'zmart') return isClosed(state, p) ? 'Closed' : 'Socket City or Z-Mart only';
           if (!base) return 'Not sold here';
           if (store === 'zmart' && !zmartStocks(p, item.id)) return 'Not on the shelf this week';
-          if (c.items.includes(item.id)) return 'You already own one';
+          if (c.items.includes(item.id)) return 'Owned';
           return null;
         },
         run: () => {
@@ -60,6 +60,7 @@ export function shopSpec(cx: Ctx, a: Action): Spec | string | null {
           c.items.push(item.id);
           c.itemSource[item.id] = store;
           recordPaid(p, item.id, price);
+          if (item.weekly) c.boughtWeek = { ...(c.boughtWeek ?? {}), [item.id]: state.week };
           if (item.category === 'ticket') {
             if (!c.week.ticketsBought.includes(item.id)) {
               c.week.ticketsBought.push(item.id);

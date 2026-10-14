@@ -1,10 +1,10 @@
 /**
  * Expansions (DESIGN decision log 2026-09-30): Wheels & Whiskers opens Honest Al's Autos and the
  * Pet Store on Riverton. Vehicles cut travel hours and occasionally need a repair bill; pets give
- * happiness on purchase and +1 a week while owned.
+ * happiness on purchase and, all but the goldfish, a weekly bonus while owned.
  */
 import { describe, expect, it } from 'vitest';
-import { EXPANSION_ITEMS, expansionsFor, rideHours } from '../src/content/classic';
+import { CLASSIC_HAPPINESS_MAP, EXPANSION_ITEMS, expansionsFor, rideHours } from '../src/content/classic';
 import { applyAction, availableActions, bestPet, bestVehicle, cp, describeAction, getGraph, type GameState } from '../src';
 import { endAll, game, must, teleport } from './classic-helpers';
 
@@ -118,13 +118,46 @@ describe('expansions: pets', () => {
     expect(after.players.a!.happiness - before).toBe(5);
   });
 
-  it('gives +1 a week however many pets', () => {
+  const petBonus = (s: GameState) =>
+    cp(s.players.a!).weekStart.flatMap((c) => c.deltas).filter((d) => d.note === 'own_pet').map((d) => d.amount);
+
+  it('gives one weekly bonus however many pets', () => {
     let s = buy(game(WW), 'pet_store', 'cat');
     s = buy(s, 'pet_store', 'dog');
     s = endAll(s);
-    const cards = cp(s.players.a!).weekStart.filter((c) => c.deltas.some((d) => d.note === 'own_pet'));
-    expect(cards).toHaveLength(1);
-    expect(cards[0]!.deltas.find((d) => d.note === 'own_pet')!.amount).toBe(1);
+    expect(petBonus(s)).toEqual([1]);
+  });
+
+  it('gives nothing weekly for a goldfish', () => {
+    expect(petBonus(endAll(buy(game(WW), 'pet_store', 'goldfish')))).toEqual([]);
+  });
+
+  it('pays a cat the week after purchase, then every other week', () => {
+    let s = endAll(buy(game(WW), 'pet_store', 'cat'));
+    const seen: number[][] = [petBonus(s)];
+    for (let i = 0; i < 3; i++) {
+      s = endAll(s);
+      seen.push(petBonus(s));
+    }
+    expect(seen).toEqual([[1], [], [1], []]);
+  });
+
+  it('pays the best pet due this week: a dragon +2 every week', () => {
+    let s = buy(game(WW), 'pet_store', 'cat');
+    s = buy(s, 'pet_store', 'dragon');
+    s = endAll(s);
+    expect(petBonus(s)).toEqual([2]);
+    s = endAll(s);
+    expect(petBonus(s)).toEqual([2]);
+  });
+
+  it('stacks with the stove or microwave comfort', () => {
+    let s = buy(game(WW), 'pet_store', 'owl');
+    cp(s.players.a!).items.push('microwave');
+    s = endAll(s);
+    const notes = cp(s.players.a!).weekStart.flatMap((c) => c.deltas).map((d) => d.note);
+    expect(notes).toContain('own_pet');
+    expect(notes).toContain(CLASSIC_HAPPINESS_MAP.own_microwave_or_stove!.label);
   });
 
   it('shows the dearest pet, the latest bought on a tie', () => {

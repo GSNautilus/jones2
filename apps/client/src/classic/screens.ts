@@ -15,6 +15,7 @@ import {
   type PlayerState,
 } from '@jones2/sim';
 import type { PanelModel, PanelRow } from './layout';
+import { locationName } from './locations';
 import { tokenNumber } from './tokens';
 
 const GOAL_KEYS = ['money', 'happiness', 'education', 'career'] as const;
@@ -98,6 +99,7 @@ export function statsModel(state: GameState, p: PlayerState): PanelModel {
 
     { key: 'h-work', text: 'WORK', header: true },
     { key: 'job', text: 'Job', value: job ? job.title : 'unemployed' },
+    { key: 'employer', text: 'Employer', value: job ? locationName(job.employer) : '-' },
     { key: 'wage', text: 'Wage', value: job ? `${money(c.wage)}/h` : '-' },
     { key: 'dep', text: 'Dependability', value: round(c.dependability) },
     { key: 'exp', text: 'Experience', value: round(c.experience) },

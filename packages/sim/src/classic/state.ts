@@ -86,6 +86,8 @@ export interface ClassicPlayerState {
   itemSource: Record<string, ItemSource>;
   /** What was actually paid for each owned item: repairs, redemption and net worth use it. Absent in older saves. */
   itemPaid?: Record<string, number>;
+  /** The week each pet with a weekly bonus was bought: its every-other-week bonus counts from it. Absent in older saves. */
+  boughtWeek?: Record<string, number>;
   /** This week's Z-Mart shelf (6 of its rows, rolled at week start). Absent in older saves: everything is on sale. */
   zmartStock?: string[];
   /** Weeks in a row the player has started with no clothes at all (a Donation comes at 2). */

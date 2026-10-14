@@ -2,7 +2,7 @@
  * An online seat's screen. The classic play screen and the recap are the
  * hot-seat ones, fed by an online store with the same shape (GameStore).
  */
-import { useEffect, useMemo, useSyncExternalStore, type ComponentType, type MutableRefObject, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, useSyncExternalStore, type ComponentType, type MutableRefObject, type ReactNode } from 'react';
 import { TOWNS, riverton, type Town } from '@jones2/town';
 import type { PickResult, TownScene } from '../map/api';
 import '../hud/hud.css';
@@ -11,6 +11,8 @@ import { Frame, FrameButton } from '../hud/Frame';
 import { MapControls } from '../hud/MapControls';
 import { TimePreviewProvider } from '../hud/preview';
 import { ClassicScreen } from '../classic/ClassicScreen';
+import { PixelPanel } from '../classic/PixelPanel';
+import { goalsModel, statsModel } from '../classic/screens';
 import { ResolveScreen, type ReplayProps } from '../game/ResolveScreen';
 import { colorForIndex, type GameStore } from '../game/store';
 import * as api from './api';
@@ -73,6 +75,17 @@ function asStore(game: OnlineGame, view: View): GameStore {
 function Waiting({ game, view }: { game: OnlineGame; view: View }) {
   const others = view.status.filter((s) => s.player_id !== game.playerId);
   const still = others.filter((s) => !s.submitted).map((s) => s.name);
+  // GOALS and STATISTICS stay open to read while the others play.
+  const [peek, setPeek] = useState<'goals' | 'stats' | null>(null);
+  const me = view.state?.players[game.playerId];
+  if (peek && view.state && me) {
+    const model = peek === 'goals' ? goalsModel(view.state) : statsModel(view.state, me);
+    return (
+      <div className="hud-modal">
+        <PixelPanel model={model} width={peek === 'goals' ? 360 : 400} maxListRows={peek === 'goals' ? 15 : 16} onButton={() => setPeek(null)} />
+      </div>
+    );
+  }
   return (
     <div className="hud-modal">
       <Frame title={`Week ${view.state?.week ?? ''} — ${view.gameName}`} className="hud-modal-card">
@@ -99,6 +112,8 @@ function Waiting({ game, view }: { game: OnlineGame; view: View }) {
             )}
             <div className="hud-row hud-row-wrap">
               <FrameButton onClick={() => void game.refresh()}>Check now</FrameButton>
+              {me && <FrameButton onClick={() => setPeek('goals')}>Goals</FrameButton>}
+              {me && <FrameButton onClick={() => setPeek('stats')}>Statistics</FrameButton>}
               <FrameButton onClick={goHome}>Home</FrameButton>
             </div>
           </>
