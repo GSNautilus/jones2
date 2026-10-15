@@ -1,15 +1,18 @@
 /**
  * The audio player: sound effects on demand, and background music that
  * rotates through the named pieces with a fade at each end and a rest between
- * them. Volume and mute are remembered per browser.
+ * them. Volume and mute are remembered per browser. The few pieces the
+ * original holds on a screen (`loops.ts`) loop seamlessly until `finish`.
  *
  * Browsers only start audio after the player has clicked something; the
  * START GAME button is that click, so the game screen can start the music
  * as soon as it mounts.
  */
 import { localAssets, type AssetLoader } from './assets';
+import { loopFor, type MusicLoop } from './loops';
 import { PLACE_STINGERS, STINGERS, fileFor, resolveMap, type NamesFile, type SfxKey, type SoundMap } from './map';
 import { EMPTY_VOICES, voiceFile, type VoicesFile } from './voices';
+import { createWebLoop } from './webloop';
 
 export const FADE_SECONDS = 2;
 export const REST_SECONDS = 5;
@@ -166,16 +169,20 @@ export class AudioPlayer {
   private keepAlive: AudioLike | null = null;
   private readonly random: () => number;
   private readonly createAudio: (src: string) => AudioLike;
+  /** A seamless loop (Web Audio), or null where there is none: then the whole file loops. */
+  private readonly createLoop: (src: string, loop: MusicLoop) => AudioLike | null;
   private assets: AssetLoader;
 
   constructor(
     random: () => number = Math.random,
     createAudio: (src: string) => AudioLike = (src) => new Audio(src),
     assets: AssetLoader = localAssets(),
+    createLoop: (src: string, loop: MusicLoop) => AudioLike | null = createWebLoop,
   ) {
     this.random = random;
     this.createAudio = createAudio;
     this.assets = assets;
+    this.createLoop = createLoop;
   }
 
   /** Switch where the files come from (the Supabase bucket once a seat is signed in). Call before `load`. */
@@ -400,7 +407,9 @@ export class AudioPlayer {
   /**
    * A piece of music for a moment: whatever music is playing stops, the
    * stinger plays alone, and the rotation (if it is running) picks up again
-   * after the usual rest. While a stinger plays nothing else may start.
+   * after the usual rest. While a stinger plays nothing else may start. A
+   * piece in `loops.ts` never ends by itself: `finish`, `stop` or the next
+   * stinger ends it.
    */
   private stinger(n: number, key: SfxKey): void {
     this.stingerKey = key;
@@ -421,7 +430,10 @@ export class AudioPlayer {
       fileFor(n),
       (src) => {
         if (turn !== this.musicTurn) return;
-        const a = this.createAudio(src);
+        const loop = loopFor(n);
+        const looped = loop ? this.createLoop(src, loop) : null;
+        const a = looped ?? this.createAudio(src);
+        if (loop && !looped) a.loop = true;
         a.volume = this.musicVolume(); // ducked if a clerk is already talking
         a.muted = this.musicOff();
         let done = false;
@@ -449,6 +461,20 @@ export class AudioPlayer {
    */
   leave(): void {
     if (!this.stingerKey || !PLACE_STINGERS.has(this.stingerKey)) return;
+    this.endStinger(LEAVE_SECONDS);
+  }
+
+  /**
+   * The moment `key`'s stinger was for is over (the week's cards are all
+   * read, say): if it is still playing it fades out and the rotation, if it
+   * is running, picks up after the usual rest. Anything else is untouched.
+   */
+  finish(key: SfxKey, seconds = FADE_SECONDS): void {
+    if (this.stingerKey !== key) return;
+    this.endStinger(seconds);
+  }
+
+  private endStinger(seconds: number): void {
     this.stingerKey = null;
     if (this.pendingStinger) {
       this.pendingStinger = null;
@@ -463,7 +489,7 @@ export class AudioPlayer {
       if (!this.stopped) this.rest();
       return;
     }
-    this.fade(a, true, LEAVE_SECONDS, () => {
+    this.fade(a, true, seconds, () => {
       if (this.music !== a) return;
       this.dropMusic();
       this.phase = 'idle';

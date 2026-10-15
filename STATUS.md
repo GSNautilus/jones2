@@ -316,6 +316,14 @@ Six reports from online players; decisions in the DESIGN.md log (2026-10-14).
 - Not checked in a browser: the waiting screen's new buttons (needs a live online game).
 - **The server was redeployed by accident on 2026-10-14** with these sim changes (a doc-writing shell command ran `npm run deploy -w @jones2/server`). From 23:20 UTC until the site was published straight after, Wheels & Whiskers games online charged the new pet prices on hand-in while the site showed the old ones.
 
+## Music loops (DONE and published 2026-10-14)
+Decision in the DESIGN.md log (2026-10-14, "Music loops").
+- `apps/client/src/audio/loops.ts`: `MUSIC_LOOPS` (sound 9: 0–955 ticks; sound 10: 575–2016 ticks, at 60 ticks a second), read from the CD's sound resources with throwaway scripts (the loop marker sits on control channel 15, which `tools/sci` files under the non-GM device tracks).
+- `apps/client/src/audio/webloop.ts`: a Web Audio `AudioLike` (gain node for volume, mute and fades; `AudioBufferSourceNode` looping [start, end)); decoded buffers cached per URL; the context wakes on the first click or key.
+- `player.ts`: a stinger with a loop entry plays through it and never ends by itself; `finish(key)` fades it out and lets the rotation pick up (`leave()` now shares `endStinger`). `ClassicScreen` calls `finish('startTurn')` when the last card goes; the setup screen already stops all music when it closes.
+- Tests: `apps/client/test/audio/loops.test.ts` (5). Listening previews of both seams, rendered with ffmpeg, in the gitignored `assets/sierra/source/loop-preview/`.
+- The user listened and approved the loops (2026-10-14).
+
 ## Milestone 4 — art pass (NOT STARTED)
 ## Milestone 5 — sound + polish (NOT STARTED)
 

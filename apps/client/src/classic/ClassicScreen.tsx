@@ -186,6 +186,11 @@ export function ClassicScreen({ store, scene, pickRef, hoverRef }: ClassicScreen
     else audio.hush();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cardKey]);
+  // The start-of-turn music loops while the cards are up (as in the original) and fades when the last one goes.
+  const cardsUp = card !== null;
+  useEffect(() => {
+    if (!cardsUp) audio.finish('startTurn');
+  }, [cardsUp]);
 
   // A walk in progress: the token moves along the route over real time and
   // the window opens when it arrives. Input is blocked meanwhile.
